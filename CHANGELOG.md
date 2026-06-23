@@ -1,0 +1,6 @@
+# Changelog
+
+## 0.1.0
+
+- Initial reusable admin engine skeleton.
+- Added resource registration DSL, typed fields, generic CRUD screens, custom actions, audit notifications, and install generator.

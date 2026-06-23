@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || anne_admin_site_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+        <div>
+          <p class="text-xs font-semibold uppercase text-slate-500"><%= anne_admin_site_name %></p>
+          <p class="text-lg font-semibold">管理画面</p>
+        </div>
+        <div class="flex items-center gap-4">
+          <nav class="flex flex-wrap items-center gap-2 text-sm" aria-label="管理メニュー">
+            <%= link_to "Dashboard", anne_admin_dashboard_path, class: "rounded-md px-3 py-2 font-medium text-slate-700 hover:bg-slate-100" %>
+            <% anne_admin_resources.each do |resource| %>
+              <%= link_to resource.label, anne_admin_resource_index_path(resource), class: "rounded-md px-3 py-2 font-medium text-slate-700 hover:bg-slate-100" %>
+            <% end %>
+          </nav>
+          <% if anne_admin_current_user %>
+            <div class="text-sm text-slate-600"><%= anne_admin_current_user.try(:name).presence || anne_admin_current_user.try(:email).presence || anne_admin_current_user.to_s %></div>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <% if notice.present? %>
+        <div class="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><%= notice %></div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="mb-5 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><%= alert %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

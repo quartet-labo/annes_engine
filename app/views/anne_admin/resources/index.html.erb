@@ -1,0 +1,56 @@
+<% content_for :title, "#{@resource.label} - #{anne_admin_site_name}" %>
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-slate-500"><%= @resource.name %></p>
+      <h1 class="text-2xl font-semibold tracking-normal text-slate-950"><%= @resource.label %></h1>
+      <p class="mt-1 text-sm text-slate-600"><%= @total_count %>件</p>
+    </div>
+    <% if @resource.action?(:new) %>
+      <%= link_to "新規登録", anne_admin_new_resource_path(@resource), class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+    <% end %>
+  </div>
+
+  <% if @resource.searchable_attributes.present? %>
+    <%= form_with url: anne_admin_resource_index_path(@resource), method: :get, class: "rounded-lg border border-slate-200 bg-white p-4 shadow-sm" do |form| %>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="flex-1">
+          <%= form.label :q, "キーワード", class: "block text-sm font-medium text-slate-700" %>
+          <%= form.search_field :q, value: params[:q], class: "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
+        </div>
+        <%= form.submit "検索", class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+        <tr>
+          <% @resource.display_fields.each do |field| %>
+            <th class="px-4 py-3"><%= anne_admin_sort_link(@resource, field) %></th>
+          <% end %>
+          <th class="px-4 py-3 text-right">操作</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @records.each do |record| %>
+          <tr>
+            <% @resource.display_fields.each do |field| %>
+              <td class="px-4 py-3 text-slate-700"><%= anne_admin_resource_value(record, field) %></td>
+            <% end %>
+            <td class="px-4 py-3 text-right">
+              <%= link_to "詳細", anne_admin_resource_record_path(@resource, record), class: "font-semibold text-slate-900 underline decoration-slate-300 underline-offset-2" %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @records.blank? %>
+          <tr>
+            <td colspan="<%= @resource.display_fields.size + 1 %>" class="px-4 py-8 text-center text-slate-500">該当するデータはありません。</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
