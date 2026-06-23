@@ -1,0 +1,48 @@
+module AnneAuth
+  module Accounts
+    class SessionsController < AnneAuth::ApplicationController
+      layout -> { action_name == "confirm" ? "account" : "customer_auth" }
+
+      rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to auth_route(:account_login_path), alert: "時間をおいて再度お試しください。" }
+      before_action :require_account_authentication_for_logout_confirmation, only: :confirm
+
+      def new
+        redirect_to auth_route(:root_path) if account_authenticated?
+      end
+
+      def confirm
+      end
+
+      def create
+        account = AnneAuth.configuration.account_class.authenticate_by(session_params)
+
+        if account&.disabled?
+          redirect_to auth_route(:account_login_path), alert: "メールアドレスまたはパスワードが正しくありません。"
+        elsif account
+          account.update!(last_sign_in_at: Time.current)
+          start_new_account_session_for(account)
+          redirect_to after_account_authentication_url, notice: "ログインしました。"
+        else
+          redirect_to auth_route(:account_login_path), alert: "メールアドレスまたはパスワードが正しくありません。"
+        end
+      end
+
+      def destroy
+        terminate_account_session
+        redirect_to auth_route(:account_login_path), status: :see_other, notice: "ログアウトしました。"
+      end
+
+      private
+        def session_params
+          params.permit(:email, :password)
+        end
+
+        def require_account_authentication_for_logout_confirmation
+          return true if account_authenticated?
+
+          redirect_to auth_route(:account_login_path), alert: "ログインが必要です。"
+          false
+        end
+    end
+  end
+end
