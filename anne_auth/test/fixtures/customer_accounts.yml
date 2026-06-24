@@ -1,0 +1,13 @@
+verified:
+  email: verified@example.com
+  password_digest: <%= BCrypt::Password.create("password-123") %>
+  email_verified_at: <%= 1.day.ago.iso8601 %>
+  last_sign_in_at:
+  disabled_at:
+
+unverified:
+  email: unverified@example.com
+  password_digest: <%= BCrypt::Password.create("password-123") %>
+  email_verified_at:
+  last_sign_in_at:
+  disabled_at:
