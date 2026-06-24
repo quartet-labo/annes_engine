@@ -1,0 +1,4 @@
+verified_embroidery:
+  customer_account: verified
+  project: embroidery
+  source: account_created
