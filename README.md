@@ -9,8 +9,16 @@ The engine does not own application domain models. Host applications register re
 Add the engine to the host app.
 
 ```ruby
-gem "anne_admin", path: "engines/anne_admin"
+gem "anne_admin", git: "git@github.com:kykt35/anne_admin.git", tag: "v0.1.0"
 ```
+
+For in-repository development before extraction, use a path gem. After extraction, keep host applications on a released tag and use Bundler's local override when developing the engine and host together:
+
+```sh
+bundle config set local.anne_admin ../anne_admin
+```
+
+Release tags must match `AnneAdmin::VERSION` with a `v` prefix, for example `v0.1.0`.
 
 Mount the engine.
 
@@ -18,7 +26,7 @@ Mount the engine.
 mount AnneAdmin::Engine => "/admin", as: :anne_admin
 ```
 
-When migrating an existing `/admin` namespace, define host routes before the engine mount. Host routes keep their behavior, and unclaimed resources can fall through to the engine.
+The installer adds this mount route if it is not already present. When migrating an existing `/admin` namespace, define host routes before the engine mount. Host routes keep their behavior, and unclaimed resources can fall through to the engine.
 
 ## Configuration
 
@@ -185,6 +193,21 @@ end
 ### Service Delegation
 
 For business workflows, prefer host controllers and host services. Use custom actions only for generic resource actions that belong in the configurable engine surface. The engine should not reference host-specific service constants directly.
+
+## Package Boundary
+
+AnneAdmin owns the reusable admin framework surface only: resource configuration, generic CRUD, field rendering, search, sort, pagination, authentication hooks, authorization hooks, and audit notifications.
+
+Runtime code must not reference host application domain constants such as `Customer`, `Project`, `Quotation`, or `QuoteRequest`. Register host models through `AnneAdmin.configure` and keep application-specific workflows in host controllers or services.
+
+## Release Workflow
+
+The initial distribution target is a private git gem. Use this flow for releases:
+
+1. Run the engine test suite from the engine repository with `bundle exec rake test`.
+2. Update `CHANGELOG.md` and `lib/anne_admin/version.rb` when behavior changes.
+3. Commit the release and tag it as `vX.Y.Z`.
+4. Update host applications to the new tag and run their full test suites.
 
 ## Custom Actions
 

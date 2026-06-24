@@ -18,4 +18,12 @@ class AnneAdmin::InstallGeneratorTest < Rails::Generators::TestCase
     assert_file "config/initializers/anne_admin.rb", /AnneAdmin.configure/
     assert_file "config/routes.rb", /mount AnneAdmin::Engine => "\/admin"/
   end
+
+  test "does not duplicate mount route when rerun" do
+    run_generator
+    run_generator
+
+    routes = File.read File.join(destination_root, "config/routes.rb")
+    assert_equal 1, routes.scan("mount AnneAdmin::Engine").length
+  end
 end

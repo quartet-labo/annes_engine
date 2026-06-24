@@ -1,0 +1,13 @@
+anan:
+  company_name: 有限会社阿南オーダーマーク
+  contact_name: 阿南 太郎
+  email: taro@example.com
+  phone: 0884-00-0001
+  memo: 継続顧客
+
+maru:
+  company_name: 丸山商店
+  contact_name: 丸山 花子
+  email: hanako@example.com
+  phone: 0884-00-0002
+  memo:
