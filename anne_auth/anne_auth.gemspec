@@ -7,12 +7,12 @@ Gem::Specification.new do |spec|
   spec.email = [ "development@example.com" ]
   spec.summary = "Reusable authentication engine for Rails applications."
   spec.description = "Provides account, session, verification, password reset, and OAuth authentication primitives."
-  spec.homepage = "https://github.com/kykt35/anne_auth"
+  spec.homepage = "https://github.com/quartet-labo/anne_engine/tree/main/anne_auth"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.4.0"
 
-  spec.metadata["source_code_uri"] = "https://github.com/kykt35/anne_auth"
-  spec.metadata["changelog_uri"] = "https://github.com/kykt35/anne_auth/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/quartet-labo/anne_engine/tree/main/anne_auth"
+  spec.metadata["changelog_uri"] = "https://github.com/quartet-labo/anne_engine/blob/main/anne_auth/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do

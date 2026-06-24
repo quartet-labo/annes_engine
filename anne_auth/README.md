@@ -2,16 +2,19 @@
 
 AnneAuth is a Rails Engine for reusable account authentication. It provides account models, session handling, email verification, password resets, Google OAuth support, controller concerns, and host hooks.
 
-This engine is currently developed inside the host application as a path gem:
+This engine is developed in the `quartet-labo/anne_engine` monorepo under
+`anne_auth`.
 
 ```ruby
-gem "anne_auth", path: "engines/anne_auth"
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
+  gem "anne_auth"
+end
 ```
 
-Run the engine-focused test suite from the host application:
+Run the engine-focused test suite from this directory:
 
 ```sh
-bin/rails test engines/anne_auth/test
+bundle exec rake test
 ```
 
 ## Installation
@@ -19,13 +22,16 @@ bin/rails test engines/anne_auth/test
 Add the engine to the host app:
 
 ```ruby
-gem "anne_auth", git: "git@github.com:kykt35/anne_auth.git", tag: "v0.1.0"
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
+  gem "anne_auth"
+end
 ```
 
-For in-repository development before extraction, use the path gem form shown above. After extraction, keep the host app on a released tag and use Bundler's local override when developing the engine and host together:
+Keep the host app on a released tag and use Bundler's local override when
+developing the engine and host together:
 
 ```sh
-bundle config set local.anne_auth ../anne_auth
+bundle config set local.anne_auth ../anne_engine
 ```
 
 Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.1.0`.

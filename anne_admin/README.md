@@ -9,13 +9,16 @@ The engine does not own application domain models. Host applications register re
 Add the engine to the host app.
 
 ```ruby
-gem "anne_admin", git: "git@github.com:kykt35/anne_admin.git", tag: "v0.1.0"
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
+  gem "anne_admin"
+end
 ```
 
-For in-repository development before extraction, use a path gem. After extraction, keep host applications on a released tag and use Bundler's local override when developing the engine and host together:
+Keep host applications on a released tag and use Bundler's local override when
+developing the engine and host together:
 
 ```sh
-bundle config set local.anne_admin ../anne_admin
+bundle config set local.anne_admin ../anne_engine
 ```
 
 Release tags must match `AnneAdmin::VERSION` with a `v` prefix, for example `v0.1.0`.

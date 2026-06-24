@@ -7,12 +7,12 @@ Gem::Specification.new do |spec|
   spec.email = [ "development@example.com" ]
   spec.summary = "Reusable admin framework engine for Rails applications."
   spec.description = "Provides configurable resource management screens for Rails applications."
-  spec.homepage = "https://github.com/kykt35/anne_admin"
+  spec.homepage = "https://github.com/quartet-labo/anne_engine/tree/main/anne_admin"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.4.0"
 
-  spec.metadata["source_code_uri"] = "https://github.com/kykt35/anne_admin"
-  spec.metadata["changelog_uri"] = "https://github.com/kykt35/anne_admin/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/quartet-labo/anne_engine/tree/main/anne_admin"
+  spec.metadata["changelog_uri"] = "https://github.com/quartet-labo/anne_engine/blob/main/anne_admin/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do
