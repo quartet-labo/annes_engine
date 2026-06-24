@@ -1,0 +1,9 @@
+embroidery:
+  customer: anan
+  project_number: AM-20260613-001
+  status: received
+
+print:
+  customer: maru
+  project_number: AM-20260613-002
+  status: reviewing
