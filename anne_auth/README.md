@@ -72,6 +72,16 @@ AnneAuth.configure do |config|
 end
 ```
 
+Admin sessions use `AnneAuth::AdminSession` by default and store records in the
+`sessions` table. Existing host applications that already have a custom
+`Session < AnneAuth::AdminSession` wrapper can keep it by opting in explicitly:
+
+```ruby
+AnneAuth.configure do |config|
+  config.admin_session_class_name = "Session"
+end
+```
+
 The host app should keep domain models such as customers, projects, orders, or
 quotes outside this Engine and connect them through hooks or thin host
 controllers.

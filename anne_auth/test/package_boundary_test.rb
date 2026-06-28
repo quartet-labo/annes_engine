@@ -12,6 +12,10 @@ class AnneAuth::PackageBoundaryTest < ActiveSupport::TestCase
     /\bProjectToken\b/,
     /\bMailDelivery\b/
   ]
+  HOST_RUNTIME_COUPLING_REFERENCES = [
+    /class_name:\s*["'](?:::)?Session["']/,
+    /@admin_session_class_name\s*=\s*["']Session["']/
+  ]
 
   test "runtime files do not reference host application domain constants" do
     runtime_files = Dir[
@@ -27,5 +31,21 @@ class AnneAuth::PackageBoundaryTest < ActiveSupport::TestCase
     end
 
     assert_empty violations, "Host application constants leaked into runtime files: #{violations.join(", ")}"
+  end
+
+  test "runtime files do not require a host Session admin wrapper" do
+    runtime_files = Dir[
+      AnneAuth::Engine.root.join("app/**/*.rb"),
+      AnneAuth::Engine.root.join("lib/anne_auth/**/*.rb")
+    ].reject { |path| path.end_with?("/version.rb") }
+
+    violations = runtime_files.filter_map do |path|
+      content = File.read(path)
+      next unless HOST_RUNTIME_COUPLING_REFERENCES.any? { |pattern| content.match?(pattern) }
+
+      Pathname(path).relative_path_from(AnneAuth::Engine.root).to_s
+    end
+
+    assert_empty violations, "Host Session wrapper coupling leaked into runtime files: #{violations.join(", ")}"
   end
 end
