@@ -4,7 +4,11 @@ module AnneAuth
 
     has_secure_password
 
-    has_many :sessions, class_name: "::Session", foreign_key: :admin_user_id, dependent: :destroy, inverse_of: :admin_user
+    has_many :sessions,
+      class_name: AnneAuth.configuration.admin_session_class_name,
+      foreign_key: :admin_user_id,
+      dependent: :destroy,
+      inverse_of: :admin_user
 
     normalizes :email, with: ->(email) { email.strip.downcase }
 
