@@ -1,0 +1,46 @@
+ja:
+  activerecord:
+    models:
+      customer: 顧客
+      person: 個人
+      organization: 組織
+      customer_contact: 顧客連絡先
+      project: 案件
+    attributes:
+      customer:
+        customer_number: 顧客番号
+        kind: 種別
+        person: 個人
+        organization: 組織
+        status: ステータス
+        source: 流入経路
+        memo: メモ
+      person:
+        name: 氏名
+        name_kana: 氏名カナ
+        email: メールアドレス
+        phone: 電話番号
+        memo: メモ
+      organization:
+        name: 組織名
+        name_kana: 組織名カナ
+        phone: 代表電話
+        website: Webサイト
+        memo: メモ
+      customer_contact:
+        customer: 顧客
+        person: 個人
+        role: 役割
+        department: 部署
+        title: 役職
+        email: メールアドレス
+        phone: 電話番号
+        primary: 主連絡先
+        memo: メモ
+      project:
+        customer: 顧客
+        project_number: 案件番号
+        name: 案件名
+        status: ステータス
+        due_on: 期限
+        memo: メモ
