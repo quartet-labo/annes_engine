@@ -1,3 +1,4 @@
+require "tmpdir"
 require_relative "../../test_helper"
 
 class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
@@ -20,6 +21,24 @@ class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
 
     assert_engine_response :success
     assert_includes engine_response.body, customers(:anan).email
+  end
+
+  test "lists resource records registered from resource files" do
+    Dir.mktmpdir do |dir|
+      File.write File.join(dir, "projects.rb"), <<~RUBY
+        AnneAdmin.resource :projects, model: "Project" do
+          field :project_number, searchable: true, sortable: true
+          field :status
+        end
+      RUBY
+      AnneAdmin.configuration.resource_paths << dir
+      AnneAdmin.load_resources!
+
+      engine_get "/projects"
+
+      assert_engine_response :success
+      assert_includes engine_response.body, projects(:embroidery).project_number
+    end
   end
 
   test "searches records by allowlisted fields" do

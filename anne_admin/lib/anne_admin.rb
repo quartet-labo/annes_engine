@@ -19,6 +19,7 @@ require "anne_admin/query"
 require "anne_admin/resource_params"
 require "anne_admin/resource_config"
 require "anne_admin/resource_registry"
+require "anne_admin/resource_loader"
 require "anne_admin/search"
 require "anne_admin/sort"
 require "anne_admin/engine" if defined?(Rails::Engine)
@@ -38,6 +39,10 @@ module AnneAdmin
 
     def resource(name, model:, **options, &block)
       configuration.resource(name, model:, **options, &block)
+    end
+
+    def load_resources!
+      configuration.load_resources!
     end
 
     def reset_configuration!

@@ -11,6 +11,7 @@ module AnneAdmin
       @default_per_page = 25
       @max_per_page = 100
       @resources = ResourceRegistry.new
+      @resource_paths = []
       @authentication_block = nil
       @current_user_block = nil
       @authorization_block = nil
@@ -19,6 +20,23 @@ module AnneAdmin
 
     def resource(name, model:, **options, &block)
       resources.register(name, model:, source: current_resource_source, **options, &block)
+    end
+
+    def resource_paths
+      @resource_paths
+    end
+
+    def load_resources!
+      ResourceLoader.new(self).load
+    end
+
+    def default_resource_paths
+      return [] unless defined?(Rails) && Rails.respond_to?(:root) && Rails.root
+
+      [
+        Rails.root.join("app/admin/resources"),
+        Rails.root.join("config/anne_admin/resources")
+      ]
     end
 
     def with_resource_source(source)
