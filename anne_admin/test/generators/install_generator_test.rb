@@ -16,6 +16,7 @@ class AnneAdmin::InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_file "config/initializers/anne_admin.rb", /AnneAdmin.configure/
+    assert_file "app/admin/resources/users.rb", /AnneAdmin.resource :users/
     assert_file "config/routes.rb", /mount AnneAdmin::Engine => "\/admin"/
   end
 

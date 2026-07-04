@@ -13,11 +13,7 @@ AnneAdmin.configure do |config|
     nil
   end
 
-  # Example:
-  # config.resource :users, model: "User" do
-  #   label "Users"
-  #   field :email, searchable: true, sortable: true
-  #   field :created_at, type: :datetime, permitted: false, sortable: true
-  #   permitted_attributes :email
-  # end
+  # Resource files are loaded from app/admin/resources/*.rb and
+  # config/anne_admin/resources/*.rb by default.
+  # config.resource_paths << Rails.root.join("config/anne_admin/custom_resources")
 end
