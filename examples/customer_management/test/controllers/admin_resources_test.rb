@@ -33,4 +33,9 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
       assert_includes response.body, label
     end
   end
+
+  test "admin resources are loaded in navigation order" do
+    assert_equal %w[customers persons organizations customer_contacts projects], AnneAdmin.configuration.resources.map(&:name)
+    assert_equal %i[customer_number kind person_id organization_id status source memo created_at], AnneAdmin.configuration.resources.fetch(:customers).fields.map(&:name)
+  end
 end
