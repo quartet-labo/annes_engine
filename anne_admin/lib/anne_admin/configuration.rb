@@ -14,10 +14,19 @@ module AnneAdmin
       @authentication_block = nil
       @current_user_block = nil
       @authorization_block = nil
+      @current_resource_source = :manual
     end
 
     def resource(name, model:, **options, &block)
-      resources.register(name, model:, **options, &block)
+      resources.register(name, model:, source: current_resource_source, **options, &block)
+    end
+
+    def with_resource_source(source)
+      previous_source = @current_resource_source
+      @current_resource_source = source.to_sym
+      yield
+    ensure
+      @current_resource_source = previous_source
     end
 
     def authenticate_with(&block)
@@ -52,6 +61,6 @@ module AnneAdmin
     end
 
     private
-      attr_reader :authentication_block, :current_user_block, :authorization_block
+      attr_reader :authentication_block, :current_user_block, :authorization_block, :current_resource_source
   end
 end

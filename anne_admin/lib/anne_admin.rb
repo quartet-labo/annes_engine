@@ -36,6 +36,10 @@ module AnneAdmin
       yield configuration
     end
 
+    def resource(name, model:, **options, &block)
+      configuration.resource(name, model:, **options, &block)
+    end
+
     def reset_configuration!
       @configuration = Configuration.new
     end

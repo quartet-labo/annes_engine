@@ -34,4 +34,24 @@ class AnneAdmin::ConfigurationTest < AnneAdmin::TestCase
     assert AnneAdmin.configuration.authorized?(action: :show)
     assert_not AnneAdmin.configuration.authorized?(action: :edit)
   end
+
+  test "top-level resource delegates to configuration resources" do
+    resource = AnneAdmin.resource :customers, model: "Customer" do
+      label "Customers"
+    end
+
+    assert_same resource, AnneAdmin.configuration.resources.fetch(:customers)
+    assert_equal "Customers", resource.label
+  end
+
+  test "resource source context is restored after registration" do
+    AnneAdmin.configuration.with_resource_source(:loader) do
+      AnneAdmin.configuration.resource :customers, model: "Customer"
+    end
+
+    AnneAdmin.configuration.resources.remove_source(:loader)
+    AnneAdmin.configuration.resource :projects, model: "Project"
+
+    assert AnneAdmin.configuration.resources.key?(:projects)
+  end
 end
