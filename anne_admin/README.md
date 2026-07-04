@@ -61,21 +61,30 @@ end
 
 ## Resource DSL
 
-Register host application models as resources.
+Register host application models as resources. Resource files are loaded from
+`app/admin/resources/**/*.rb` and `config/anne_admin/resources/**/*.rb` by
+default.
 
 ```ruby
-AnneAdmin.configure do |config|
-  config.resource :customers, model: "Customer" do
-    label "Customers"
-    actions :index, :show, :edit, :update
-    field :company_name, searchable: true, sortable: true
-    field :contact_name, searchable: true, sortable: true
-    field :email, searchable: true, sortable: true
-    field :updated_at, type: :datetime, permitted: false, sortable: true
-    permitted_attributes :company_name, :contact_name, :email
-  end
+# app/admin/resources/customers.rb
+AnneAdmin.resource :customers, model: "Customer" do
+  label "Customers"
+  actions :index, :show, :edit, :update
+  field :company_name, searchable: true, sortable: true
+  field :contact_name, searchable: true, sortable: true
+  field :email, searchable: true, sortable: true
+  field :updated_at, type: :datetime, permitted: false, sortable: true
+  permitted_attributes :company_name, :contact_name, :email
 end
 ```
+
+Files are loaded in sorted path order, so use prefixes such as
+`01_customers.rb` when navigation order matters. Each resource key can be
+registered only once; duplicate definitions raise `AnneAdmin::ConfigurationError`.
+
+For additional directories, append to `config.resource_paths` in the initializer.
+The existing `config.resource` DSL remains supported for small applications and
+manual registrations.
 
 Only `permitted_attributes` can be written through create/update. Search and sort parameters are constrained to configured allowlists.
 

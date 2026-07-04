@@ -9,6 +9,10 @@ module AnneAdmin
         template "initializer.rb", "config/initializers/anne_admin.rb"
       end
 
+      def copy_resource_example
+        template "resources/users.rb", "app/admin/resources/users.rb"
+      end
+
       def mount_engine
         return if route_mounted?
 

@@ -37,6 +37,26 @@ Seed users:
 - Admin login: <http://localhost:3000/admin/login>
 - Admin dashboard: <http://localhost:3000/admin>
 
+## Admin Resources
+
+AnneAdmin global settings, such as authentication and authorization, live in
+`config/initializers/anne_admin.rb`.
+
+Resource definitions live in `app/admin/resources/*.rb`. Files are loaded in
+sorted path order, so this sample uses numbered filenames to keep the navigation
+order stable:
+
+```text
+app/admin/resources/01_customers.rb
+app/admin/resources/02_persons.rb
+app/admin/resources/03_organizations.rb
+app/admin/resources/04_customer_contacts.rb
+app/admin/resources/05_projects.rb
+```
+
+To add a new admin resource, create a new file in that directory and call
+`AnneAdmin.resource`.
+
 ## Database
 
 The sample uses PostgreSQL. To point it at a specific database, set:
