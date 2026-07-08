@@ -17,8 +17,8 @@ module AnneAuth
         code_lookup = verification_token_class.lookup_for(current_account, params[:otp])
 
         if code_lookup.success?
-          verify_account(code_lookup.verification_token)
-          redirect_to after_account_email_verification_url, status: :see_other, notice: "メール認証が完了しました。"
+          account = verify_account(code_lookup.verification_token)
+          redirect_to after_account_email_verification_url(account), status: :see_other, notice: "メール認証が完了しました。"
         else
           redirect_to auth_route(:account_email_verification_pending_path),
             status: :see_other,
@@ -40,8 +40,8 @@ module AnneAuth
       end
 
       private
-        def after_account_email_verification_url
-          AnneAuth.configuration.after_account_email_verification_path.call(self, current_account)
+        def after_account_email_verification_url(account)
+          AnneAuth.configuration.after_account_email_verification_path.call(self, account)
         end
 
         def verification_token_class
@@ -50,8 +50,11 @@ module AnneAuth
 
         def verify_account(verification_token)
           verification_token.verify!
+          account = verification_token.account
 
-          start_new_account_session_for(verification_token.account) unless account_authenticated?
+          start_new_account_session_for(account) unless account_authenticated?
+
+          account
         end
 
         def verification_error_message(status)

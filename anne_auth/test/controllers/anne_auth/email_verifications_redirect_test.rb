@@ -48,8 +48,12 @@ class AnneAuth::EmailVerificationsRedirectTest < ActionDispatch::IntegrationTest
   end
 
   test "uses configured after email verification path" do
+    verified_account = nil
     AnneAuth.configuration.after_account_email_verification_path =
-      ->(controller, _account) { controller.main_app.dashboard_path }
+      lambda do |controller, account|
+        verified_account = account
+        controller.main_app.dashboard_path
+      end
 
     sign_in
     create_verification_token
@@ -58,6 +62,8 @@ class AnneAuth::EmailVerificationsRedirectTest < ActionDispatch::IntegrationTest
 
     assert_response :see_other
     assert_redirected_to "/dashboard"
+    assert_equal @account.id, verified_account.id
+    assert verified_account.email_verified?
 
     follow_redirect!
     assert_response :success
