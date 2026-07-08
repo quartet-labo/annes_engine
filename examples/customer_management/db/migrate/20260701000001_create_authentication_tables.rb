@@ -1,6 +1,6 @@
 class CreateAuthenticationTables < ActiveRecord::Migration[8.1]
   def change
-    create_table :admin_users do |t|
+    create_table :users do |t|
       t.string :email, null: false
       t.string :password_digest, null: false
       t.string :name
@@ -9,10 +9,10 @@ class CreateAuthenticationTables < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    add_index :admin_users, :email, unique: true
+    add_index :users, :email, unique: true
 
     create_table :sessions do |t|
-      t.references :admin_user, null: false, foreign_key: true
+      t.references :user, null: false, foreign_key: true
       t.string :ip_address
       t.string :user_agent
 

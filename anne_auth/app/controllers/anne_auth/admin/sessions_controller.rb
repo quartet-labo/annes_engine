@@ -1,6 +1,8 @@
 module AnneAuth
   module Admin
     class SessionsController < AnneAuth::ApplicationController
+      include AdminAuthentication
+
       layout "admin_auth"
 
       rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to auth_route(:admin_login_path), alert: "時間をおいて再度お試しください。" }

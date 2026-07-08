@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminResourcesTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = AdminUser.create!(
+    @admin = User.create!(
       email: "admin@example.com",
       name: "Admin",
       role: "admin",

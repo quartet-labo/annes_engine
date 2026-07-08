@@ -40,24 +40,22 @@ AnneAdmin.configure do |config|
   config.site_name = "Admin"
 
   config.authenticate_with do |controller|
-    if controller.current_admin_user
-      true
-    else
-      controller.redirect_to controller.main_app.admin_login_path
-      false
-    end
+    controller.require_authentication
   end
 
   config.current_user do |controller|
-    controller.current_admin_user
+    controller.current_user
   end
 
   config.authorize_with do |context|
-    # context: user, resource, action, record, controller
+    # context keys: :user, :resource, :action, :record, :controller
     true
   end
 end
 ```
+
+When using `anne_auth`, include its authentication concern into the controller
+that AnneAdmin uses before configuring these hooks.
 
 ## Resource DSL
 

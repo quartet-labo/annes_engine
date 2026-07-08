@@ -1,4 +1,4 @@
-admin = AdminUser.find_or_initialize_by(email: "admin@example.com")
+admin = User.find_or_initialize_by(email: "admin@example.com")
 admin.assign_attributes(
   name: "Sample Admin",
   role: "admin",
