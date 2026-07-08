@@ -13,10 +13,4 @@ AnneAuth::Engine.routes.draw do
   post "email_verification", to: "accounts/email_verifications#create"
   post "email_verification/verify", to: "accounts/email_verifications#verify", as: :account_email_verification_verify
   post "email_verification/resend", to: "accounts/email_verifications#resend", as: :account_email_verification_resend
-
-  namespace :admin do
-    get "login", to: "sessions#new", as: :login
-    resource :session, only: :create, controller: :sessions
-    delete "logout", to: "sessions#destroy", as: :logout
-  end
 end

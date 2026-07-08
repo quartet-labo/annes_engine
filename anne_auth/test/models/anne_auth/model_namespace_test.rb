@@ -2,24 +2,11 @@ require "test_helper"
 
 class AnneAuth::ModelNamespaceTest < ActiveSupport::TestCase
   test "host authentication models inherit engine implementations" do
-    assert_operator AdminUser, :<, AnneAuth::AdminUser
     assert_operator CustomerAccount, :<, AnneAuth::Account
     assert_operator CustomerSession, :<, AnneAuth::AccountSession
     assert_operator CustomerAccountIdentity, :<, AnneAuth::AccountIdentity
     assert_operator CustomerAccountVerificationToken, :<, AnneAuth::AccountVerificationToken
     assert_operator CustomerAccountPasswordResetToken, :<, AnneAuth::AccountPasswordResetToken
-  end
-
-  test "admin sessions default to the legacy engine model without a host Session wrapper" do
-    assert_not Object.const_defined?(:Session, false)
-    assert_equal "AdminUser", AnneAuth.configuration.admin_user_class_name
-    assert_equal AdminUser, AnneAuth.configuration.admin_user_class
-    assert_equal "AnneAuth::AdminSession", AnneAuth.configuration.admin_session_class_name
-    assert_equal AnneAuth::AdminSession, AnneAuth.configuration.admin_session_class
-    assert_equal :admin_user_id, AnneAuth.configuration.admin_session_user_foreign_key
-    assert_equal "AnneAuth::AdminSession", AnneAuth::AdminUser.reflect_on_association(:sessions).class_name
-    assert_equal AnneAuth.configuration.admin_user_class, AnneAuth::AdminSession.reflect_on_association(:admin_user).klass
-    assert_equal :admin_user_id, AnneAuth::AdminSession.reflect_on_association(:admin_user).foreign_key.to_sym
   end
 
   test "engine account does not include host project extensions" do

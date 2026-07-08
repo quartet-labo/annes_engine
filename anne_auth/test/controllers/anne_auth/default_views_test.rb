@@ -38,10 +38,4 @@ class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "ログアウト"
   end
-
-  test "renders admin authentication view from the engine" do
-    get "/auth/admin/login"
-    assert_response :success
-    assert_select "h1", "管理者ログイン"
-  end
 end
