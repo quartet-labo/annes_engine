@@ -3,7 +3,6 @@ ActiveRecord::Schema[8.1].define(version: 0) do
     t.string "email", null: false
     t.string "password_digest", null: false
     t.string "name"
-    t.string "role", default: "admin", null: false
     t.datetime "last_sign_in_at"
     t.timestamps
     t.index [ "email" ], unique: true

@@ -19,7 +19,10 @@ module AnneAuth
       end
 
       def require_admin_authentication
-        require_authentication
+        return true if current_admin_session.present?
+
+        request_admin_authentication
+        false
       end
 
       def current_admin_session

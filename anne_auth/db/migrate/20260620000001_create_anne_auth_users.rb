@@ -4,7 +4,6 @@ class CreateAnneAuthUsers < ActiveRecord::Migration[8.1]
       t.string :email, null: false
       t.string :password_digest, null: false
       t.string :name
-      t.string :role, null: false, default: "admin"
       t.datetime :last_sign_in_at
 
       t.timestamps

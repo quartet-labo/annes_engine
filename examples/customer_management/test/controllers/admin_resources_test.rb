@@ -34,6 +34,12 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "admin resources redirect anonymous users to admin login" do
+    get "/admin/customers"
+
+    assert_redirected_to "/admin/login"
+  end
+
   test "admin resources are loaded in navigation order" do
     assert_equal %w[customers persons organizations customer_contacts projects], AnneAdmin.configuration.resources.map(&:name)
     assert_equal %i[customer_number kind person_id organization_id status source memo created_at], AnneAdmin.configuration.resources.fetch(:customers).fields.map(&:name)
