@@ -7,10 +7,6 @@ module AnneAuth
       include ActiveRecord::Generators::Migration
 
       source_root File.expand_path("templates", __dir__)
-      class_option :legacy_admin,
-        type: :boolean,
-        default: false,
-        desc: "Also generate legacy AdminUser/admin_user_id migrations"
 
       def self.next_migration_number(dirname)
         previous_number = @previous_migration_number || Time.now.utc.strftime("%Y%m%d%H%M%S").to_i
@@ -29,7 +25,6 @@ module AnneAuth
       def copy_migrations
         Dir.glob(File.expand_path("../../../db/migrate/*.rb", __dir__)).sort.each do |migration|
           migration_name = anne_auth_migration_file_name(migration)
-          next if skip_migration?(migration_name)
 
           if anne_auth_migration_exists?(migration_name)
             say_status :skip, "db/migrate/*_#{migration_name}.rb", :yellow
@@ -46,17 +41,6 @@ module AnneAuth
 
         def anne_auth_migration_exists?(migration_name)
           Dir.glob(File.join(destination_root, "db/migrate/*_#{migration_name}")).any?
-        end
-
-        def skip_migration?(migration_name)
-          legacy_admin_migration?(migration_name) && !options[:legacy_admin]
-        end
-
-        def legacy_admin_migration?(migration_name)
-          %w[
-            create_anne_auth_admin_users.rb
-            create_anne_auth_admin_sessions.rb
-          ].include?(migration_name)
         end
     end
   end
