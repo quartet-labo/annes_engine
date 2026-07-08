@@ -12,7 +12,7 @@ class AnneAuth::AdminSessionsTest < ActionDispatch::IntegrationTest
     )
 
     assert_difference -> { AnneAuth::AdminSession.count }, 1 do
-      post "/admin/session", params: { email: admin_user.email, password: "password123" }
+      post "/auth/admin/session", params: { email: admin_user.email, password: "password123" }
     end
 
     admin_session = admin_user.sessions.order(:id).last

@@ -15,6 +15,7 @@ AnneAuth.configure do |config|
   config.profile_complete = ->(account) { account.primary_customer.present? }
   config.after_admin_login_path = ->(controller, _admin_user) { controller.main_app.admin_root_path }
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
 end

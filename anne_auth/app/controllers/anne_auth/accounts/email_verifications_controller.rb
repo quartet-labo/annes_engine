@@ -18,9 +18,11 @@ module AnneAuth
 
         if code_lookup.success?
           verify_account(code_lookup.verification_token)
-          redirect_to auth_route(:root_path), notice: "メール認証が完了しました。"
+          redirect_to after_account_email_verification_url, status: :see_other, notice: "メール認証が完了しました。"
         else
-          redirect_to auth_route(:account_email_verification_pending_path), alert: verification_error_message(code_lookup.status)
+          redirect_to auth_route(:account_email_verification_pending_path),
+            status: :see_other,
+            alert: verification_error_message(code_lookup.status)
         end
       end
 
@@ -32,10 +34,16 @@ module AnneAuth
         _verification_token, plain_code = verification_token_class.issue_for(current_account)
         AnneAuth.configuration.account_mailer_class.with(account: current_account, plain_code:).verification.deliver_now
 
-        redirect_to auth_route(:account_email_verification_pending_path), notice: "認証メールを再送しました。"
+        redirect_to auth_route(:account_email_verification_pending_path),
+          status: :see_other,
+          notice: "認証メールを再送しました。"
       end
 
       private
+        def after_account_email_verification_url
+          AnneAuth.configuration.after_account_email_verification_path.call(self, current_account)
+        end
+
         def verification_token_class
           AnneAuth.configuration.account_verification_token_class
         end

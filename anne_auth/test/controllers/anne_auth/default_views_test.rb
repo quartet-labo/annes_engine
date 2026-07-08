@@ -2,15 +2,15 @@ require "test_helper"
 
 class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
   test "renders account authentication views from the engine" do
-    get "/login"
+    get "/auth/login"
     assert_response :success
     assert_select "h1", "ログイン"
 
-    get "/signup"
+    get "/auth/signup"
     assert_response :success
     assert_select "h1", "アカウント作成"
 
-    get "/password_reset/new"
+    get "/auth/password_reset/new"
     assert_response :success
     assert_select "h1", "パスワード再設定"
   end
@@ -19,28 +19,28 @@ class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
     _password_reset_token, plain_token =
       CustomerAccountPasswordResetToken.issue_for(customer_accounts(:verified))
 
-    get "/password_reset/edit", params: { token: plain_token }
+    get "/auth/password_reset/edit", params: { token: plain_token }
     assert_response :success
     assert_select "h1", "新しいパスワード"
     assert_select "input[name=token][value=?]", plain_token
   end
 
   test "renders logged-in account views from the engine" do
-    post "/account_session",
+    post "/auth/account_session",
       params: { email: customer_accounts(:unverified).email, password: "password-123" }
     assert_redirected_to "/"
 
-    get "/email_verification/pending"
+    get "/auth/email_verification/pending"
     assert_response :success
     assert_select "h1", "メール認証"
 
-    get "/logout/confirm"
+    get "/auth/logout/confirm"
     assert_response :success
     assert_select "h1", "ログアウト"
   end
 
   test "renders admin authentication view from the engine" do
-    get "/admin/login"
+    get "/auth/admin/login"
     assert_response :success
     assert_select "h1", "管理者ログイン"
   end

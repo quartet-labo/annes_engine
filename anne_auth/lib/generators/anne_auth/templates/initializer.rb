@@ -21,6 +21,7 @@ AnneAuth.configure do |config|
   # config.admin_session_user_foreign_key = :admin_user_id
 
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
   config.profile_complete = ->(_account) { true }
