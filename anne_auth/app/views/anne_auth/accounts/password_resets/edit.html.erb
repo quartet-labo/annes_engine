@@ -1,0 +1,30 @@
+<% content_for :title, "新しいパスワード" %>
+
+<h1>新しいパスワード</h1>
+
+<% if @account&.errors&.any? %>
+  <div class="auth-errors" role="alert">
+    <p>入力内容を確認してください。</p>
+    <ul>
+      <% @account.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with url: auth_route(:account_password_reset_path), method: :patch do |form| %>
+  <%= hidden_field_tag :token, @token %>
+
+  <div>
+    <%= form.label :password, "新しいパスワード" %>
+    <%= form.password_field :password, autocomplete: "new-password", autofocus: true, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :password_confirmation, "新しいパスワード確認" %>
+    <%= form.password_field :password_confirmation, autocomplete: "new-password", required: true %>
+  </div>
+
+  <%= form.submit "再設定" %>
+<% end %>

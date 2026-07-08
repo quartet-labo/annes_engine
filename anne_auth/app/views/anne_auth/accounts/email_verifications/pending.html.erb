@@ -1,0 +1,24 @@
+<% content_for :title, "メール認証" %>
+
+<h1>メール認証</h1>
+
+<p><%= current_account.email %> 宛てに送信した6桁の認証コードを入力してください。</p>
+
+<%= form_with url: auth_route(:account_email_verification_verify_path), method: :post do |form| %>
+  <div>
+    <%= form.label :otp, "認証コード" %>
+    <%= form.text_field :otp,
+      autocomplete: "one-time-code",
+      inputmode: "numeric",
+      pattern: "\\d{6}",
+      maxlength: 6,
+      autofocus: true,
+      required: true %>
+  </div>
+
+  <%= form.submit "認証する" %>
+<% end %>
+
+<div class="auth-actions">
+  <%= button_to "認証メールを再送", auth_route(:account_email_verification_resend_path), method: :post, class: "auth-secondary" %>
+</div>
