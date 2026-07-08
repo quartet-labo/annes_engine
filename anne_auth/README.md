@@ -94,12 +94,18 @@ AnneAuth.configure do |config|
   config.google_oauth_enabled = config.google_oauth_client_id.present? && config.google_oauth_client_secret.present?
 
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
   config.profile_complete = ->(_account) { true }
   config.after_account_created = ->(_account, _controller) {}
 end
 ```
+
+`after_account_email_verification_path` controls where an account goes after a
+successful email code verification. Mounted Engine installs can point this to a
+host route such as `controller.main_app.root_path` or a dashboard path without
+overriding Engine controllers.
 
 Account sessions use `AnneAuth::AccountSession` by default and store records in
 the `account_sessions` table with an `account_id` foreign key:
