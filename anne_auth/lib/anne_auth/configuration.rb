@@ -2,6 +2,7 @@ module AnneAuth
   class Configuration
     attr_accessor :admin_user_class_name,
       :admin_session_class_name,
+      :admin_session_user_foreign_key,
       :account_class_name,
       :account_session_class_name,
       :account_identity_class_name,
@@ -32,6 +33,7 @@ module AnneAuth
     def initialize
       @admin_user_class_name = "AdminUser"
       @admin_session_class_name = "AnneAuth::AdminSession"
+      @admin_session_user_foreign_key = :admin_user_id
       @account_class_name = "AnneAuth::Account"
       @account_session_class_name = "AnneAuth::AccountSession"
       @account_identity_class_name = "AnneAuth::AccountIdentity"

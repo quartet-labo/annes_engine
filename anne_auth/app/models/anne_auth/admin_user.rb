@@ -6,7 +6,7 @@ module AnneAuth
 
     has_many :sessions,
       class_name: AnneAuth.configuration.admin_session_class_name,
-      foreign_key: :admin_user_id,
+      foreign_key: AnneAuth.configuration.admin_session_user_foreign_key,
       dependent: :destroy,
       inverse_of: :admin_user
 

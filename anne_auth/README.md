@@ -1,6 +1,8 @@
 # AnneAuth
 
-AnneAuth is a Rails Engine for reusable account authentication. It provides account models, session handling, email verification, password resets, Google OAuth support, controller concerns, and host hooks.
+AnneAuth is a Rails Engine for reusable account authentication. It provides
+account models, session handling, email verification, password resets, Google
+OAuth support, controller concerns, and host hooks.
 
 This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
@@ -58,6 +60,14 @@ installer skips that migration instead of creating a duplicate. Review skipped
 migrations before running `bin/rails db:migrate`, especially when upgrading from
 an in-repository path gem.
 
+New installs use `accounts` and `account_sessions` by default. Existing
+applications that still need the legacy `AdminUser` / `admin_user_id` schema can
+request those additional migrations explicitly:
+
+```sh
+bin/rails generate anne_auth:install --legacy-admin
+```
+
 ## Host Hooks
 
 Use `AnneAuth.configure` to keep application-specific behavior outside the
@@ -72,15 +82,37 @@ AnneAuth.configure do |config|
 end
 ```
 
-Admin sessions use `AnneAuth::AdminSession` by default and store records in the
-`sessions` table. Existing host applications that already have a custom
-`Session < AnneAuth::AdminSession` wrapper can keep it by opting in explicitly:
+Account sessions use `AnneAuth::AccountSession` by default and store records in
+the `account_sessions` table with an `account_id` foreign key:
 
 ```ruby
 AnneAuth.configure do |config|
-  config.admin_session_class_name = "Session"
+  config.account_class_name = "AnneAuth::Account"
+  config.account_session_class_name = "AnneAuth::AccountSession"
+  config.account_foreign_key = :account_id
+  config.account_session_cookie_name = :account_session_id
 end
 ```
+
+Controllers can include `AnneAuth::AccountAuthentication` and use
+`current_account`, `account_authenticated?`, `require_account_authentication`,
+`start_new_account_session_for(account)`, and `terminate_account_session`.
+
+`AdminUser` and `AnneAuth::AdminSession` remain available as legacy compatibility
+wrappers. Existing host applications can keep using the old schema while
+migrating by configuring it explicitly:
+
+```ruby
+AnneAuth.configure do |config|
+  config.admin_user_class_name = "AdminUser"
+  config.admin_session_class_name = "AnneAuth::AdminSession"
+  config.admin_session_user_foreign_key = :admin_user_id
+end
+```
+
+For new applications, keep admin access decisions in `anne_admin` or host
+authorization code. AnneAuth should authenticate an account; it should not
+decide whether that account is an administrator.
 
 The host app should keep domain models such as customers, projects, orders, or
 quotes outside this Engine and connect them through hooks or thin host

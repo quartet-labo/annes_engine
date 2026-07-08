@@ -2,7 +2,7 @@ require "test_helper"
 require "securerandom"
 
 class AnneAuth::AdminSessionsTest < ActionDispatch::IntegrationTest
-  test "creates and restores engine admin session without a host Session wrapper" do
+  test "creates and restores legacy admin session without a host Session wrapper" do
     assert_not Object.const_defined?(:Session, false)
 
     admin_user = AdminUser.create!(

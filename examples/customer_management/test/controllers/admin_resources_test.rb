@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminResourcesTest < ActionDispatch::IntegrationTest
   setup do
-    @admin = AdminUser.create!(
+    @admin = Account.create!(
       email: "admin@example.com",
       name: "Admin",
       role: "admin",
@@ -32,6 +32,18 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, label
     end
+  end
+
+  test "admin resources redirect anonymous users to admin login" do
+    get "/admin/customers"
+
+    assert_redirected_to "/admin/login"
+  end
+
+  test "admin login failure redirects back to admin login" do
+    post admin_session_path, params: { email: @admin.email, password: "wrong" }
+
+    assert_redirected_to "/admin/login"
   end
 
   test "admin resources are loaded in navigation order" do
