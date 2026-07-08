@@ -11,7 +11,7 @@ module AnneAuth
 
       def create
         if admin_user = AnneAuth.configuration.admin_user_class.authenticate_by(session_params)
-          admin_user.update!(last_sign_in_at: Time.current)
+          admin_user.update!(last_sign_in_at: Time.current) if admin_user.respond_to?(:last_sign_in_at)
           start_new_admin_session_for(admin_user)
           redirect_to after_admin_authentication_url, notice: "ログインしました。"
         else

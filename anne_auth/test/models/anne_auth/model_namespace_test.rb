@@ -2,6 +2,7 @@ require "test_helper"
 
 class AnneAuth::ModelNamespaceTest < ActiveSupport::TestCase
   test "host authentication models inherit engine implementations" do
+    assert_operator User, :<, AnneAuth::User
     assert_operator AdminUser, :<, AnneAuth::AdminUser
     assert_operator CustomerAccount, :<, AnneAuth::Account
     assert_operator CustomerSession, :<, AnneAuth::AccountSession
@@ -10,12 +11,26 @@ class AnneAuth::ModelNamespaceTest < ActiveSupport::TestCase
     assert_operator CustomerAccountPasswordResetToken, :<, AnneAuth::AccountPasswordResetToken
   end
 
-  test "admin sessions default to the engine model without a host Session wrapper" do
+  test "user sessions default to the engine model without a host Session wrapper" do
     assert_not Object.const_defined?(:Session, false)
-    assert_equal "AnneAuth::AdminSession", AnneAuth.configuration.admin_session_class_name
-    assert_equal AnneAuth::AdminSession, AnneAuth.configuration.admin_session_class
-    assert_equal "AnneAuth::AdminSession", AnneAuth::AdminUser.reflect_on_association(:sessions).class_name
-    assert_equal AnneAuth.configuration.admin_user_class, AnneAuth::AdminSession.reflect_on_association(:admin_user).klass
+    assert_equal "User", AnneAuth.configuration.user_class_name
+    assert_equal User, AnneAuth.configuration.user_class
+    assert_equal "AnneAuth::Session", AnneAuth.configuration.session_class_name
+    assert_equal AnneAuth::Session, AnneAuth.configuration.session_class
+    assert_equal :user_id, AnneAuth.configuration.session_user_foreign_key
+    assert_equal :session_id, AnneAuth.configuration.session_cookie_name
+    assert_equal "AnneAuth::Session", User.reflect_on_association(:sessions).class_name
+    assert_equal AnneAuth.configuration.user_class, AnneAuth::Session.reflect_on_association(:user).klass
+    assert_equal :user_id, AnneAuth::Session.reflect_on_association(:user).foreign_key.to_sym
+  end
+
+  test "legacy admin authentication defaults to user session principal" do
+    assert_equal "User", AnneAuth.configuration.admin_user_class_name
+    assert_equal User, AnneAuth.configuration.admin_user_class
+    assert_equal "AnneAuth::Session", AnneAuth.configuration.admin_session_class_name
+    assert_equal AnneAuth::Session, AnneAuth.configuration.admin_session_class
+    assert_equal :user_id, AnneAuth.configuration.admin_session_user_foreign_key
+    assert_equal AnneAuth.configuration.admin_user_class, AnneAuth::Session.reflect_on_association(:admin_user).klass
   end
 
   test "engine account does not include host project extensions" do
