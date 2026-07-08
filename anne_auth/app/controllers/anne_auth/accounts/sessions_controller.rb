@@ -7,7 +7,13 @@ module AnneAuth
       before_action :require_account_authentication_for_logout_confirmation, only: :confirm
 
       def new
-        redirect_to auth_route(:root_path) if account_authenticated?
+        return unless account_authenticated?
+
+        if current_account.email_verified?
+          redirect_to after_account_authentication_url
+        else
+          redirect_to auth_route(:account_email_verification_pending_path), alert: "メール認証を完了してください。"
+        end
       end
 
       def confirm
