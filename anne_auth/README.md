@@ -9,7 +9,7 @@ This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.1" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.2" do
   gem "anne_auth"
 end
 ```
@@ -25,7 +25,7 @@ bundle exec rake test
 Add the engine to the host app:
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.1" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.2" do
   gem "anne_auth"
 end
 ```
@@ -37,7 +37,7 @@ developing the engine and host together:
 bundle config set local.anne_auth ../anne_engine
 ```
 
-Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.2.1`.
+Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.2.2`.
 
 Run the installer:
 

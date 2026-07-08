@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.2
+
 - Redirect already authenticated verified accounts away from login, signup,
   email verification pending, and admin login through configured host hooks.
   Unverified accounts are sent back to email verification pending.
