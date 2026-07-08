@@ -39,30 +39,24 @@ gem "anne_admin", path: "../anne_engine/anne_admin"
 
 ## Publishing
 
-Build and push each gem independently. Use a token with `write:packages` access
-for publishing.
+Publishing is automated by the `Publish Gems` GitHub Actions workflow. The
+workflow uses the repository `GITHUB_TOKEN` with `packages: write` permission.
 
-Configure RubyGems credentials before pushing. Add a `write:packages` token to
-`~/.gem/credentials`:
-
-```yaml
----
-:github: Bearer GITHUB_PACKAGES_TOKEN
-```
-
-Then run `chmod 0600 ~/.gem/credentials`.
+To publish one gem from a release tag, push a gem-specific tag that matches the
+gemspec version:
 
 ```sh
-cd anne_auth
-gem build anne_auth.gemspec
-gem push --key github --host https://rubygems.pkg.github.com/quartet-labo anne_auth-0.3.0.gem
+git tag anne_auth-v0.3.0
+git push origin anne_auth-v0.3.0
 ```
 
 ```sh
-cd anne_admin
-gem build anne_admin.gemspec
-gem push --key github --host https://rubygems.pkg.github.com/quartet-labo anne_admin-0.2.0.gem
+git tag anne_admin-v0.2.0
+git push origin anne_admin-v0.2.0
 ```
+
+You can also run the workflow manually and choose `anne_auth`, `anne_admin`, or
+`all`.
 
 ## Sample App
 

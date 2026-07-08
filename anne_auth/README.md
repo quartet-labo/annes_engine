@@ -162,12 +162,11 @@ The distribution target is GitHub Packages. Use this flow for releases:
 1. Run the engine test suite from the engine repository with `bundle exec rake test`.
 2. Update `CHANGELOG.md` and `lib/anne_auth/version.rb` when behavior changes.
 3. Commit the release.
-4. Build the gem with `gem build anne_auth.gemspec`.
-5. Configure RubyGems credentials with a `write:packages` token.
-6. Push the gem with `gem push --key github --host https://rubygems.pkg.github.com/quartet-labo anne_auth-X.Y.Z.gem`.
-7. Update host applications with `bundle update anne_auth` and run their full test suites.
+4. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
+5. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
+6. Update host applications with `bundle update anne_auth` and run their full test suites.
 
-If release tags are used, prefer gem-specific tags such as `anne_auth-vX.Y.Z`.
+You can also run the `Publish Gems` workflow manually and choose `anne_auth`.
 
 ## Google OAuth
 
