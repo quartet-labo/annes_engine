@@ -1,14 +1,15 @@
 # AnneAuth
 
 AnneAuth is a Rails Engine for reusable account authentication. It provides
-account models, session handling, email verification, password resets, Google
-OAuth support, controller concerns, and host hooks.
+account models, registration, session handling, default authentication views,
+email verification, password resets, Google OAuth support, controller concerns,
+and host hooks.
 
 This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.1" do
   gem "anne_auth"
 end
 ```
@@ -24,7 +25,7 @@ bundle exec rake test
 Add the engine to the host app:
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.1" do
   gem "anne_auth"
 end
 ```
@@ -36,7 +37,7 @@ developing the engine and host together:
 bundle config set local.anne_auth ../anne_engine
 ```
 
-Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.1.0`.
+Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.2.1`.
 
 Run the installer:
 
@@ -53,6 +54,17 @@ The generator copies:
 Review the route example and either mount the Engine or keep thin host
 controllers that inherit the Engine controllers when existing path helper names
 must be preserved.
+
+When mounted at `/`, the Engine includes these default account routes and views:
+
+- `GET /login`
+- `POST /account_session`
+- `GET /signup`
+- `POST /account_registration`
+- `GET /password_reset/new`
+- `GET /password_reset/edit`
+- `GET /email_verification/pending`
+- `GET /logout/confirm`
 
 Migration files are installed with fresh timestamps in the host application. If a
 host application already has an AnneAuth migration with the same name, the
@@ -75,10 +87,17 @@ Engine:
 
 ```ruby
 AnneAuth.configure do |config|
-  config.after_account_login_path = ->(controller, _account) { controller.root_path }
-  config.account_profile_path = ->(controller, _account) { controller.root_path }
-  config.profile_complete = ->(account) { true }
-  config.after_account_created = ->(account, controller) {}
+  config.mailer_from = "noreply@example.com"
+  config.account_mailer_class_name = "AnneAuth::AccountMailer"
+  config.google_oauth_client_id = ENV["GOOGLE_OAUTH_CLIENT_ID"].presence
+  config.google_oauth_client_secret = ENV["GOOGLE_OAUTH_CLIENT_SECRET"].presence
+  config.google_oauth_enabled = config.google_oauth_client_id.present? && config.google_oauth_client_secret.present?
+
+  config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
+  config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
+  config.profile_complete = ->(_account) { true }
+  config.after_account_created = ->(_account, _controller) {}
 end
 ```
 
