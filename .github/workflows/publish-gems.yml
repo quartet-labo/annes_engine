@@ -1,0 +1,115 @@
+name: Publish Gems
+
+on:
+  workflow_dispatch:
+    inputs:
+      gem:
+        description: Gem to publish
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - anne_auth
+          - anne_admin
+  push:
+    tags:
+      - anne_auth-v*
+      - anne_admin-v*
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish / ${{ matrix.gem }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gem: anne_auth
+            path: anne_auth
+            gemspec: anne_auth.gemspec
+            tag_prefix: anne_auth-v
+          - gem: anne_admin
+            path: anne_admin
+            gemspec: anne_admin.gemspec
+            tag_prefix: anne_admin-v
+
+    steps:
+      - name: Select package
+        id: select
+        shell: bash
+        run: |
+          should_publish=false
+          expected_version=""
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            selected_gem="${{ github.event.inputs.gem }}"
+
+            if [[ "$selected_gem" == "all" || "$selected_gem" == "${{ matrix.gem }}" ]]; then
+              should_publish=true
+            fi
+          else
+            ref_name="${{ github.ref_name }}"
+
+            if [[ "$ref_name" == "${{ matrix.tag_prefix }}"* ]]; then
+              should_publish=true
+              expected_version="${ref_name#${{ matrix.tag_prefix }}}"
+            fi
+          fi
+
+          echo "should_publish=$should_publish" >> "$GITHUB_OUTPUT"
+          echo "expected_version=$expected_version" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        if: steps.select.outputs.should_publish == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        if: steps.select.outputs.should_publish == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+
+      - name: Configure RubyGems credentials
+        if: steps.select.outputs.should_publish == 'true'
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ~/.gem
+          cat > ~/.gem/credentials <<EOF
+          ---
+          :github: Bearer ${GITHUB_TOKEN}
+          EOF
+          chmod 0600 ~/.gem/credentials
+
+      - name: Build gem
+        if: steps.select.outputs.should_publish == 'true'
+        id: build
+        working-directory: ${{ matrix.path }}
+        shell: bash
+        run: |
+          version="$(ruby -e 'spec = Gem::Specification.load(ARGV.fetch(0)); abort "Could not load gemspec" unless spec; puts spec.version' "${{ matrix.gemspec }}")"
+          expected_version="${{ steps.select.outputs.expected_version }}"
+
+          if [[ -n "$expected_version" && "$version" != "$expected_version" ]]; then
+            echo "Tag version $expected_version does not match ${{ matrix.gem }} gemspec version $version"
+            exit 1
+          fi
+
+          gem build "${{ matrix.gemspec }}"
+
+          gem_file="${{ matrix.gem }}-${version}.gem"
+          test -f "$gem_file"
+          echo "gem_file=$gem_file" >> "$GITHUB_OUTPUT"
+
+      - name: Push gem
+        if: steps.select.outputs.should_publish == 'true'
+        working-directory: ${{ matrix.path }}
+        run: gem push --key github --host https://rubygems.pkg.github.com/quartet-labo "${{ steps.build.outputs.gem_file }}"
