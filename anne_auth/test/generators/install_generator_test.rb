@@ -18,6 +18,7 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
 
     assert_file "config/initializers/anne_auth.rb", /AnneAuth.configure/
+    assert_file "config/initializers/anne_auth.rb", /after_account_email_verification_path/
     assert_file "config/routes/anne_auth.rb", /mount AnneAuth::Engine/
     assert_migration "create_anne_auth_accounts.rb"
     assert_migration "create_anne_auth_account_sessions.rb"

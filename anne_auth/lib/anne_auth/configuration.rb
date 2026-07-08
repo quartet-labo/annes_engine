@@ -24,6 +24,7 @@ module AnneAuth
       :google_oauth_enabled,
       :after_admin_login_path,
       :after_account_login_path,
+      :after_account_email_verification_path,
       :after_account_profile_completion_path,
       :account_profile_path,
       :account_password_reset_url,
@@ -55,6 +56,7 @@ module AnneAuth
       @google_oauth_enabled = false
       @after_admin_login_path = ->(controller, _admin_user) { controller.main_app.admin_root_path }
       @after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+      @after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
       @after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
       @account_profile_path = ->(controller, _account) { controller.main_app.root_path }
       @account_password_reset_url = ->(mailer, token) { mailer.edit_account_password_reset_url(token:) }

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a configurable email verification completion redirect and return email
+  verification POST redirects with `303 See Other`.
+
 ## 0.2.1
 
 - Add default authentication views and a neutral `anne_auth` layout for mounted Engine usage.
