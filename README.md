@@ -42,8 +42,15 @@ gem "anne_admin", path: "../anne_engine/anne_admin"
 Publishing is automated by the `Publish Gems` GitHub Actions workflow. The
 workflow uses the repository `GITHUB_TOKEN` with `packages: write` permission.
 
+Before publishing, update the target gem's version file and changelog, then
+commit the release change:
+
+- `anne_auth/lib/anne_auth/version.rb` and `anne_auth/CHANGELOG.md`
+- `anne_admin/lib/anne_admin/version.rb` and `anne_admin/CHANGELOG.md`
+
 To publish one gem from a release tag, push a gem-specific tag that matches the
-gemspec version:
+gemspec version. The workflow fails if the tag version and gemspec version do
+not match.
 
 ```sh
 git tag anne_auth-v0.3.0
@@ -56,7 +63,8 @@ git push origin anne_admin-v0.2.0
 ```
 
 You can also run the workflow manually and choose `anne_auth`, `anne_admin`, or
-`all`.
+`all`. Manual runs publish the version currently defined by each gemspec, so bump
+and commit the version first.
 
 ## Sample App
 
