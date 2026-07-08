@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test / ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - module: anne_auth
+            path: anne_auth
+            database: anne_auth_test
+            test_command: bundle exec rake test
+          - module: anne_admin
+            path: anne_admin
+            database: anne_admin_test
+            test_command: bundle exec rake test
+          - module: customer_management
+            path: examples/customer_management
+            database: anne_customer_management_test
+            test_command: bin/rails test
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      BUNDLE_JOBS: 4
+      BUNDLE_RETRY: 3
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/${{ matrix.database }}
+      RAILS_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+          bundler-cache: true
+          working-directory: ${{ matrix.path }}
+
+      - name: Prepare database
+        if: matrix.module == 'customer_management'
+        working-directory: ${{ matrix.path }}
+        run: bin/rails db:test:prepare
+
+      - name: Run tests
+        working-directory: ${{ matrix.path }}
+        run: ${{ matrix.test_command }}
