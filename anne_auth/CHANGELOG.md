@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.3.0
+
+- Remove legacy `AdminUser`, `AnneAuth::AdminSession`,
+  `AnneAuth::AdminAuthentication`, and Engine admin session routes.
+- Remove `--legacy-admin` from the install generator and stop shipping
+  `admin_users` / `sessions.admin_user_id` migrations.
+- Keep AnneAuth focused on `Account` / `AccountSession`; admin access decisions
+  should live in `anne_admin` or host authorization code.
+- Existing host databases should drop old `admin_users` / `sessions` tables only
+  after confirming they are no longer used by the host app.
+
 ## 0.2.2
 
 - Redirect already authenticated verified accounts away from login, signup,
