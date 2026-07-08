@@ -160,13 +160,16 @@ Keep those wrappers in the host application. Do not add application-specific ass
 The distribution target is GitHub Packages. Use this flow for releases:
 
 1. Run the engine test suite from the engine repository with `bundle exec rake test`.
-2. Update `CHANGELOG.md` and `lib/anne_auth/version.rb` when behavior changes.
-3. Commit the release.
-4. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
-5. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
-6. Update host applications with `bundle update anne_auth` and run their full test suites.
+2. Update `lib/anne_auth/version.rb` to the version you want to publish.
+3. Update `CHANGELOG.md` for that version.
+4. Commit the release.
+5. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
+6. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
+7. Update host applications with `bundle update anne_auth` and run their full test suites.
 
-You can also run the `Publish Gems` workflow manually and choose `anne_auth`.
+The workflow fails if the tag version does not match `AnneAuth::VERSION`. You
+can also run the `Publish Gems` workflow manually and choose `anne_auth`; manual
+runs publish the version currently defined by the gemspec.
 
 ## Google OAuth
 
