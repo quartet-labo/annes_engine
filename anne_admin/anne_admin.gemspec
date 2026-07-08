@@ -14,6 +14,8 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/quartet-labo/anne_engine/tree/main/anne_admin"
   spec.metadata["changelog_uri"] = "https://github.com/quartet-labo/anne_engine/blob/main/anne_admin/CHANGELOG.md"
   spec.metadata["rubygems_mfa_required"] = "true"
+  spec.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com/quartet-labo"
+  spec.metadata["github_repo"] = "ssh://github.com/quartet-labo/anne_engine"
 
   spec.files = Dir.chdir(__dir__) do
     Dir["{app,config,lib}/**/*", "Rakefile", "README.md", "CHANGELOG.md"]

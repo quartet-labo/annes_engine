@@ -9,19 +9,25 @@ The engine does not own application domain models. Host applications register re
 Add the engine to the host app.
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.1.0" do
-  gem "anne_admin"
+source "https://rubygems.org"
+
+source "https://rubygems.pkg.github.com/quartet-labo" do
+  gem "anne_admin", "~> 0.2.0"
 end
 ```
 
-Keep host applications on a released tag and use Bundler's local override when
-developing the engine and host together:
+Configure Bundler credentials before installing. Use a token with
+`read:packages` access.
 
 ```sh
-bundle config set local.anne_admin ../anne_engine
+bundle config https://rubygems.pkg.github.com/quartet-labo GITHUB_USERNAME:GITHUB_PACKAGES_TOKEN
 ```
 
-Release tags must match `AnneAdmin::VERSION` with a `v` prefix, for example `v0.1.0`.
+For local development from a host application, use a path source:
+
+```ruby
+gem "anne_admin", path: "../anne_engine/anne_admin"
+```
 
 Mount the engine.
 
@@ -212,12 +218,17 @@ Runtime code must not reference host application domain constants such as `Custo
 
 ## Release Workflow
 
-The initial distribution target is a private git gem. Use this flow for releases:
+The distribution target is GitHub Packages. Use this flow for releases:
 
 1. Run the engine test suite from the engine repository with `bundle exec rake test`.
 2. Update `CHANGELOG.md` and `lib/anne_admin/version.rb` when behavior changes.
-3. Commit the release and tag it as `vX.Y.Z`.
-4. Update host applications to the new tag and run their full test suites.
+3. Commit the release.
+4. Build the gem with `gem build anne_admin.gemspec`.
+5. Configure RubyGems credentials with a `write:packages` token.
+6. Push the gem with `gem push --key github --host https://rubygems.pkg.github.com/quartet-labo anne_admin-X.Y.Z.gem`.
+7. Update host applications with `bundle update anne_admin` and run their full test suites.
+
+If release tags are used, prefer gem-specific tags such as `anne_admin-vX.Y.Z`.
 
 ## Custom Actions
 
