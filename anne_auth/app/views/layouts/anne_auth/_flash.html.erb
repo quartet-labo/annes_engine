@@ -1,0 +1,7 @@
+<% if notice.present? %>
+  <div class="auth-flash auth-flash-notice" role="status" aria-live="polite"><%= notice %></div>
+<% end %>
+
+<% if alert.present? %>
+  <div class="auth-flash auth-flash-alert" role="alert"><%= alert %></div>
+<% end %>

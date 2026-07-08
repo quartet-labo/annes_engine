@@ -1,7 +1,7 @@
 module AnneAuth
   module Accounts
     class EmailVerificationsController < AnneAuth::ApplicationController
-      layout "customer_auth"
+      layout "anne_auth"
 
       before_action :require_account_authentication, only: %i[pending verify resend create]
 

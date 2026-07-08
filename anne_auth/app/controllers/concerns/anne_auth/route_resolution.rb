@@ -2,6 +2,10 @@ module AnneAuth
   module RouteResolution
     extend ActiveSupport::Concern
 
+    included do
+      helper_method :auth_route if respond_to?(:helper_method)
+    end
+
     private
       def auth_route(name, ...)
         return public_send(name, ...) if respond_to?(name)

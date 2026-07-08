@@ -1,7 +1,7 @@
 module AnneAuth
   module Accounts
     class OmniauthCallbacksController < AnneAuth::ApplicationController
-      layout "customer_auth"
+      layout "anne_auth"
 
       def create
         result = GoogleAuthentication.call(request.env["omniauth.auth"])

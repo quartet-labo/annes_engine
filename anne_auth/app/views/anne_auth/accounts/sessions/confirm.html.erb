@@ -1,0 +1,10 @@
+<% content_for :title, "ログアウト" %>
+
+<h1>ログアウト</h1>
+
+<p>現在のアカウントからログアウトします。</p>
+
+<div class="auth-actions">
+  <%= button_to "ログアウト", auth_route(:account_logout_path), method: :delete %>
+  <%= link_to "戻る", request.referer.presence || auth_route(:account_login_path), class: "auth-button auth-secondary" %>
+</div>

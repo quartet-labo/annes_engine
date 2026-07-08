@@ -1,7 +1,7 @@
 module AnneAuth
   module Accounts
     class PasswordResetsController < AnneAuth::ApplicationController
-      layout "customer_auth"
+      layout "anne_auth"
 
       rate_limit to: 5, within: 10.minutes, only: :create, with: -> { redirect_to auth_route(:new_account_password_reset_path), alert: "時間をおいて再度お試しください。" }
 

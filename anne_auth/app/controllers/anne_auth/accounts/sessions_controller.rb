@@ -1,7 +1,7 @@
 module AnneAuth
   module Accounts
     class SessionsController < AnneAuth::ApplicationController
-      layout -> { action_name == "confirm" ? "account" : "customer_auth" }
+      layout "anne_auth"
 
       rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to auth_route(:account_login_path), alert: "時間をおいて再度お試しください。" }
       before_action :require_account_authentication_for_logout_confirmation, only: :confirm

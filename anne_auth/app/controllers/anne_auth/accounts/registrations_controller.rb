@@ -1,7 +1,7 @@
 module AnneAuth
   module Accounts
     class RegistrationsController < AnneAuth::ApplicationController
-      layout "customer_auth"
+      layout "anne_auth"
 
       def new
         redirect_to auth_route(:root_path) if account_authenticated?
