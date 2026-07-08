@@ -7,8 +7,6 @@ module Admin
     def new
       if account_authenticated?
         redirect_to main_app.admin_root_path
-      else
-        render "anne_auth/admin/sessions/new"
       end
     end
 

@@ -3,7 +3,7 @@
 <h1>管理者ログイン</h1>
 <p class="muted">サンプル管理者: admin@example.com / password</p>
 
-<%= form_with url: main_app.admin_session_path, method: :post, class: "form" do |form| %>
+<%= form_with url: admin_session_path, method: :post, class: "form" do |form| %>
   <div>
     <%= form.label :email, "メールアドレス" %>
     <%= form.email_field :email, autocomplete: "email", autofocus: true %>
@@ -16,6 +16,6 @@
 
   <div class="actions">
     <%= form.submit "ログイン" %>
-    <%= link_to "戻る", main_app.root_path, class: "button secondary" %>
+    <%= link_to "戻る", root_path, class: "button secondary" %>
   </div>
 <% end %>

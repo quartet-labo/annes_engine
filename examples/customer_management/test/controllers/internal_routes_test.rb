@@ -17,5 +17,6 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "管理者ログイン"
+    assert_select "form[action=?][method=?]", admin_session_path, "post"
   end
 end
