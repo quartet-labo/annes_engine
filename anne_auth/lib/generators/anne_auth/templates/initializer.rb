@@ -13,13 +13,6 @@ AnneAuth.configure do |config|
   # config.account_session_class_name = "AnneAuth::AccountSession"
   # config.account_foreign_key = :account_id
 
-  # Existing host apps that still use the legacy AdminUser/admin_user_id schema
-  # can opt in explicitly while migrating after running install with
-  # --legacy-admin:
-  # config.admin_user_class_name = "AdminUser"
-  # config.admin_session_class_name = "AnneAuth::AdminSession"
-  # config.admin_session_user_foreign_key = :admin_user_id
-
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }

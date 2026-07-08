@@ -9,7 +9,7 @@ This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.2" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.3.0" do
   gem "anne_auth"
 end
 ```
@@ -25,7 +25,7 @@ bundle exec rake test
 Add the engine to the host app:
 
 ```ruby
-git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.2.2" do
+git "git@github.com:quartet-labo/anne_engine.git", tag: "v0.3.0" do
   gem "anne_auth"
 end
 ```
@@ -37,7 +37,7 @@ developing the engine and host together:
 bundle config set local.anne_auth ../anne_engine
 ```
 
-Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.2.2`.
+Release tags must match `AnneAuth::VERSION` with a `v` prefix, for example `v0.3.0`.
 
 Run the installer:
 
@@ -72,13 +72,9 @@ installer skips that migration instead of creating a duplicate. Review skipped
 migrations before running `bin/rails db:migrate`, especially when upgrading from
 an in-repository path gem.
 
-New installs use `accounts` and `account_sessions` by default. Existing
-applications that still need the legacy `AdminUser` / `admin_user_id` schema can
-request those additional migrations explicitly:
-
-```sh
-bin/rails generate anne_auth:install --legacy-admin
-```
+New installs use `accounts` and `account_sessions`. AnneAuth does not generate
+or manage an admin-specific authentication principal. Keep admin access
+decisions in `anne_admin` or host authorization code.
 
 ## Host Hooks
 
@@ -128,21 +124,10 @@ Controllers can include `AnneAuth::AccountAuthentication` and use
 `current_account`, `account_authenticated?`, `require_account_authentication`,
 `start_new_account_session_for(account)`, and `terminate_account_session`.
 
-`AdminUser` and `AnneAuth::AdminSession` remain available as legacy compatibility
-wrappers. Existing host applications can keep using the old schema while
-migrating by configuring it explicitly:
-
-```ruby
-AnneAuth.configure do |config|
-  config.admin_user_class_name = "AdminUser"
-  config.admin_session_class_name = "AnneAuth::AdminSession"
-  config.admin_session_user_foreign_key = :admin_user_id
-end
-```
-
-For new applications, keep admin access decisions in `anne_admin` or host
-authorization code. AnneAuth should authenticate an account; it should not
-decide whether that account is an administrator.
+AnneAuth should authenticate an account; it should not decide whether that
+account is an administrator. Host apps that previously created `admin_users` or
+`sessions.admin_user_id` should keep any cleanup migration in the host app after
+confirming those tables are no longer used.
 
 The host app should keep domain models such as customers, projects, orders, or
 quotes outside this Engine and connect them through hooks or thin host

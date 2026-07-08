@@ -1,22 +1,4 @@
 ActiveRecord::Schema[8.1].define(version: 0) do
-  create_table "admin_users", force: :cascade do |t|
-    t.string "email", null: false
-    t.string "password_digest", null: false
-    t.string "name"
-    t.string "role", default: "admin", null: false
-    t.datetime "last_sign_in_at"
-    t.timestamps
-    t.index [ "email" ], unique: true
-  end
-
-  create_table "sessions", force: :cascade do |t|
-    t.bigint "admin_user_id", null: false
-    t.string "user_agent"
-    t.string "ip_address"
-    t.timestamps
-    t.index [ "admin_user_id" ]
-  end
-
   create_table "customer_accounts", force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false

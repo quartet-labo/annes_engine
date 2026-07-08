@@ -19,6 +19,10 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
 
     assert_file "config/initializers/anne_auth.rb", /AnneAuth.configure/
     assert_file "config/initializers/anne_auth.rb", /after_account_email_verification_path/
+    assert_file "config/initializers/anne_auth.rb" do |content|
+      assert_no_match(/legacy AdminUser/, content)
+      assert_no_match(/admin_user_class_name/, content)
+    end
     assert_file "config/routes/anne_auth.rb", /mount AnneAuth::Engine/
     assert_migration "create_anne_auth_accounts.rb"
     assert_migration "create_anne_auth_account_sessions.rb"
@@ -26,15 +30,6 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
     assert_no_migration "create_anne_auth_admin_users.rb"
     assert_no_migration "create_anne_auth_admin_sessions.rb"
     assert_no_file "db/migrate/20260620000100_create_anne_auth_admin_users.rb"
-  end
-
-  test "copies legacy admin migrations when requested" do
-    run_generator [ "--legacy-admin" ]
-
-    assert_migration "create_anne_auth_accounts.rb"
-    assert_migration "create_anne_auth_account_sessions.rb"
-    assert_migration "create_anne_auth_admin_users.rb"
-    assert_migration "create_anne_auth_admin_sessions.rb"
   end
 
   test "does not duplicate migrations when rerun" do
