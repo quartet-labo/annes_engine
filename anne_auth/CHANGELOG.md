@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 - Keep `Account` / `AccountSession` as the single default authentication principal.
 - Default new installs to `accounts` and `account_sessions`; legacy `AdminUser` / `admin_user_id` migrations are available with `--legacy-admin`.
 - Keep legacy admin helpers available while host apps migrate admin access checks to host or `anne_admin` authorization.
