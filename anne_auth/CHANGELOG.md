@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Add generic `User` / `AnneAuth::Session` authentication primitives and `current_user` / `require_authentication` controller helpers.
-- Default new installs to `users` and `sessions.user_id`; legacy `AdminUser` / `admin_user_id` migrations are available with `--legacy-admin`.
-- Keep legacy admin helpers as wrappers around the generic user session flow while host apps migrate.
+- Keep `Account` / `AccountSession` as the single default authentication principal.
+- Default new installs to `accounts` and `account_sessions`; legacy `AdminUser` / `admin_user_id` migrations are available with `--legacy-admin`.
+- Keep legacy admin helpers available while host apps migrate admin access checks to host or `anne_admin` authorization.
 - Deprecate treating `AdminUser` as the default AnneAuth principal. Admin access should be decided by `anne_admin` or host authorization.
 
 ## 0.1.0

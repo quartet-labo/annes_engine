@@ -1,3 +1,3 @@
 class ApplicationController < ActionController::Base
-  include AnneAuth::Authentication
+  include AnneAuth::AccountAuthentication
 end

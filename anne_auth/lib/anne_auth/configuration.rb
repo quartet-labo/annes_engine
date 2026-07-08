@@ -1,10 +1,6 @@
 module AnneAuth
   class Configuration
-    attr_accessor :user_class_name,
-      :session_class_name,
-      :session_user_foreign_key,
-      :session_cookie_name,
-      :admin_user_class_name,
+    attr_accessor :admin_user_class_name,
       :admin_session_class_name,
       :admin_session_user_foreign_key,
       :account_class_name,
@@ -26,7 +22,6 @@ module AnneAuth
       :google_oauth_client_id,
       :google_oauth_client_secret,
       :google_oauth_enabled,
-      :after_login_path,
       :after_admin_login_path,
       :after_account_login_path,
       :after_account_profile_completion_path,
@@ -36,13 +31,9 @@ module AnneAuth
       :after_account_created
 
     def initialize
-      @user_class_name = "User"
-      @session_class_name = "AnneAuth::Session"
-      @session_user_foreign_key = :user_id
-      @session_cookie_name = :session_id
-      @admin_user_class_name = "User"
-      @admin_session_class_name = "AnneAuth::Session"
-      @admin_session_user_foreign_key = :user_id
+      @admin_user_class_name = "AdminUser"
+      @admin_session_class_name = "AnneAuth::AdminSession"
+      @admin_session_user_foreign_key = :admin_user_id
       @account_class_name = "AnneAuth::Account"
       @account_session_class_name = "AnneAuth::AccountSession"
       @account_identity_class_name = "AnneAuth::AccountIdentity"
@@ -62,22 +53,13 @@ module AnneAuth
       @google_oauth_client_id = nil
       @google_oauth_client_secret = nil
       @google_oauth_enabled = false
-      @after_login_path = ->(controller, _user) { controller.main_app.root_path }
-      @after_admin_login_path = ->(controller, admin_user) { after_login_path.call(controller, admin_user) }
+      @after_admin_login_path = ->(controller, _admin_user) { controller.main_app.admin_root_path }
       @after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
       @after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
       @account_profile_path = ->(controller, _account) { controller.main_app.root_path }
       @account_password_reset_url = ->(mailer, token) { mailer.edit_account_password_reset_url(token:) }
       @profile_complete = ->(_account) { true }
       @after_account_created = ->(_account, _controller) {}
-    end
-
-    def user_class
-      user_class_name.constantize
-    end
-
-    def session_class
-      session_class_name.constantize
     end
 
     def admin_user_class

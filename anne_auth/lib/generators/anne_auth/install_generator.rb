@@ -10,7 +10,7 @@ module AnneAuth
       class_option :legacy_admin,
         type: :boolean,
         default: false,
-        desc: "Generate legacy AdminUser/admin_user_id migrations instead of the default User/user_id schema"
+        desc: "Also generate legacy AdminUser/admin_user_id migrations"
 
       def self.next_migration_number(dirname)
         previous_number = @previous_migration_number || Time.now.utc.strftime("%Y%m%d%H%M%S").to_i
@@ -24,14 +24,6 @@ module AnneAuth
 
       def copy_route_example
         template "routes.rb", "config/routes/anne_auth.rb"
-      end
-
-      def copy_user_model
-        if options[:legacy_admin] || File.exist?(File.join(destination_root, "app/models/user.rb"))
-          say_status :skip, "app/models/user.rb", :yellow
-        else
-          template "user.rb", "app/models/user.rb"
-        end
       end
 
       def copy_migrations
@@ -57,18 +49,7 @@ module AnneAuth
         end
 
         def skip_migration?(migration_name)
-          if options[:legacy_admin]
-            default_user_migration?(migration_name)
-          else
-            legacy_admin_migration?(migration_name)
-          end
-        end
-
-        def default_user_migration?(migration_name)
-          %w[
-            create_anne_auth_users.rb
-            create_anne_auth_sessions.rb
-          ].include?(migration_name)
+          legacy_admin_migration?(migration_name) && !options[:legacy_admin]
         end
 
         def legacy_admin_migration?(migration_name)

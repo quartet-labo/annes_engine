@@ -14,9 +14,7 @@ class AnneAuth::PackageBoundaryTest < ActiveSupport::TestCase
   ]
   HOST_RUNTIME_COUPLING_REFERENCES = [
     /class_name:\s*["'](?:::)?Session["']/,
-    /@admin_session_class_name\s*=\s*["']Session["']/,
-    /@admin_user_class_name\s*=\s*["']AdminUser["']/,
-    /@admin_session_user_foreign_key\s*=\s*:admin_user_id/
+    /@admin_session_class_name\s*=\s*["']Session["']/
   ]
   ADMIN_PRINCIPAL_REFERENCES = [
     /\bAdminUser\b/,

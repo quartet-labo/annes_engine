@@ -12,11 +12,11 @@ class AnneAdmin::AuthenticationAdapterTest < AnneAdmin::TestCase
     controller = Class.new do
       attr_reader :authentication_requested
 
-      def require_authentication
+      def require_account_authentication
         @authentication_requested = true
       end
     end.new
-    adapter = AnneAdmin::AuthenticationAdapter.new(->(passed_controller) { passed_controller.require_authentication })
+    adapter = AnneAdmin::AuthenticationAdapter.new(->(passed_controller) { passed_controller.require_account_authentication })
 
     adapter.authenticate(controller)
 

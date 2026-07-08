@@ -2,7 +2,6 @@ module AnneAuth
   module AdminAuthentication
     extend ActiveSupport::Concern
 
-    include Authentication
     include RouteResolution
 
     included do
@@ -11,26 +10,23 @@ module AnneAuth
 
     private
       def admin_authenticated?
-        authenticated?
+        current_admin_session.present?
       end
 
       def current_admin_user
-        current_user
+        current_admin_session&.admin_user
       end
 
       def require_admin_authentication
-        return true if current_admin_session.present?
-
-        request_admin_authentication
-        false
+        current_admin_session || request_admin_authentication
       end
 
       def current_admin_session
-        current_session
+        AnneAuth::Current.session ||= find_admin_session_by_cookie
       end
 
       def find_admin_session_by_cookie
-        find_session_by_cookie
+        AnneAuth.configuration.admin_session_class.includes(:admin_user).find_by(id: cookies.signed[:admin_session_id]) if cookies.signed[:admin_session_id]
       end
 
       def request_admin_authentication
@@ -43,11 +39,16 @@ module AnneAuth
       end
 
       def start_new_admin_session_for(admin_user)
-        start_new_session_for(admin_user)
+        admin_user.sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |admin_session|
+          AnneAuth::Current.session = admin_session
+          cookies.signed.permanent[:admin_session_id] = { value: admin_session.id, httponly: true, same_site: :lax }
+        end
       end
 
       def terminate_admin_session
-        terminate_session
+        current_admin_session&.destroy
+        AnneAuth::Current.session = nil
+        cookies.delete(:admin_session_id)
       end
   end
 end

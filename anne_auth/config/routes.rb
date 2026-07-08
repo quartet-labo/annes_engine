@@ -1,8 +1,4 @@
 AnneAuth::Engine.routes.draw do
-  get "user/login", to: "sessions#new", as: :login
-  resource :session, only: :create, controller: :sessions
-  delete "user/logout", to: "sessions#destroy", as: :logout
-
   get "login", to: "accounts/sessions#new", as: :account_login
   resource :account_session, only: :create, controller: "accounts/sessions"
   match "auth/:provider/callback", to: "accounts/omniauth_callbacks#create", via: %i[get post], as: :account_omniauth_callback
