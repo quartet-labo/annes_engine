@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Redirect already authenticated verified accounts from the login page through
+  `after_account_login_path`, and send unverified accounts back to email
+  verification pending.
 - Add a configurable email verification completion redirect and return email
   verification POST redirects with `303 See Other`.
 
