@@ -76,6 +76,18 @@ module AnneAuth
         AnneAuth.configuration.after_account_profile_completion_path.call(self, current_account)
       end
 
+      def redirect_authenticated_account(verified_notice: nil)
+        unless current_account.email_verified?
+          redirect_to auth_route(:account_email_verification_pending_path), alert: "メール認証を完了してください。"
+          return
+        end
+
+        redirect_options = {}
+        redirect_options[:notice] = verified_notice if verified_notice.present?
+
+        redirect_to after_account_authentication_url, **redirect_options
+      end
+
       def start_new_account_session_for(account)
         account.account_sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |account_session|
           AnneAuth::Current.account_session = account_session

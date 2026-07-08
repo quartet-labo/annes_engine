@@ -6,7 +6,7 @@ module AnneAuth
       before_action :require_account_authentication, only: %i[pending verify resend create]
 
       def pending
-        redirect_to auth_route(:root_path), notice: "メール認証は完了しています。" if current_account.email_verified?
+        redirect_authenticated_account(verified_notice: "メール認証は完了しています。") if current_account.email_verified?
       end
 
       def show
