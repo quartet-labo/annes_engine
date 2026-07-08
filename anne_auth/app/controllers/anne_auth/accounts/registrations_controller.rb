@@ -4,7 +4,10 @@ module AnneAuth
       layout "anne_auth"
 
       def new
-        redirect_to auth_route(:root_path) if account_authenticated?
+        if account_authenticated?
+          redirect_authenticated_account
+          return
+        end
 
         build_registration_resources
       end

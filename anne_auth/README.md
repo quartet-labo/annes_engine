@@ -108,8 +108,9 @@ host route such as `controller.main_app.root_path` or a dashboard path without
 overriding Engine controllers.
 
 `after_account_login_path` is also used when an already authenticated, verified
-account visits the login page again. Unverified accounts are sent back to the
-email verification pending page.
+account visits account entry pages such as login, signup, or email verification
+pending. Unverified accounts are sent back to the email verification pending
+page.
 
 Account sessions use `AnneAuth::AccountSession` by default and store records in
 the `account_sessions` table with an `account_id` foreign key:

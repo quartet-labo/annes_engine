@@ -40,6 +40,38 @@ class AnneAuth::AccountSessionsRedirectTest < ActionDispatch::IntegrationTest
     assert_equal "メール認証を完了してください。", flash[:alert]
   end
 
+  test "redirects verified account from signup to configured account path" do
+    AnneAuth.configuration.after_account_login_path =
+      ->(controller, _account) { controller.main_app.dashboard_path }
+
+    sign_in(customer_accounts(:verified))
+
+    get "/auth/signup"
+
+    assert_redirected_to "/dashboard"
+  end
+
+  test "redirects unverified account from signup to email verification pending" do
+    sign_in(customer_accounts(:unverified))
+
+    get "/auth/signup"
+
+    assert_redirected_to "/auth/email_verification/pending"
+    assert_equal "メール認証を完了してください。", flash[:alert]
+  end
+
+  test "redirects verified account from email verification pending to configured account path" do
+    AnneAuth.configuration.after_account_login_path =
+      ->(controller, _account) { controller.main_app.dashboard_path }
+
+    sign_in(customer_accounts(:verified))
+
+    get "/auth/email_verification/pending"
+
+    assert_redirected_to "/dashboard"
+    assert_equal "メール認証は完了しています。", flash[:notice]
+  end
+
   private
     def sign_in(account)
       post "/auth/account_session", params: { email: account.email, password: "password-123" }

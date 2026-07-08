@@ -8,7 +8,7 @@ module AnneAuth
       rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to auth_route(:admin_login_path), alert: "時間をおいて再度お試しください。" }
 
       def new
-        redirect_to auth_route(:admin_root_path) if admin_authenticated?
+        redirect_to after_admin_authentication_url if admin_authenticated?
       end
 
       def create
