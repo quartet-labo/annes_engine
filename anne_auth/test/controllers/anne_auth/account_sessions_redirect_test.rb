@@ -32,7 +32,7 @@ class AnneAuth::AccountSessionsRedirectTest < ActionDispatch::IntegrationTest
   end
 
   test "redirects unverified account from login to email verification pending" do
-    sign_in(customer_accounts(:unverified))
+    sign_in(customer_accounts(:unverified), expected_redirect: "/auth/email_verification/pending")
 
     get "/auth/login"
 
@@ -52,9 +52,18 @@ class AnneAuth::AccountSessionsRedirectTest < ActionDispatch::IntegrationTest
   end
 
   test "redirects unverified account from signup to email verification pending" do
-    sign_in(customer_accounts(:unverified))
+    sign_in(customer_accounts(:unverified), expected_redirect: "/auth/email_verification/pending")
 
     get "/auth/signup"
+
+    assert_redirected_to "/auth/email_verification/pending"
+    assert_equal "メール認証を完了してください。", flash[:alert]
+  end
+
+  test "redirects unverified account away from verified host screens" do
+    sign_in(customer_accounts(:unverified), expected_redirect: "/auth/email_verification/pending")
+
+    get "/verified"
 
     assert_redirected_to "/auth/email_verification/pending"
     assert_equal "メール認証を完了してください。", flash[:alert]
@@ -73,8 +82,9 @@ class AnneAuth::AccountSessionsRedirectTest < ActionDispatch::IntegrationTest
   end
 
   private
-    def sign_in(account)
+    def sign_in(account, expected_redirect: nil)
       post "/auth/account_session", params: { email: account.email, password: "password-123" }
       assert_response :redirect
+      assert_redirected_to expected_redirect if expected_redirect
     end
 end

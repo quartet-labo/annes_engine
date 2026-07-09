@@ -123,7 +123,7 @@ class AnneAuth::EmailVerificationsRedirectTest < ActionDispatch::IntegrationTest
   private
     def sign_in
       post "/auth/account_session", params: { email: @account.email, password: "password-123" }
-      assert_redirected_to "/"
+      assert_redirected_to "/auth/email_verification/pending"
     end
 
     def create_verification_token(code: CODE, expires_at: 15.minutes.from_now, attempt_count: 0)

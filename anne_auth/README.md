@@ -116,6 +116,12 @@ account visits account entry pages such as login, signup, or email verification
 pending. Unverified accounts are sent back to the email verification pending
 page.
 
+Successful password login creates an account session, but unverified accounts
+are redirected to the email verification pending page instead of
+`after_account_login_path`. Host screens that require verified accounts should
+use `require_verified_account`; use `require_account_authentication` only for
+screens that intentionally allow unverified accounts.
+
 Account sessions use `AnneAuth::AccountSession` by default and store records in
 the `account_sessions` table with an `account_id` foreign key:
 
