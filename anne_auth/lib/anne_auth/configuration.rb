@@ -17,6 +17,7 @@ module AnneAuth
       :account_session_cookie_secure,
       :account_verification_digest_salt,
       :account_email_format,
+      :account_password_minimum_length,
       :mailer_from,
       :google_oauth_client_id,
       :google_oauth_client_secret,
@@ -47,6 +48,7 @@ module AnneAuth
       @account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
       @account_verification_digest_salt = "anne_auth/account_verification_code"
       @account_email_format = URI::MailTo::EMAIL_REGEXP
+      @account_password_minimum_length = 12
       @mailer_from = "noreply@example.com"
       @google_oauth_client_id = nil
       @google_oauth_client_secret = nil

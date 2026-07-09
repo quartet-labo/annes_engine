@@ -2,8 +2,8 @@ admin = Account.find_or_initialize_by(email: "admin@example.com")
 admin.assign_attributes(
   name: "Sample Admin",
   role: "admin",
-  password: "password",
-  password_confirmation: "password"
+  password: "password-1234",
+  password_confirmation: "password-1234"
 )
 admin.save!
 
@@ -83,4 +83,4 @@ Project.find_or_create_by!(project_number: "PRJ-004") do |project|
 end
 
 puts "Sample users:"
-puts "  admin@example.com / password"
+puts "  admin@example.com / password-1234"

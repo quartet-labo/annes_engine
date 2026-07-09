@@ -30,7 +30,7 @@ Open <http://localhost:3000>.
 
 Seed users:
 
-- Admin: `admin@example.com` / `password`
+- Admin: `admin@example.com` / `password-1234`
 
 ## Screens
 

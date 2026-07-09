@@ -83,4 +83,4 @@ bin/rails server
 
 Seed users:
 
-- Admin: `admin@example.com` / `password`
+- Admin: `admin@example.com` / `password-1234`

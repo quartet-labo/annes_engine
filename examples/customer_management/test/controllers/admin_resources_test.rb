@@ -6,8 +6,8 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
       email: "admin@example.com",
       name: "Admin",
       role: "admin",
-      password: "password",
-      password_confirmation: "password"
+      password: "password-1234",
+      password_confirmation: "password-1234"
     )
 
     organization = Organization.create!(name: "サンプル株式会社")
@@ -18,7 +18,7 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "admin customer resources render" do
-    post admin_session_path, params: { email: @admin.email, password: "password" }
+    post admin_session_path, params: { email: @admin.email, password: "password-1234" }
 
     {
       "/admin/customers" => "顧客",

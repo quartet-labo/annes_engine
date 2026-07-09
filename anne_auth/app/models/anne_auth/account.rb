@@ -31,6 +31,7 @@ module AnneAuth
       presence: true,
       format: { with: ->(_account) { AnneAuth.configuration.account_email_format } },
       uniqueness: { case_sensitive: false }
+    validate :password_meets_minimum_length, if: -> { password.present? }
 
     scope :active, -> { where(disabled_at: nil) }
 
@@ -45,5 +46,13 @@ module AnneAuth
     def verify_email!
       update!(email_verified_at: Time.current)
     end
+
+    private
+      def password_meets_minimum_length
+        minimum_length = AnneAuth.configuration.account_password_minimum_length
+        return if password.length >= minimum_length
+
+        errors.add(:password, :too_short, count: minimum_length)
+      end
   end
 end
