@@ -7,7 +7,7 @@ PATH
 PATH
   remote: ../../anne_auth
   specs:
-    anne_auth (0.3.0)
+    anne_auth (0.3.1)
       bcrypt (~> 3.1.7)
       omniauth (~> 2.1)
       omniauth-google-oauth2 (~> 1.2)
