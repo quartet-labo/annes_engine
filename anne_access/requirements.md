@@ -12,6 +12,8 @@
 - 最初は DB-backed な軽量 RBAC に絞る。
 - `anne_admin` から呼びやすい resource key / action ベースの判定を主 API にする。
 - 業務固有の複雑な条件は host app 側の hook / rule class に逃がせるようにする。
+- record-level ownership / tenant scope / customer-specific visibility は host app が担当する。
+- index / list のように `record: nil` で判定する処理では、`anne_access` は一覧 scope を自動生成しない。
 - `anne_auth` には認可の知識を持ち込まない。
 - engine runtime から host app の domain model 定数を直接参照しない。
 
@@ -42,6 +44,7 @@ MVP では扱わないもの:
 - 顧客別、案件別の細かい ACL
 - 所有者だけ編集可などの record ownership 判定
 - 承認状態や業務ステータスごとの複雑な制御
+- collection の閲覧範囲を SQL / relation として自動生成する scope resolver
 - policy scope / `accessible_by` 相当の高度な SQL 生成
 - UI 付きの本格的な権限管理画面
 
@@ -276,6 +279,37 @@ end
 
 MVP では `allowed` を受け取って最終判定を返す block で十分とする。
 
+### Record scope の責務分担
+
+`anne_access` は「principal が resource/action を実行できるか」という RBAC の permission 判定を担当する。host app は「その principal がどの record を閲覧・操作できるか」という業務固有の scope を担当する。
+
+例:
+
+```ruby
+# Controller / query layer in host app
+@products = Product.visible_to_customer(current_user).ordered
+
+@product = Product.visible_to_customer(current_user).find(params[:id])
+```
+
+index / list のような collection 処理では `record: nil` で `read` などを判定し、`anne_access` は `Product.visible_to_customer(...)` のような SQL scope を自動生成しない。`AccountMembership`, `ProductParticipant` など、host app 固有の domain model に依存する絞り込みは host app の query layer に置く。
+
+show / update / destroy のように record がある処理では、必要に応じて `custom_rule` で host app 固有の最終判定を行う。
+
+```ruby
+AnneAccess.configure do |config|
+  config.custom_rule = ->(principal:, action:, resource:, record:, allowed:) {
+    return false unless allowed
+
+    if resource == "products" && action == "read" && record.present?
+      Product.visible_to_customer(principal).where(id: record.id).exists?
+    else
+      allowed
+    end
+  }
+end
+```
+
 将来的には rule class を追加できる余地を残す。
 
 ```ruby
@@ -285,6 +319,25 @@ class ProjectAccessRule < AnneAccess::Rule
   end
 end
 ```
+
+### 将来の scope hook 検討
+
+複数の host app で同じ需要が出る場合は、汎用 hook として `scope_resolver` を追加する余地を残す。
+
+```ruby
+AnneAccess.configure do |config|
+  config.scope_resolver = ->(principal:, action:, resource:, relation:) {
+    case resource.to_s
+    when "products"
+      relation.visible_to_customer(principal)
+    else
+      relation
+    end
+  }
+end
+```
+
+ただしこの hook を追加する場合も、`anne_access` runtime は `AccountMembership` や `ProductParticipant` のような host app 固有 model を直接参照しない。`scope_resolver` は relation を受け取って relation を返す汎用 extension point に留める。
 
 ## Generator 要件
 

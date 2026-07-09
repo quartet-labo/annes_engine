@@ -55,6 +55,42 @@ AnneAccess.authorize!(current_account, :destroy, :customers)
 AnneAccess::Permission.create!(resource: "projects", action: "manage")
 ```
 
+## Host-Owned Record Scopes
+
+AnneAccess answers the coarse RBAC question: can this principal perform this
+action on this resource? Host applications own business-specific record scopes,
+such as ownership, tenant boundaries, customer visibility, and account
+membership rules.
+
+For index and list actions, `record` is usually `nil`. AnneAccess does not
+generate an `ActiveRecord` scope or `accessible_by` query for those collection
+actions. Apply host-owned scopes in the controller or query layer before loading
+records.
+
+```ruby
+@products = Product.visible_to_customer(current_user).ordered
+
+@product = Product.visible_to_customer(current_user).find(params[:id])
+```
+
+For member actions such as show, update, and destroy, pass the loaded record to
+AnneAccess and use `custom_rule` when the host app needs a final record-level
+visibility check.
+
+```ruby
+AnneAccess.configure do |config|
+  config.custom_rule = ->(principal:, action:, resource:, record:, allowed:) {
+    return false unless allowed
+
+    if resource == "products" && action == "read" && record.present?
+      Product.visible_to_customer(principal).where(id: record.id).exists?
+    else
+      allowed
+    end
+  }
+end
+```
+
 ## Controller Helpers
 
 ```ruby
