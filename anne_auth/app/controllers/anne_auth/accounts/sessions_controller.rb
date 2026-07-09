@@ -24,7 +24,11 @@ module AnneAuth
         elsif account
           account.update!(last_sign_in_at: Time.current)
           start_new_account_session_for(account)
-          redirect_to after_account_authentication_url, notice: "ログインしました。"
+          if account.email_verified?
+            redirect_to after_account_authentication_url, notice: "ログインしました。"
+          else
+            redirect_to auth_route(:account_email_verification_pending_path), alert: "メール認証を完了してください。"
+          end
         else
           redirect_to auth_route(:account_login_path), alert: "メールアドレスまたはパスワードが正しくありません。"
         end

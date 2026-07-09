@@ -28,7 +28,7 @@ class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
   test "renders logged-in account views from the engine" do
     post "/auth/account_session",
       params: { email: customer_accounts(:unverified).email, password: "password-123" }
-    assert_redirected_to "/"
+    assert_redirected_to "/auth/email_verification/pending"
 
     get "/auth/email_verification/pending"
     assert_response :success
