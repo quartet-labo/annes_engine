@@ -45,12 +45,18 @@ gem "anne_access", path: "../anne_engine/anne_access"
 Publishing is automated by the `Publish Gems` GitHub Actions workflow. The
 workflow uses the repository `GITHUB_TOKEN` with `packages: write` permission.
 
-Before publishing, update the target gem's version file and changelog, then
-commit the release change:
+Before publishing, update the target gem's version file, changelog, and upgrade
+guide, then commit the release change:
 
-- `anne_auth/lib/anne_auth/version.rb` and `anne_auth/CHANGELOG.md`
-- `anne_admin/lib/anne_admin/version.rb` and `anne_admin/CHANGELOG.md`
-- `anne_access/lib/anne_access/version.rb` and `anne_access/CHANGELOG.md`
+- `anne_auth/lib/anne_auth/version.rb`, `anne_auth/CHANGELOG.md`, and
+  `anne_auth/UPGRADING.md`
+- `anne_admin/lib/anne_admin/version.rb`, `anne_admin/CHANGELOG.md`, and
+  `anne_admin/UPGRADING.md`
+- `anne_access/lib/anne_access/version.rb`, `anne_access/CHANGELOG.md`, and
+  `anne_access/UPGRADING.md`
+
+If a release has no manual host-app upgrade steps, note that explicitly in the
+target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish one gem from a release tag, push a gem-specific tag that matches the
 gemspec version. The workflow fails if the tag version and gemspec version do
