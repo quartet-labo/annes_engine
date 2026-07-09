@@ -177,3 +177,22 @@ Set these environment variables when Google login is enabled:
 
 The callback path is `/auth/google_oauth2/callback` when the Engine is mounted
 at `/`.
+
+Configure OmniAuth in the host application and keep request validation enabled:
+
+```ruby
+OmniAuth.config.allowed_request_methods = [ :post ]
+OmniAuth.config.request_validation_phase = AnneAuth::OmniauthTokenVerifier.new
+
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider :google_oauth2,
+    ENV.fetch("GOOGLE_OAUTH_CLIENT_ID"),
+    ENV.fetch("GOOGLE_OAUTH_CLIENT_SECRET")
+end
+```
+
+AnneAuth only processes the Google callback when
+`config.google_oauth_enabled`, `config.google_oauth_client_id`, and
+`config.google_oauth_client_secret` are all present. If Google login is disabled
+in AnneAuth, the callback redirects back to login without creating or signing in
+an account.
