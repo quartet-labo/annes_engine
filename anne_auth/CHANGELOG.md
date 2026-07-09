@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.3.1
+
+- Add configurable account session expiration and secure session cookie options.
+- Invalidate active sessions and outstanding reset tokens after password reset.
+- Harden authentication, registration, verification, and password reset rate limits.
+- Add a configurable minimum password length policy.
+- Route unverified password logins to the email verification pending flow.
+- Reject disabled Google OAuth callbacks before processing OmniAuth data.
+
 ## 0.3.0
 
 - Remove legacy `AdminUser`, `AnneAuth::AdminSession`,
