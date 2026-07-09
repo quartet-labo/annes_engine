@@ -50,7 +50,8 @@ commit the release change:
 
 To publish one gem from a release tag, push a gem-specific tag that matches the
 gemspec version. The workflow fails if the tag version and gemspec version do
-not match.
+not match. After the gem is published to GitHub Packages, the workflow creates a
+GitHub Release for that tag using the target gem's changelog entry.
 
 ```sh
 git tag anne_auth-v0.3.0
@@ -64,7 +65,8 @@ git push origin anne_admin-v0.2.0
 
 You can also run the workflow manually and choose `anne_auth`, `anne_admin`, or
 `all`. Manual runs publish the version currently defined by each gemspec, so bump
-and commit the version first.
+and commit the version first. Manual runs are not tag-triggered, so they do not
+create GitHub Releases.
 
 ## Sample App
 

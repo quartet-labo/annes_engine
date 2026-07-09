@@ -187,12 +187,14 @@ The distribution target is GitHub Packages. Use this flow for releases:
 3. Update `CHANGELOG.md` for that version.
 4. Commit the release.
 5. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
-6. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
+6. Confirm the `Publish Gems` workflow published the package to GitHub Packages
+   and created the GitHub Release for the tag.
 7. Update host applications with `bundle update anne_auth` and run their full test suites.
 
 The workflow fails if the tag version does not match `AnneAuth::VERSION`. You
 can also run the `Publish Gems` workflow manually and choose `anne_auth`; manual
-runs publish the version currently defined by the gemspec.
+runs publish the version currently defined by the gemspec without creating a
+GitHub Release.
 
 ## Google OAuth
 
