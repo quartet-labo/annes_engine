@@ -4,6 +4,12 @@ module AnneAuth
       layout "anne_auth"
 
       def create
+        unless AnneAuth.configuration.google_oauth_configured?
+          log_authentication_failure(:disabled)
+          redirect_to auth_route(:account_login_path), alert: failure_message
+          return
+        end
+
         result = GoogleAuthentication.call(request.env["omniauth.auth"])
 
         if result.success?
