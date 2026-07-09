@@ -12,6 +12,7 @@ AnneAuth.configure do |config|
   # config.account_class_name = "AnneAuth::Account"
   # config.account_session_class_name = "AnneAuth::AccountSession"
   # config.account_foreign_key = :account_id
+  # config.account_password_minimum_length = 12
 
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }

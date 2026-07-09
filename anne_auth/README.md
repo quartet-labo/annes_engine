@@ -125,8 +125,12 @@ AnneAuth.configure do |config|
   config.account_session_class_name = "AnneAuth::AccountSession"
   config.account_foreign_key = :account_id
   config.account_session_cookie_name = :account_session_id
+  config.account_password_minimum_length = 12
 end
 ```
+
+`account_password_minimum_length` is enforced when accounts are created and when
+passwords are reset.
 
 Controllers can include `AnneAuth::AccountAuthentication` and use
 `current_account`, `account_authenticated?`, `require_account_authentication`,
