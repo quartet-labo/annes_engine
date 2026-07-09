@@ -13,8 +13,11 @@ ActiveRecord::Schema[8.1].define(version: 0) do
     t.bigint "customer_account_id", null: false
     t.string "user_agent"
     t.string "ip_address"
+    t.datetime "expires_at", null: false
+    t.datetime "last_used_at"
     t.timestamps
     t.index [ "customer_account_id" ]
+    t.index [ "expires_at" ]
   end
 
   create_table "customer_account_identities", force: :cascade do |t|

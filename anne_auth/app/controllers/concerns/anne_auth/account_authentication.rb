@@ -57,10 +57,14 @@ module AnneAuth
 
         account_session = AnneAuth.configuration.account_session_class.includes(:account).find_by(id: cookies.signed[cookie_name])
         return if account_session.blank?
-        return account_session unless account_session.account.disabled?
+        if account_session.expired? || account_session.account.disabled?
+          account_session.destroy
+          cookies.delete(cookie_name)
+          return
+        end
 
-        account_session.destroy
-        nil
+        account_session.record_use!
+        account_session
       end
 
       def request_account_authentication
@@ -89,9 +93,22 @@ module AnneAuth
       end
 
       def start_new_account_session_for(account)
-        account.account_sessions.create!(user_agent: request.user_agent, ip_address: request.remote_ip).tap do |account_session|
+        expires_at = AnneAuth.configuration.account_session_expires_at
+
+        account.account_sessions.create!(
+          user_agent: request.user_agent,
+          ip_address: request.remote_ip,
+          expires_at:,
+          last_used_at: Time.current
+        ).tap do |account_session|
           AnneAuth::Current.account_session = account_session
-          cookies.signed.permanent[AnneAuth.configuration.account_session_cookie_name] = { value: account_session.id, httponly: true, same_site: :lax }
+          cookies.signed[AnneAuth.configuration.account_session_cookie_name] = {
+            value: account_session.id,
+            expires: expires_at,
+            httponly: true,
+            same_site: :lax,
+            secure: AnneAuth.configuration.secure_account_session_cookie?(request)
+          }
         end
       end
 
