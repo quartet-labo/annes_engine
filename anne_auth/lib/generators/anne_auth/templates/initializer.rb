@@ -12,6 +12,8 @@ AnneAuth.configure do |config|
   # config.account_class_name = "AnneAuth::Account"
   # config.account_session_class_name = "AnneAuth::AccountSession"
   # config.account_foreign_key = :account_id
+  # config.account_session_expires_in = 2.weeks
+  # config.account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
 
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }

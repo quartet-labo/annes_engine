@@ -17,10 +17,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_01_000004) do
   create_table "account_sessions", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
     t.string "ip_address"
+    t.datetime "last_used_at"
     t.datetime "updated_at", null: false
     t.string "user_agent"
     t.index ["account_id"], name: "index_account_sessions_on_account_id"
+    t.index ["expires_at"], name: "index_account_sessions_on_expires_at"
   end
 
   create_table "accounts", force: :cascade do |t|
