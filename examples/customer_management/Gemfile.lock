@@ -1,7 +1,7 @@
 PATH
   remote: ../../anne_access
   specs:
-    anne_access (0.1.0)
+    anne_access (0.1.1)
       rails (>= 8.1.0, < 8.2)
 
 PATH
