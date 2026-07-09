@@ -1,4 +1,10 @@
 PATH
+  remote: ../../anne_access
+  specs:
+    anne_access (0.1.0)
+      rails (>= 8.1.0, < 8.2)
+
+PATH
   remote: ../../anne_admin
   specs:
     anne_admin (0.2.0)
@@ -272,6 +278,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  anne_access!
   anne_admin!
   anne_auth!
   pg (~> 1.1)

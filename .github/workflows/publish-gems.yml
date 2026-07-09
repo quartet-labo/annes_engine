@@ -12,10 +12,12 @@ on:
           - all
           - anne_auth
           - anne_admin
+          - anne_access
   push:
     tags:
       - anne_auth-v*
       - anne_admin-v*
+      - anne_access-v*
 
 permissions:
   contents: write
@@ -39,6 +41,10 @@ jobs:
             path: anne_admin
             gemspec: anne_admin.gemspec
             tag_prefix: anne_admin-v
+          - gem: anne_access
+            path: anne_access
+            gemspec: anne_access.gemspec
+            tag_prefix: anne_access-v
 
     steps:
       - name: Select package

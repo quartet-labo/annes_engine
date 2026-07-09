@@ -27,6 +27,10 @@ jobs:
             path: anne_admin
             database: anne_admin_test
             test_command: bundle exec rake test
+          - module: anne_access
+            path: anne_access
+            database: anne_access_test
+            test_command: bundle exec rake test
           - module: customer_management
             path: examples/customer_management
             database: anne_customer_management_test

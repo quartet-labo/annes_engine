@@ -19,6 +19,11 @@ AnneAdmin.configure do |config|
   end
 
   config.authorize_with do |context|
-    context[:user]&.role == "admin"
+    AnneAccess.can?(
+      context[:user],
+      context[:action],
+      context[:resource].name,
+      record: context[:record]
+    )
   end
 end
