@@ -39,11 +39,15 @@ module AnneAuth
         @account.errors.add(:password, :blank) if password_reset_params[:password].blank?
 
         if @account.errors.none? && @account.valid?
+          clear_current_session_cookie = current_account_session&.account == @account
+
           AnneAuth.configuration.account_class.transaction do
             @account.save!
-            password_reset_token.mark_used!
+            password_reset_token_class.expire_active_for(@account)
+            @account.account_sessions.destroy_all
           end
 
+          clear_current_account_session_cookie if clear_current_session_cookie
           redirect_to auth_route(:account_login_path), notice: "パスワードを再設定しました。"
         else
           render :edit, status: :unprocessable_entity
@@ -65,6 +69,11 @@ module AnneAuth
 
         def password_reset_token_class
           AnneAuth.configuration.account_password_reset_token_class
+        end
+
+        def clear_current_account_session_cookie
+          AnneAuth::Current.account_session = nil
+          cookies.delete(AnneAuth.configuration.account_session_cookie_name)
         end
 
         def redirect_invalid_token
