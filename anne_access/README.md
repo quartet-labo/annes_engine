@@ -32,6 +32,7 @@ The installer copies:
 ```ruby
 AnneAccess.configure do |config|
   config.principal_class_names = ["Account"]
+  config.principal_resolver = nil
   config.super_admin_role_keys = []
   config.default_role_key = nil
 end
@@ -69,6 +70,19 @@ end
 
 The default principal lookup tries `current_account`, then `current_user`. Host
 controllers can override `current_access_principal`.
+
+If authentication and authorization use different principals, configure a
+resolver instead. For example, an app can keep `AnneAuth::Account` as the login
+and session principal while authorizing against the host app's `User` model.
+
+```ruby
+AnneAccess.configure do |config|
+  config.principal_resolver = ->(controller) { controller.send(:current_user) }
+end
+```
+
+When `principal_resolver` is configured, its return value is used directly. A
+`nil` return value keeps the default deny behavior.
 
 ## AnneAdmin
 

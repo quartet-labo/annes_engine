@@ -21,6 +21,9 @@ module AnneAccess
     end
 
     def current_access_principal
+      resolver = AnneAccess.configuration.principal_resolver
+      return resolver.call(self) unless resolver.nil?
+
       if respond_to?(:current_account, true)
         account = current_account
         return account if account.present?
