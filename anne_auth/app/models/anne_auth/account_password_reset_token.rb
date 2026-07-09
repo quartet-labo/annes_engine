@@ -29,13 +29,16 @@ module AnneAuth
 
       begin
         attempts += 1
-        token = SecureRandom.urlsafe_base64(TOKEN_BYTES, false)
-        password_reset_token = account.account_password_reset_tokens.create!(
-          token_digest: digest(token),
-          expires_at:
-        )
+        account.with_lock do
+          expire_active_for(account)
+          token = SecureRandom.urlsafe_base64(TOKEN_BYTES, false)
+          password_reset_token = account.account_password_reset_tokens.create!(
+            token_digest: digest(token),
+            expires_at:
+          )
 
-        return [ password_reset_token, token ]
+          return [ password_reset_token, token ]
+        end
       rescue ActiveRecord::RecordNotUnique
         retry if attempts < 3
 
@@ -56,6 +59,10 @@ module AnneAuth
 
     def self.digest(token)
       Digest::SHA256.hexdigest(token.to_s)
+    end
+
+    def self.expire_active_for(account)
+      account.account_password_reset_tokens.active.update_all(used_at: Time.current, updated_at: Time.current)
     end
 
     def mark_used!

@@ -72,6 +72,31 @@ class AnneAuth::AccountSessionsRedirectTest < ActionDispatch::IntegrationTest
     assert_equal "メール認証は完了しています。", flash[:notice]
   end
 
+  test "creates account sessions with expiration metadata" do
+    travel_to Time.zone.local(2026, 1, 1, 12, 0, 0) do
+      account = customer_accounts(:verified)
+
+      sign_in(account)
+
+      account_session = account.account_sessions.order(:created_at).last
+      assert_not_nil account_session.last_used_at
+      assert_equal 2.weeks.from_now, account_session.expires_at
+    end
+  end
+
+  test "destroys expired account sessions and treats the request as unauthenticated" do
+    account = customer_accounts(:verified)
+    sign_in(account)
+    account_session = account.account_sessions.order(:created_at).last
+    account_session.update!(expires_at: 1.minute.ago)
+    AnneAuth::Current.reset
+
+    get "/auth/logout/confirm"
+
+    assert_redirected_to "/auth/login"
+    assert_not CustomerSession.exists?(account_session.id)
+  end
+
   private
     def sign_in(account)
       post "/auth/account_session", params: { email: account.email, password: "password-123" }

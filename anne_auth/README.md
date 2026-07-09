@@ -131,10 +131,23 @@ end
 
 `account_password_minimum_length` is enforced when accounts are created and when
 passwords are reset.
+  config.account_session_expires_in = 2.weeks
+  config.account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
+end
+```
+
+`account_session_expires_in` controls both the database session expiry and the
+signed login cookie expiry. Expired sessions are rejected and removed on the
+next request.
 
 Controllers can include `AnneAuth::AccountAuthentication` and use
 `current_account`, `account_authenticated?`, `require_account_authentication`,
 `start_new_account_session_for(account)`, and `terminate_account_session`.
+
+Login, signup, password reset, and email verification resend actions use Rails
+controller rate limits. Production host apps should configure a shared
+`ActiveSupport::Cache` store, such as Redis or Solid Cache, when running more
+than one process or server so the limits are enforced consistently.
 
 AnneAuth should authenticate an account; it should not decide whether that
 account is an administrator. Host apps that previously created `admin_users` or
@@ -164,13 +177,16 @@ Keep those wrappers in the host application. Do not add application-specific ass
 The distribution target is GitHub Packages. Use this flow for releases:
 
 1. Run the engine test suite from the engine repository with `bundle exec rake test`.
-2. Update `CHANGELOG.md` and `lib/anne_auth/version.rb` when behavior changes.
-3. Commit the release.
-4. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
-5. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
-6. Update host applications with `bundle update anne_auth` and run their full test suites.
+2. Update `lib/anne_auth/version.rb` to the version you want to publish.
+3. Update `CHANGELOG.md` for that version.
+4. Commit the release.
+5. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
+6. Confirm the `Publish Gems` workflow published the package to GitHub Packages.
+7. Update host applications with `bundle update anne_auth` and run their full test suites.
 
-You can also run the `Publish Gems` workflow manually and choose `anne_auth`.
+The workflow fails if the tag version does not match `AnneAuth::VERSION`. You
+can also run the `Publish Gems` workflow manually and choose `anne_auth`; manual
+runs publish the version currently defined by the gemspec.
 
 ## Google OAuth
 

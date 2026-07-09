@@ -4,6 +4,7 @@ module AnneAuth
       layout "anne_auth"
 
       before_action :require_account_authentication, only: %i[pending verify resend create]
+      rate_limit to: 3, within: 10.minutes, by: -> { email_verification_resend_rate_limit_key }, only: %i[resend create], with: -> { redirect_to auth_route(:account_email_verification_pending_path), alert: "時間をおいて再度お試しください。" }
 
       def pending
         redirect_authenticated_account(verified_notice: "メール認証は完了しています。") if current_account.email_verified?
@@ -46,6 +47,10 @@ module AnneAuth
 
         def verification_token_class
           AnneAuth.configuration.account_verification_token_class
+        end
+
+        def email_verification_resend_rate_limit_key
+          "account:#{current_account&.id || request.remote_ip}"
         end
 
         def verify_account(verification_token)

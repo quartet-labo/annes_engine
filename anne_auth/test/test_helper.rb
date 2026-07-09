@@ -26,5 +26,9 @@ ActiveSupport::TestCase.fixture_paths = [ File.expand_path("fixtures", __dir__) 
 module ActiveSupport
   class TestCase
     fixtures :all
+
+    setup do
+      Rails.cache.clear
+    end
   end
 end

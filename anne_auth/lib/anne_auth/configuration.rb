@@ -13,6 +13,8 @@ module AnneAuth
       :account_password_reset_token_table_name,
       :account_foreign_key,
       :account_session_cookie_name,
+      :account_session_expires_in,
+      :account_session_cookie_secure,
       :account_verification_digest_salt,
       :account_email_format,
       :account_password_minimum_length,
@@ -42,6 +44,8 @@ module AnneAuth
       @account_password_reset_token_table_name = "account_password_reset_tokens"
       @account_foreign_key = :account_id
       @account_session_cookie_name = :account_session_id
+      @account_session_expires_in = 2.weeks
+      @account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
       @account_verification_digest_salt = "anne_auth/account_verification_code"
       @account_email_format = URI::MailTo::EMAIL_REGEXP
       @account_password_minimum_length = 12
@@ -64,6 +68,16 @@ module AnneAuth
 
     def account_session_class
       account_session_class_name.constantize
+    end
+
+    def account_session_expires_at
+      account_session_expires_in.from_now
+    end
+
+    def secure_account_session_cookie?(request)
+      return account_session_cookie_secure.call(request) if account_session_cookie_secure.respond_to?(:call)
+
+      account_session_cookie_secure
     end
 
     def account_identity_class

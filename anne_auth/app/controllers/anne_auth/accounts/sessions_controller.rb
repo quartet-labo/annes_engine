@@ -4,6 +4,7 @@ module AnneAuth
       layout "anne_auth"
 
       rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to auth_route(:account_login_path), alert: "時間をおいて再度お試しください。" }
+      rate_limit to: 5, within: 15.minutes, by: -> { session_email_rate_limit_key }, name: "email", only: :create, with: -> { redirect_to auth_route(:account_login_path), alert: "時間をおいて再度お試しください。" }
       before_action :require_account_authentication_for_logout_confirmation, only: :confirm
 
       def new
@@ -37,6 +38,11 @@ module AnneAuth
       private
         def session_params
           params.permit(:email, :password)
+        end
+
+        def session_email_rate_limit_key
+          normalized_email = session_params[:email].to_s.strip.downcase.presence
+          normalized_email || "ip:#{request.remote_ip}"
         end
 
         def require_account_authentication_for_logout_confirmation
