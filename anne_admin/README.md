@@ -255,3 +255,25 @@ Create, update, destroy, and custom actions emit `anne_admin.audit` notification
 - Register only fields that are safe to display.
 - Write access is limited by `permitted_attributes`; do not include sensitive columns.
 - Business actions should call host services instead of adding domain logic to the engine.
+
+## AnneAccess Integration
+
+Host apps can centralize admin permissions with `anne_access` and keep
+AnneAdmin focused on resource screens.
+
+```ruby
+AnneAdmin.configure do |config|
+  config.authorize_with do |context|
+    AnneAccess.can?(
+      context[:user],
+      context[:action],
+      context[:resource].name,
+      record: context[:record]
+    )
+  end
+end
+```
+
+AnneAdmin passes resource names and controller actions to the hook. AnneAccess
+maps standard controller actions such as `index`, `show`, `new`, and `edit` to
+RBAC actions such as `read`, `create`, and `update`.

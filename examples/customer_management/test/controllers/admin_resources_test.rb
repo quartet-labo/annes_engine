@@ -9,6 +9,7 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
       password: "password-1234",
       password_confirmation: "password-1234"
     )
+    grant_admin_access(@admin)
 
     organization = Organization.create!(name: "サンプル株式会社")
     person = Person.create!(name: "山田 太郎", email: "contact@example.com")
@@ -49,5 +50,24 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
   test "admin resources are loaded in navigation order" do
     assert_equal %w[customers persons organizations customer_contacts projects], AnneAdmin.configuration.resources.map(&:name)
     assert_equal %i[customer_number kind person_id organization_id status source memo created_at], AnneAdmin.configuration.resources.fetch(:customers).fields.map(&:name)
+  end
+
+  test "viewer can read admin resources but cannot write" do
+    viewer = Account.create!(
+      email: "viewer@example.com",
+      name: "Viewer",
+      role: "viewer",
+      password: "password-1234",
+      password_confirmation: "password-1234"
+    )
+    grant_viewer_access(viewer)
+
+    post admin_session_path, params: { email: viewer.email, password: "password-1234" }
+
+    get "/admin/customers"
+    assert_response :success
+
+    get "/admin/customers/new"
+    assert_response :forbidden
   end
 end

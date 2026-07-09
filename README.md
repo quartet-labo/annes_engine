@@ -80,10 +80,10 @@ tag-triggered, so they do not create GitHub Releases.
 ## Sample App
 
 `examples/customer_management` contains a simple internal customer management
-app that uses `anne_auth` for staff admin login and `anne_admin` for customer
-party, person, organization, customer contact, and project CRUD. The sample
-supports both individual and organization customers through a shared customer
-ledger.
+app that uses `anne_auth` for staff admin login, `anne_admin` for customer
+party, person, organization, customer contact, and project CRUD, and
+`anne_access` for lightweight RBAC authorization. The sample supports both
+individual and organization customers through a shared customer ledger.
 
 ```sh
 cd examples/customer_management
