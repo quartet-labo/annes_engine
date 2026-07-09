@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+## 0.1.1
+
 - Add configurable authorization principal resolution for controller helpers.
+- Clarify that record-level scopes and business visibility rules belong in the
+  host application.
 
 ## 0.1.0
 

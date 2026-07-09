@@ -20,6 +20,33 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 0.1.0 -> 0.1.1
+
+### Who Is Affected
+
+Host apps that need controller authorization to use a different principal than
+the default `current_account` / `current_user` lookup.
+
+### Required Steps
+
+No manual host-app changes are required unless the app needs custom controller
+principal resolution.
+
+To authorize against a different principal, update
+`config/initializers/anne_access.rb`:
+
+```ruby
+AnneAccess.configure do |config|
+  config.principal_resolver = ->(controller) { controller.send(:current_user) }
+end
+```
+
+### Verification
+
+- Existing authorization checks still use the expected principal.
+- Apps configuring `principal_resolver` deny access when the resolver returns
+  `nil`.
+
 ## Initial Adoption
 
 ### Who Is Affected
