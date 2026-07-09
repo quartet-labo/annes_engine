@@ -132,6 +132,11 @@ Controllers can include `AnneAuth::AccountAuthentication` and use
 `current_account`, `account_authenticated?`, `require_account_authentication`,
 `start_new_account_session_for(account)`, and `terminate_account_session`.
 
+Login, signup, password reset, and email verification resend actions use Rails
+controller rate limits. Production host apps should configure a shared
+`ActiveSupport::Cache` store, such as Redis or Solid Cache, when running more
+than one process or server so the limits are enforced consistently.
+
 AnneAuth should authenticate an account; it should not decide whether that
 account is an administrator. Host apps that previously created `admin_users` or
 `sessions.admin_user_id` should keep any cleanup migration in the host app after
