@@ -20,7 +20,7 @@ module Dummy
     config.eager_load = false
     config.secret_key_base = "anne-auth-dummy-test-secret-key-base"
     config.hosts.clear
-    config.cache_store = :null_store
+    config.cache_store = :memory_store
     config.action_mailer.delivery_method = :test
     config.action_mailer.default_url_options = { host: "example.test" }
   end

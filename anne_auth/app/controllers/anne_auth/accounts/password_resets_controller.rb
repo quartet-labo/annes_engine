@@ -4,6 +4,7 @@ module AnneAuth
       layout "anne_auth"
 
       rate_limit to: 5, within: 10.minutes, only: :create, with: -> { redirect_to auth_route(:new_account_password_reset_path), alert: "時間をおいて再度お試しください。" }
+      rate_limit to: 3, within: 30.minutes, by: -> { password_reset_email_rate_limit_key }, name: "email", only: :create, with: -> { redirect_to auth_route(:new_account_password_reset_path), alert: "時間をおいて再度お試しください。" }
 
       def new
       end
@@ -57,6 +58,11 @@ module AnneAuth
       private
         def password_reset_request_params
           params.permit(:email)
+        end
+
+        def password_reset_email_rate_limit_key
+          normalized_email = password_reset_request_params[:email].to_s.strip.downcase.presence
+          normalized_email || "ip:#{request.remote_ip}"
         end
 
         def password_reset_params

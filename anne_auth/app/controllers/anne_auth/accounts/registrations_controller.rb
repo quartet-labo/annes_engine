@@ -3,6 +3,9 @@ module AnneAuth
     class RegistrationsController < AnneAuth::ApplicationController
       layout "anne_auth"
 
+      rate_limit to: 5, within: 10.minutes, only: :create, with: -> { redirect_to auth_route(:new_account_registration_path), alert: "時間をおいて再度お試しください。" }
+      rate_limit to: 3, within: 30.minutes, by: -> { registration_email_rate_limit_key }, name: "email", only: :create, with: -> { redirect_to auth_route(:new_account_registration_path), alert: "時間をおいて再度お試しください。" }
+
       def new
         if account_authenticated?
           redirect_authenticated_account
@@ -50,6 +53,11 @@ module AnneAuth
 
         def account_params
           params.fetch(:account, {}).permit(:email, :password, :password_confirmation)
+        end
+
+        def registration_email_rate_limit_key
+          normalized_email = account_params[:email].to_s.strip.downcase.presence
+          normalized_email || "ip:#{request.remote_ip}"
         end
     end
   end
