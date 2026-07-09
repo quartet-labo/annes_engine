@@ -29,12 +29,14 @@ module AnneAccess
 
         role_ids = assigned_role_ids
         return false if role_ids.empty?
+        permitted_actions = [ action ]
+        permitted_actions << "manage" if action_mapper.standard?(action)
 
         Permission
           .joins(:role_permissions)
           .where(anne_access_role_permissions: { role_id: role_ids })
           .where(resource:)
-          .where(action: [ action, "manage" ])
+          .where(action: permitted_actions)
           .exists?
       end
 

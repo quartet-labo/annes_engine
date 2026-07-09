@@ -19,6 +19,7 @@ class AnneAccess::AbilityTest < AnneAccess::TestCase
     assert AnneAccess.can?(account, :read, :projects)
     assert AnneAccess.can?(account, :update, :projects)
     assert_not AnneAccess.can?(account, :read, :customers)
+    assert_not AnneAccess.can?(account, :approve, :projects)
   end
 
   test "denies nil principal and unknown resource" do
