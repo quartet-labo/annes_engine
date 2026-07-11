@@ -7,13 +7,39 @@ checking whether an authenticated principal can perform an action on a resource.
 It intentionally does not handle login, sessions, ownership rules, tenant
 scopes, or complex business workflow authorization.
 
-## Installation
+## Requirements
+
+- Ruby 3.4 or newer
+- Rails 8.1
+
+## Documentation
+
+- [RBAC setup](docs/rbac-setup.md)
+- [Configuration and API reference](docs/configuration-and-api.md)
+- [Record scoping](docs/record-scoping.md)
+- [AnneAdmin integration](docs/anne-admin-integration.md)
+- [Security checklist](docs/security-checklist.md)
+- [Upgrade guide](UPGRADING.md)
+
+## Quick Start
 
 Add the engine to the host app.
 
 ```ruby
-gem "anne_access", path: "../anne_engine/anne_access"
+source "https://rubygems.org"
+
+source "https://rubygems.pkg.github.com/quartet-labo" do
+  gem "anne_access", "~> 0.1.0"
+end
 ```
+
+Configure Bundler with a GitHub token that has `read:packages` access:
+
+```sh
+bundle config https://rubygems.pkg.github.com/quartet-labo GITHUB_USERNAME:GITHUB_PACKAGES_TOKEN
+```
+
+For local development, use `gem "anne_access", path: "../anne_engine/anne_access"`.
 
 Run the installer.
 
@@ -26,6 +52,37 @@ The installer copies:
 
 - `config/initializers/anne_access.rb`
 - `db/migrate/*_create_anne_access_*.rb`
+- `db/seeds/anne_access.rb`
+
+Review the generated permission matrix, then load it from the host seed file:
+
+```ruby
+# db/seeds.rb
+load Rails.root.join("db/seeds/anne_access.rb")
+```
+
+```sh
+bin/rails db:seed
+```
+
+The example creates `admin` and `viewer` roles for `customers` and `projects`.
+Adapt those names before using it in a real host.
+
+Finally, assign a role to a persisted authentication principal:
+
+```ruby
+account = Account.find_by!(email: "admin@example.com")
+admin = AnneAccess::Role.find_by!(key: "admin")
+
+AnneAccess::Assignment.find_or_create_by!(principal: account, role: admin)
+
+AnneAccess.can?(account, :read, :customers) # => true
+AnneAccess.can?(nil, :read, :customers)     # => false
+```
+
+Roles do not grant anything until permissions are connected through
+`AnneAccess::RolePermission`. See [RBAC setup](docs/rbac-setup.md) for a full,
+idempotent seed and migration guidance.
 
 ## Configuration
 
@@ -40,6 +97,10 @@ end
 
 The default behavior is deny. Nil principals, unknown resources, and unknown
 actions are not authorized.
+
+`principal_class_names` documents expected host principal classes for host
+configuration and future tooling. Runtime checks accept any persisted object
+that can be stored by the polymorphic `AnneAccess::Assignment` association.
 
 ## Usage
 

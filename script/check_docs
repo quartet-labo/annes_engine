@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "documentation_checker"
+
+root = File.expand_path("..", __dir__)
+errors = DocumentationChecker.new(root:).call
+
+if errors.empty?
+  puts "Documentation checks passed."
+  exit 0
+end
+
+warn errors.join("\n")
+exit 1

@@ -4,10 +4,26 @@ Anne Engine is a monorepo for reusable Rails engines.
 
 ## Gems
 
-- `anne_auth`
-- `anne_admin`
-- `anne_access`
-- `examples/customer_management` - sample Rails host app using both engines
+- [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, and Google OAuth
+- [`anne_access`](anne_access/README.md) - lightweight role-based authorization
+- [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
+- [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
+
+## Responsibilities
+
+| Engine | Owns | Does not own |
+| --- | --- | --- |
+| AnneAuth | Login, account sessions, email verification, password resets, Google OAuth | Administrator status, roles, or permissions |
+| AnneAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
+| AnneAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
+
+For applications using all three engines, adopt them in this order:
+
+1. Install AnneAuth and decide which account model represents the authenticated principal.
+2. Install AnneAccess and define roles, permissions, and assignments for that principal.
+3. Install AnneAdmin and connect its authentication and authorization hooks to AnneAuth and AnneAccess.
+
+Each engine can also be used independently when the host application already provides the other responsibilities.
 
 ## Installation
 
@@ -54,6 +70,12 @@ guide, then commit the release change:
   `anne_admin/UPGRADING.md`
 - `anne_access/lib/anne_access/version.rb`, `anne_access/CHANGELOG.md`, and
   `anne_access/UPGRADING.md`
+
+See the package-specific upgrade guides before updating a host application:
+
+- [AnneAuth upgrade guide](anne_auth/UPGRADING.md)
+- [AnneAccess upgrade guide](anne_access/UPGRADING.md)
+- [AnneAdmin upgrade guide](anne_admin/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
 target gem's `UPGRADING.md` instead of leaving the guide ambiguous.

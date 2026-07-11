@@ -4,7 +4,21 @@ AnneAdmin is a mountable Rails engine for building configurable admin screens.
 
 The engine does not own application domain models. Host applications register resources, authentication, authorization, fields, and custom actions through configuration.
 
-## Installation
+## Requirements
+
+- Ruby 3.4 or newer
+- Rails 8.1
+
+## Documentation
+
+- [Resource DSL reference](docs/resource-dsl.md)
+- [Authentication and authorization](docs/authentication-and-authorization.md)
+- [Host customization](docs/customization.md)
+- [Queries, actions, and audit events](docs/query-actions-and-audit.md)
+- [Security checklist](docs/security-checklist.md)
+- [Upgrade guide](UPGRADING.md)
+
+## Quick Start
 
 Add the engine to the host app.
 
@@ -29,13 +43,35 @@ For local development from a host application, use a path source:
 gem "anne_admin", path: "../anne_engine/anne_admin"
 ```
 
-Mount the engine.
+Run the installer:
+
+```sh
+bin/rails generate anne_admin:install
+```
+
+The installer creates:
+
+- `config/initializers/anne_admin.rb`;
+- `app/admin/resources/users.rb` as an example resource;
+- an AnneAdmin mount in `config/routes.rb` if one is not already present.
+
+The generated resource assumes the host has a `User` model with `email` and
+`created_at`. Replace its model and fields immediately when that assumption does
+not match the host. An unmodified example can fail during resource loading.
+
+The resulting mount is:
 
 ```ruby
 mount AnneAdmin::Engine => "/admin", as: :anne_admin
 ```
 
 The installer adds this mount route if it is not already present. When migrating an existing `/admin` namespace, define host routes before the engine mount. Host routes keep their behavior, and unclaimed resources can fall through to the engine.
+
+Before opening `/admin`, replace the generated deny placeholder with real
+authentication and explicit authorization. Authentication is required and
+raises `AnneAdmin::ConfigurationError` when missing. Authorization is optional
+at runtime and therefore allows every authenticated request when omitted; a
+production host should configure it deliberately.
 
 ## Configuration
 
@@ -46,11 +82,11 @@ AnneAdmin.configure do |config|
   config.site_name = "Admin"
 
   config.authenticate_with do |controller|
-    controller.require_account_authentication
+    controller.send(:require_account_authentication)
   end
 
   config.current_user do |controller|
-    controller.current_account
+    controller.send(:current_account)
   end
 
   config.authorize_with do |context|
@@ -62,6 +98,11 @@ end
 
 When using `anne_auth`, include its authentication concern into the controller
 that AnneAdmin uses before configuring these hooks.
+
+After adapting the sample resource, open `/admin`. The navigation should show
+the registered resource and the index action should pass through both hooks.
+See [Authentication and authorization](docs/authentication-and-authorization.md)
+before enabling write actions in production.
 
 ## Resource DSL
 
@@ -239,7 +280,7 @@ creating a GitHub Release.
 Custom actions let the host app attach small configured actions to a resource.
 
 ```ruby
-config.resource :customers, model: "Customer" do
+AnneAdmin.resource :customers, model: "Customer" do
   custom_action :mark_reviewed, method: :post, scope: :member, label: "Mark reviewed" do |record:, **|
     record.update!(reviewed_at: Time.current)
   end

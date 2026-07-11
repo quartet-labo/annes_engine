@@ -1,5 +1,10 @@
 # AnneAccess Requirements
 
+> Status: internal design reference for AnneAccess maintainers. Host application
+> developers should use [README.md](README.md) and the guides under
+> [docs/](docs/) as the supported usage documentation. Future ideas in this file
+> are not public API commitments.
+
 ## 目的
 
 `anne_access` は、`anne_engine` 標準の軽量 RBAC engine として、認証済みユーザーが「どの resource に対して、どの action を実行できるか」を共通化する。

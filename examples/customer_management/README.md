@@ -1,8 +1,9 @@
 # Customer Management Sample
 
-This is a small internal Rails host application that uses both engines in this repository.
+This is a small internal Rails host application that integrates all three engines in this repository.
 
 - `anne_auth` handles staff admin login.
+- `anne_access` provides role-based authorization for the authenticated account.
 - `anne_admin` provides the admin CRUD screens for customers, persons, organizations, customer contacts, and projects.
 
 ## Customer Model

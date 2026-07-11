@@ -10,6 +10,26 @@ permissions:
   contents: read
 
 jobs:
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+
+      - name: Test documentation checker
+        run: ruby test/documentation_checker_test.rb
+
+      - name: Check documentation
+        run: ruby script/check_docs
+
   test:
     name: Test / ${{ matrix.module }}
     runs-on: ubuntu-latest

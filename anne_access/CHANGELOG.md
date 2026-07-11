@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add RBAC setup, configuration/API, record-scoping, AnneAdmin integration, and
+  security guides, and expand the README into a complete allow/deny quick start.
+
 ## 0.1.1
 
 - Add configurable authorization principal resolution for controller helpers.
