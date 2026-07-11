@@ -8,13 +8,18 @@ and host hooks.
 This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
 
-```ruby
-source "https://rubygems.org"
+## Requirements
 
-source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.0"
-end
-```
+- Ruby 3.4 or newer
+- Rails 8.1
+
+## Documentation
+
+- [Configuration reference](docs/configuration.md)
+- [Routes and host integration](docs/routes-and-host-integration.md)
+- [Security and operations](docs/security-and-operations.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [Upgrade guide](UPGRADING.md)
 
 Run the engine-focused test suite from this directory:
 
@@ -22,7 +27,7 @@ Run the engine-focused test suite from this directory:
 bundle exec rake test
 ```
 
-## Installation
+## Quick Start
 
 Add the engine to the host app:
 
@@ -51,6 +56,7 @@ Run the installer:
 
 ```sh
 bin/rails generate anne_auth:install
+bin/rails db:migrate
 ```
 
 The generator copies:
@@ -59,9 +65,17 @@ The generator copies:
 - `config/routes/anne_auth.rb`
 - authentication migrations under `db/migrate`
 
-Review the route example and either mount the Engine or keep thin host
+Review the generated route example, then mount the Engine in
+`config/routes.rb`:
+
+```ruby
+mount AnneAuth::Engine => "/"
+```
+
+Mounting at `/` provides the default authentication screens and route helpers.
+For a different prefix, mount at a path such as `/auth`. Keep thin host
 controllers that inherit the Engine controllers when existing path helper names
-must be preserved.
+must be preserved. See [Routes and host integration](docs/routes-and-host-integration.md).
 
 When mounted at `/`, the Engine includes these default account routes and views:
 
@@ -83,6 +97,17 @@ an in-repository path gem.
 New installs use `accounts` and `account_sessions`. AnneAuth does not generate
 or manage an admin-specific authentication principal. Keep admin access
 decisions in `anne_admin` or host authorization code.
+
+Review the generated initializer before starting the host application. At a
+minimum, set a real sender address and application-specific redirect paths:
+
+```ruby
+AnneAuth.configure do |config|
+  config.mailer_from = "noreply@example.com"
+  config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
+end
+```
 
 ## Host Hooks
 
