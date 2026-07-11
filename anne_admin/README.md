@@ -280,7 +280,7 @@ creating a GitHub Release.
 Custom actions let the host app attach small configured actions to a resource.
 
 ```ruby
-config.resource :customers, model: "Customer" do
+AnneAdmin.resource :customers, model: "Customer" do
   custom_action :mark_reviewed, method: :post, scope: :member, label: "Mark reviewed" do |record:, **|
     record.update!(reviewed_at: Time.current)
   end
