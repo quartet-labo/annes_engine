@@ -132,15 +132,13 @@ AnneAuth.configure do |config|
   config.account_foreign_key = :account_id
   config.account_session_cookie_name = :account_session_id
   config.account_password_minimum_length = 12
+  config.account_session_expires_in = 2.weeks
+  config.account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
 end
 ```
 
 `account_password_minimum_length` is enforced when accounts are created and when
 passwords are reset.
-  config.account_session_expires_in = 2.weeks
-  config.account_session_cookie_secure = ->(request) { request.ssl? || Rails.env.production? }
-end
-```
 
 `account_session_expires_in` controls both the database session expiry and the
 signed login cookie expiry. Expired sessions are rejected and removed on the
