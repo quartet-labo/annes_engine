@@ -82,11 +82,11 @@ AnneAdmin.configure do |config|
   config.site_name = "Admin"
 
   config.authenticate_with do |controller|
-    controller.require_account_authentication
+    controller.send(:require_account_authentication)
   end
 
   config.current_user do |controller|
-    controller.current_account
+    controller.send(:current_account)
   end
 
   config.authorize_with do |context|

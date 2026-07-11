@@ -84,6 +84,7 @@ class DocumentationChecker
       target = raw_target.strip
       target = target[1...target.index(">")] if target.start_with?("<") && target.include?(">")
       target = target.split(/\s+["']/).first
+      return if target.nil? || target.empty?
       return target if external_target?(target)
 
       target = target.split("#", 2).first

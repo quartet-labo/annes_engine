@@ -65,6 +65,14 @@ class DocumentationCheckerTest < Minitest::Test
     end
   end
 
+  def test_ignores_an_empty_link_target
+    with_repository do |root|
+      write(root, "README.md", "[Current document]()\n")
+
+      assert_empty check(root)
+    end
+  end
+
   def test_ignores_internal_planning_documents
     with_repository do |root|
       write(root, "README.md", "# Public\n")
