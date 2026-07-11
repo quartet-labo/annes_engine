@@ -7,6 +7,7 @@
 - [ ] `authorize_with` is explicitly configured; omission allows authenticated requests.
 - [ ] Standard and custom actions have tested denial paths.
 - [ ] Authentication and authorization exceptions are not swallowed as success.
+- [ ] The default dashboard/navigation exposing every registered resource name is acceptable, or a host-filtered view replaces it.
 
 ## Resources and Fields
 

@@ -87,6 +87,18 @@ plain `Forbidden` with HTTP 403.
 Authorization is separate from record loading. Host-owned tenant or ownership
 scopes must also constrain `resource_scope` and member lookup.
 
+### Dashboard and Navigation
+
+The default home controller requires authentication but does not call the
+resource authorization hook. The default dashboard and layout navigation list
+all registered resource names; opening a resource action still runs
+authorization and can return 403.
+
+If merely revealing a resource name is sensitive, or navigation must differ by
+role, override the dashboard/layout in the host and filter links with the same
+policy. Do not treat hidden navigation as authorization—the resource action
+must remain protected.
+
 ## AnneAuth Integration
 
 Include the AnneAuth concern whenever Rails reloads application code:
@@ -146,8 +158,10 @@ AnneAccess::Permission.create!(
 )
 ```
 
-See [AnneAccess integration](../../anne_access/docs/anne-admin-integration.md)
-for principal resolution and record-scope examples.
+See the
+[AnneAccess integration guide](https://github.com/quartet-labo/anne_engine/blob/main/anne_access/docs/anne-admin-integration.md)
+for principal resolution and record-scope examples. The absolute repository
+link remains valid when this guide is read from an installed AnneAdmin gem.
 
 ## Host Policy Integration
 
