@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add dedicated configuration, route integration, security/operations, and
+  troubleshooting guides, and restructure the README as a complete quick start.
+
 ## 0.3.1
 
 - Add configurable account session expiration and secure session cookie options.
