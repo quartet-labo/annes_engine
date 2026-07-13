@@ -73,6 +73,13 @@ class CiTargetSelector
       "anne_customer_management_test",
       "bin/rails test",
       %w[anne_auth anne_admin anne_access]
+    ),
+    Target.new(
+      "reservation_management",
+      "examples/resavation_management",
+      "anne_reservation_management_test",
+      "bin/rails test",
+      %w[anne_auth anne_admin anne_access]
     )
   ].freeze
 

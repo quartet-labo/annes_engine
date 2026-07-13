@@ -8,6 +8,7 @@ Anne Engine is a monorepo for reusable Rails engines.
 - [`anne_access`](anne_access/README.md) - lightweight role-based authorization
 - [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
+- [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
 
 ## Responsibilities
 
@@ -105,13 +106,14 @@ You can also run the workflow manually and choose `anne_auth`, `anne_admin`, or
 each gemspec, so bump and commit the version first. Manual runs are not
 tag-triggered, so they do not create GitHub Releases.
 
-## Sample App
+## Sample Apps
 
-`examples/customer_management` contains a simple internal customer management
-app that uses `anne_auth` for staff admin login, `anne_admin` for customer
-party, person, organization, customer contact, and project CRUD, and
-`anne_access` for lightweight RBAC authorization. The sample supports both
-individual and organization customers through a shared customer ledger.
+### Customer Management
+
+[`examples/customer_management`](examples/customer_management/README.md) is an
+internal customer management app. It uses `anne_auth` for staff login,
+`anne_access` for RBAC, and `anne_admin` for customer party, person,
+organization, customer contact, and project CRUD.
 
 ```sh
 cd examples/customer_management
@@ -120,6 +122,31 @@ bin/rails db:setup
 bin/rails server
 ```
 
-Seed users:
+Seed account:
 
 - Admin: `admin@example.com` / `password-1234`
+
+### Reservation Management
+
+[`examples/resavation_management`](examples/resavation_management/README.md) is
+an internal reservation management app. It combines all three engines with
+host-specific daily scheduling, reservation commands, AASM state transitions,
+PostgreSQL overlap protection, and optimistic locking.
+
+```sh
+cd examples/resavation_management
+bundle install
+bin/rails db:setup
+bin/rails test
+bin/rails server
+```
+
+Seed accounts use the development-only password `password-1234`:
+
+- Admin: `admin@example.com`
+- Operator: `operator@example.com`
+- Viewer: `viewer@example.com`
+
+See the reservation management [requirements](examples/resavation_management/docs/requirements.md)
+and [design](examples/resavation_management/docs/design.md) for the workflow,
+authorization matrix, database constraints, and implementation boundaries.

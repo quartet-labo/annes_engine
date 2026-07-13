@@ -157,7 +157,7 @@ jobs:
           working-directory: ${{ matrix.path }}
 
       - name: Prepare database
-        if: matrix.module == 'customer_management'
+        if: startsWith(matrix.path, 'examples/')
         working-directory: ${{ matrix.path }}
         run: bin/rails db:test:prepare
 
