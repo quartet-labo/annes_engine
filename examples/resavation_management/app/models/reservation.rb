@@ -1,6 +1,8 @@
 require "securerandom"
 
 class Reservation < ApplicationRecord
+  include AASM
+
   STATUS_LABELS = {
     "provisional" => "仮予約",
     "confirmed" => "予約確定",
@@ -24,6 +26,30 @@ class Reservation < ApplicationRecord
   belongs_to :customer
   belongs_to :reservation_resource
   belongs_to :canceled_by, class_name: "Account", inverse_of: :canceled_reservations, optional: true
+
+  aasm column: :status, create_scopes: false do
+    state :confirmed, initial: true
+    state :provisional
+    state :completed
+    state :canceled
+    state :no_show
+
+    event :confirm do
+      transitions from: :provisional, to: :confirmed
+    end
+
+    event :cancel, before: :assign_aasm_cancellation_metadata do
+      transitions from: %i[provisional confirmed], to: :canceled
+    end
+
+    event :complete do
+      transitions from: :confirmed, to: :completed, guard: :reservation_started?
+    end
+
+    event :mark_no_show do
+      transitions from: :confirmed, to: :no_show, guard: :reservation_started?
+    end
+  end
 
   before_validation :assign_reservation_number, on: :create
 
@@ -64,6 +90,16 @@ class Reservation < ApplicationRecord
   end
 
   private
+    def reservation_started?
+      starts_at.present? && starts_at <= Time.current
+    end
+
+    def assign_aasm_cancellation_metadata(actor, reason = nil, canceled_at = Time.current)
+      self.canceled_by = actor
+      self.canceled_at = canceled_at
+      self.cancellation_reason = reason
+    end
+
     def assign_reservation_number
       self.reservation_number = "R-#{SecureRandom.hex(4).upcase}" if reservation_number.blank?
     end

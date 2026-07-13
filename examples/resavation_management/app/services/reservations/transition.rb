@@ -1,16 +1,5 @@
 module Reservations
   class Transition
-    TRANSITIONS = {
-      "provisional" => {
-        confirm: "confirmed",
-        cancel: "canceled"
-      },
-      "confirmed" => {
-        complete: "completed",
-        cancel: "canceled",
-        mark_no_show: "no_show"
-      }
-    }.freeze
     START_REQUIRED_EVENTS = %i[complete mark_no_show].freeze
 
     attr_reader :reservation
@@ -24,17 +13,12 @@ module Reservations
     end
 
     def call
-      target_status = transition_target!
-      validate_started!
-
-      reservation.class.transaction do
-        reservation.lock_version = lock_version
-        reservation.status = target_status
-        assign_cancellation_metadata if event == :cancel
-        reservation.save!
-      end
+      reservation.lock_version = lock_version
+      fire_event!
 
       reservation
+    rescue AASM::InvalidTransition, AASM::UndefinedEvent
+      raise InvalidTransitionError, invalid_transition_message
     rescue ActiveRecord::StatementInvalid => error
       raise ConflictError, ConflictError::OVERLAP_MESSAGE if DatabaseConflict.overlap?(error)
 
@@ -44,25 +28,20 @@ module Reservations
     private
       attr_reader :event, :actor, :lock_version, :cancellation_reason
 
-      def transition_target!
-        TRANSITIONS.dig(reservation.status, event) ||
-          raise(
-            InvalidTransitionError,
-            "#{reservation.status}から#{event}へ状態を変更できません。"
-          )
+      def fire_event!
+        if event == :cancel
+          reservation.aasm.fire!(event, actor, cancellation_reason, Time.current)
+        else
+          reservation.aasm.fire!(event)
+        end
       end
 
-      def validate_started!
-        return unless event.in?(START_REQUIRED_EVENTS)
-        return if reservation.starts_at.present? && reservation.starts_at <= Time.current
+      def invalid_transition_message
+        if event.in?(START_REQUIRED_EVENTS) && reservation.status == "confirmed"
+          return "開始時刻前の予約は完了または無断キャンセルにできません。"
+        end
 
-        raise InvalidTransitionError, "開始時刻前の予約は完了または無断キャンセルにできません。"
-      end
-
-      def assign_cancellation_metadata
-        reservation.canceled_by = actor
-        reservation.canceled_at = Time.current
-        reservation.cancellation_reason = cancellation_reason
+        "#{reservation.status}から#{event}へ状態を変更できません。"
       end
   end
 end
