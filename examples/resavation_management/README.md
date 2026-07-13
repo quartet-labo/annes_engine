@@ -119,9 +119,9 @@ bin/rails zeitwerk:check
 
 PostgreSQLのexclusion constraintと別connectionの同時予約テストを含むため、test DBへ接続できる状態で実行してください。
 
-## Known Limitation
+## Authorization UI
 
-viewerがAnneAdminの顧客・予約対象画面を開いた際、権限のない新規登録・編集リンクが表示される場合があります。server-side認可は有効で操作はHTTP 403になります。UI上の非表示対応は[Issue #55](https://github.com/quartet-labo/anne_engine/issues/55)で管理しています。
+AnneAdminの顧客・予約対象画面では、現在のroleに許可されていない新規登録・編集リンクを表示しません。画面上の表示制御とは別にserver-side認可も実行し、権限のないURLへの直接アクセスはHTTP 403になります。
 
 ## Repository Path
 

@@ -208,4 +208,4 @@ A.starts_at < B.ends_at AND B.starts_at < A.ends_at
 - 取消理由は任意入力とする。
 - terminal状態の訂正機能はMVPに含めない。
 - 永続監査履歴はMVPに含めず、取消actor・日時・理由を予約へ保持する。
-- viewerに対するserver-side認可は実装済み。AnneAdmin標準画面の操作リンク非表示はIssue #55で別途対応する。
+- AnneAdmin標準画面は`authorize_with`の判定に従って権限のない操作リンクを非表示にし、server-side認可も別途実行する。
