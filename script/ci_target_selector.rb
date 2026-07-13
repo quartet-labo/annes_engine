@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CiTargetSelector
-  Target = Data.define(:name, :path, :database, :test_command) do
+  Target = Data.define(:name, :path, :database, :test_command, :dependency_paths) do
     def matrix_entry
       {
         module: name,
@@ -9,6 +9,12 @@ class CiTargetSelector
         database:,
         test_command:
       }
+    end
+
+    def affected_by?(changed_path)
+      [path, *dependency_paths].any? do |candidate|
+        changed_path == candidate || changed_path.start_with?("#{candidate}/")
+      end
     end
   end
 
@@ -58,14 +64,15 @@ class CiTargetSelector
   end
 
   TARGETS = [
-    Target.new("anne_auth", "anne_auth", "anne_auth_test", "bundle exec rake test"),
-    Target.new("anne_admin", "anne_admin", "anne_admin_test", "bundle exec rake test"),
-    Target.new("anne_access", "anne_access", "anne_access_test", "bundle exec rake test"),
+    Target.new("anne_auth", "anne_auth", "anne_auth_test", "bundle exec rake test", []),
+    Target.new("anne_admin", "anne_admin", "anne_admin_test", "bundle exec rake test", []),
+    Target.new("anne_access", "anne_access", "anne_access_test", "bundle exec rake test", []),
     Target.new(
       "customer_management",
       "examples/customer_management",
       "anne_customer_management_test",
-      "bin/rails test"
+      "bin/rails test",
+      %w[anne_auth anne_admin anne_access]
     )
   ].freeze
 
@@ -91,7 +98,7 @@ class CiTargetSelector
     else
       TARGETS.select do |target|
         changed_paths.any? do |path|
-          component_path?(path, target) && !documentation_path?(path)
+          target.affected_by?(path) && !documentation_path?(path)
         end
       end
     end
@@ -133,9 +140,5 @@ class CiTargetSelector
         path.start_with?(".docs/") ||
         path.end_with?(".md") ||
         DOCUMENTATION_PATHS.include?(path)
-    end
-
-    def component_path?(path, target)
-      path == target.path || path.start_with?("#{target.path}/")
     end
 end

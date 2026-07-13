@@ -8,11 +8,17 @@ class CiTargetSelectorTest < Minitest::Test
     @selector = CiTargetSelector.new
   end
 
-  def test_selects_only_the_changed_engine
-    selection = select("anne_auth/app/models/anne_auth/account.rb")
+  def test_selects_each_changed_engine_and_the_dependent_sample_application
+    {
+      "anne_auth/app/models/anne_auth/account.rb" => %w[anne_auth customer_management],
+      "anne_admin/lib/anne_admin.rb" => %w[anne_admin customer_management],
+      "anne_access/test/anne_access_test.rb" => %w[anne_access customer_management]
+    }.each do |path, expected_names|
+      selection = select(path)
 
-    assert_equal ["anne_auth"], names(selection)
-    refute selection.full_run_reason
+      assert_equal expected_names, names(selection)
+      refute selection.full_run_reason
+    end
   end
 
   def test_selects_multiple_changed_components
@@ -21,7 +27,7 @@ class CiTargetSelectorTest < Minitest::Test
       "anne_access/test/anne_access_test.rb"
     )
 
-    assert_equal %w[anne_admin anne_access], names(selection)
+    assert_equal %w[anne_admin anne_access customer_management], names(selection)
   end
 
   def test_selects_only_the_changed_sample_application
@@ -91,8 +97,8 @@ class CiTargetSelectorTest < Minitest::Test
   def test_summary_lists_selected_and_skipped_targets
     summary = select("anne_access/lib/anne_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
 
-    assert_includes summary, "- Selected: anne_access"
-    assert_includes summary, "- Skipped: anne_auth, anne_admin, customer_management"
+    assert_includes summary, "- Selected: anne_access, customer_management"
+    assert_includes summary, "- Skipped: anne_auth, anne_admin"
     assert_includes summary, "- `anne_access/lib/anne_access.rb`"
   end
 
