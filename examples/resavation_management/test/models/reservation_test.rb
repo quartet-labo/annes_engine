@@ -20,6 +20,50 @@ class ReservationTest < ActiveSupport::TestCase
     assert_equal "その他", reservation.channel_label
   end
 
+  test "defines the reservation lifecycle with AASM events" do
+    assert_equal Reservation::STATUSES.sort, Reservation.aasm.states.map { |state| state.name.to_s }.sort
+    assert_equal %i[cancel complete confirm mark_no_show], Reservation.aasm.events.map(&:name).sort
+
+    provisional = build_reservation(status: "provisional")
+    assert_predicate provisional, :may_confirm?
+    assert_predicate provisional, :may_cancel?
+    assert_not provisional.may_complete?
+    assert_not provisional.may_mark_no_show?
+
+    provisional.confirm!
+    assert_equal "confirmed", provisional.reload.status
+  end
+
+  test "uses AASM guards for completion and no show events" do
+    reservation = build_reservation
+    reservation.save!
+
+    travel_to @starts_at - 1.minute do
+      assert_not reservation.may_complete?
+      assert_not reservation.may_mark_no_show?
+    end
+
+    travel_to @starts_at do
+      assert_predicate reservation, :may_complete?
+      assert_predicate reservation, :may_mark_no_show?
+    end
+  end
+
+  test "uses the AASM cancel callback to persist cancellation metadata" do
+    actor = Account.create!(email: "aasm-cancel@example.com", password: "password123456")
+    reservation = build_reservation
+    reservation.save!
+    canceled_at = Time.zone.parse("2026-07-14 09:00")
+
+    reservation.cancel!(actor, "体調不良", canceled_at)
+
+    reservation.reload
+    assert_equal "canceled", reservation.status
+    assert_equal actor, reservation.canceled_by
+    assert_equal canceled_at, reservation.canceled_at
+    assert_equal "体調不良", reservation.cancellation_reason
+  end
+
   test "validates known status and channel" do
     reservation = build_reservation(status: "unknown", channel: "fax")
 
