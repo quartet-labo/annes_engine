@@ -77,6 +77,31 @@ class ReservationManagementSeedsTest < ActiveSupport::TestCase
     end
   end
 
+  test "reseed refreshes demo reservations for a later Tokyo business date" do
+    travel_to ReservationManagementSeedTestHelper::SEED_TIME do
+      load_reservation_management_seeds
+    end
+
+    travel_to ReservationManagementSeedTestHelper::SEED_TIME + 3.days do
+      assert_no_difference("Reservation.count") do
+        load_reservation_management_seeds
+      end
+
+      expected_dates = {
+        "R-DEMO-001" => Date.current,
+        "R-DEMO-002" => Date.current,
+        "R-DEMO-003" => Date.current,
+        "R-DEMO-004" => Date.current - 1.day,
+        "R-DEMO-005" => Date.current - 1.day,
+        "R-DEMO-006" => Date.current + 1.day
+      }
+      expected_dates.each do |reservation_number, expected_date|
+        reservation = Reservation.find_by!(reservation_number:)
+        assert_equal expected_date, reservation.starts_at.in_time_zone.to_date
+      end
+    end
+  end
+
   private
     def seed_record_counts
       [

@@ -173,9 +173,22 @@ reservations = [
   }
 ]
 
-reservations.each do |attributes|
-  Reservation.find_or_create_by!(reservation_number: attributes.fetch(:reservation_number)) do |reservation|
+Reservation.transaction do
+  reservations.each do |attributes|
+    reservation = Reservation.find_or_initialize_by(
+      reservation_number: attributes.fetch(:reservation_number)
+    )
+    previous_status = reservation.status if reservation.persisted?
     reservation.assign_attributes(attributes.except(:reservation_number))
+
+    next unless reservation.new_record? || reservation.has_changes_to_save?
+
+    if Reservation::TERMINAL_STATUSES.include?(previous_status)
+      reservation.destroy!
+      Reservation.create!(attributes)
+    else
+      reservation.save!
+    end
   end
 end
 
