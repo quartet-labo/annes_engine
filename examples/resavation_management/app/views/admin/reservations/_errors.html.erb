@@ -1,0 +1,10 @@
+<% if reservation.errors.any? %>
+  <div class="errors" role="alert">
+    <strong>入力内容を確認してください</strong>
+    <ul>
+      <% reservation.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

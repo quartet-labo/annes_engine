@@ -41,7 +41,6 @@ module Admin
 
     def index
       load_schedule
-      render :schedule
     end
 
     def show

@@ -62,6 +62,7 @@ class AdminReservationsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, @confirmed.reservation_number
     assert_not_includes response.body, canceled.reservation_number
     assert_includes response.body, "#{@date.strftime('%Y年%m月%d日')}の予約"
+    assert_not_includes response.body, "予約を登録"
 
     get "/admin/reservations/#{@provisional.id}"
     assert_response :success
@@ -89,6 +90,7 @@ class AdminReservationsTest < ActionDispatch::IntegrationTest
 
     assert_difference("Reservation.count") do
       post "/admin/reservations", params: {
+        return_to: "https://malicious.example/redirect",
         reservation: {
           customer_id: @customer.id,
           reservation_resource_id: @resource.id,
@@ -235,11 +237,19 @@ class AdminReservationsTest < ActionDispatch::IntegrationTest
   test "operator confirms and cancels reservations through dedicated transitions" do
     operator = sign_in_as_role(:operator)
 
+    get "/admin/reservations/#{@provisional.id}"
+    assert_response :success
+    assert_select "form[action='/admin/reservations/#{@provisional.id}/confirm'] input[name='reservation[lock_version]'][value='#{@provisional.lock_version}']"
+
     patch "/admin/reservations/#{@provisional.id}/confirm", params: {
       reservation: { lock_version: @provisional.lock_version, status: "completed" }
     }
     assert_redirected_to "/admin/reservations/#{@provisional.id}"
     assert_equal "confirmed", @provisional.reload.status
+
+    get "/admin/reservations/#{@confirmed.id}/cancel"
+    assert_response :success
+    assert_select "input[name='reservation[lock_version]'][type='hidden'][value='#{@confirmed.lock_version}']"
 
     patch "/admin/reservations/#{@confirmed.id}/cancel", params: {
       reservation: {
@@ -283,6 +293,18 @@ class AdminReservationsTest < ActionDispatch::IntegrationTest
 
     assert_equal "completed", completed.reload.status
     assert_equal "no_show", no_show.reload.status
+
+    get "/admin/reservations/#{completed.id}"
+    assert_response :success
+    assert_select "a, button", text: "予約を編集", count: 0
+    assert_select "a, button", text: "予約を取消", count: 0
+    assert_select "button", text: "無断キャンセル", count: 0
+
+    get "/admin/reservations/#{no_show.id}"
+    assert_response :success
+    assert_select "a, button", text: "予約を編集", count: 0
+    assert_select "a, button", text: "予約を取消", count: 0
+    assert_select "button", text: "利用完了", count: 0
   end
 
   test "invalid transition renders 422 and preserves the current state" do
