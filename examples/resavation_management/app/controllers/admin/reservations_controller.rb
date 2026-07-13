@@ -2,6 +2,7 @@ module Admin
   class ReservationsController < BaseController
     CONFLICT_MESSAGE = "別の予約が先に登録されました。入力内容を確認してください。"
     STALE_MESSAGE = "別のスタッフが先に更新しました。最新情報を確認してください。"
+    TRANSITION_ACTIONS = %w[confirm cancel complete mark_no_show].freeze
     FORM_ATTRIBUTES = %i[
       customer_id
       reservation_resource_id
@@ -203,6 +204,7 @@ module Admin
       end
 
       def render_stale
+        @reservation.reload if action_name.in?(TRANSITION_ACTIONS)
         @reservation.errors.add(:base, STALE_MESSAGE)
         render_reservation_error(:conflict)
       end

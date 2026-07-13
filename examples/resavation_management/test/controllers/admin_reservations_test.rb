@@ -231,7 +231,28 @@ class AdminReservationsTest < ActionDispatch::IntegrationTest
 
     assert_response :conflict
     assert_includes response.body, "別のスタッフが先に更新しました。最新情報を確認してください"
+    assert_includes response.body, "古い画面の更新"
     assert_equal "先行更新", @confirmed.reload.memo
+  end
+
+  test "stale transition renders the persisted state instead of unsaved AASM changes" do
+    stale_lock_version = @confirmed.lock_version
+    @confirmed.update!(memo: "先行更新")
+    sign_in_as_role(:operator)
+
+    patch "/admin/reservations/#{@confirmed.id}/cancel", params: {
+      reservation: {
+        lock_version: stale_lock_version,
+        cancellation_reason: "古い画面からの取消"
+      }
+    }
+
+    assert_response :conflict
+    assert_includes response.body, "別のスタッフが先に更新しました。最新情報を確認してください"
+    assert_select ".status-badge", text: "予約確定"
+    assert_select ".cancellation-panel", count: 0
+    assert_equal [ "confirmed", nil, nil, nil ],
+      @confirmed.reload.values_at(:status, :canceled_at, :canceled_by_id, :cancellation_reason)
   end
 
   test "operator confirms and cancels reservations through dedicated transitions" do
