@@ -1,0 +1,146 @@
+require "test_helper"
+
+class ReservationTest < ActiveSupport::TestCase
+  setup do
+    @customer = Customer.create!(name: "山田 太郎")
+    @resource = ReservationResource.create!(name: "会議室A", kind: "room", capacity: 4)
+    @starts_at = Time.zone.parse("2026-07-14 10:00")
+  end
+
+  test "assigns a reservation number and defaults to confirmed and other" do
+    reservation = build_reservation
+
+    assert reservation.save
+    assert_match(/\AR-[0-9A-F]{8}\z/, reservation.reservation_number)
+    assert_equal "confirmed", reservation.status
+    assert_equal "other", reservation.channel
+    assert_equal 0, reservation.lock_version
+    assert_equal "#{reservation.reservation_number} 山田 太郎", reservation.display_name
+    assert_equal "予約確定", reservation.status_label
+    assert_equal "その他", reservation.channel_label
+  end
+
+  test "validates known status and channel" do
+    reservation = build_reservation(status: "unknown", channel: "fax")
+
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:status, :inclusion, value: "unknown")
+    assert reservation.errors.added?(:channel, :inclusion, value: "fax")
+  end
+
+  test "requires ends_at after starts_at on the same Tokyo business day" do
+    reservation = build_reservation(ends_at: @starts_at)
+
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:ends_at, :greater_than, value: @starts_at, count: @starts_at)
+
+    reservation.ends_at = Time.zone.parse("2026-07-15 00:00")
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:ends_at, :same_business_day)
+  end
+
+  test "validates party size against the resource capacity" do
+    reservation = build_reservation(party_size: 5)
+
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:party_size, :less_than_or_equal_to, value: 5, count: 4)
+
+    reservation.party_size = 0
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:party_size, :greater_than_or_equal_to, value: 0, count: 1)
+  end
+
+  test "rejects inactive associations for new reservations" do
+    @customer.update!(active: false)
+    @resource.update!(active: false)
+    reservation = build_reservation
+
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:customer, :inactive)
+    assert reservation.errors.added?(:reservation_resource, :inactive)
+  end
+
+  test "keeps an existing reservation valid after associations become inactive" do
+    reservation = build_reservation
+    reservation.save!
+    @customer.update!(active: false)
+    @resource.update!(active: false)
+
+    reservation.memo = "到着時に受付"
+
+    assert reservation.valid?
+  end
+
+  test "requires cancellation metadata only for canceled reservations" do
+    account = Account.create!(email: "operator@example.com", password: "password123")
+    canceled = build_reservation(status: "canceled")
+
+    assert_not canceled.valid?
+    assert canceled.errors.added?(:canceled_at, :blank)
+    assert canceled.errors.added?(:canceled_by, :blank)
+
+    canceled.assign_attributes(canceled_at: Time.current, canceled_by: account, cancellation_reason: "お客様都合")
+    assert canceled.valid?
+
+    confirmed = build_reservation(canceled_at: Time.current, canceled_by: account, cancellation_reason: "誤入力")
+    assert_not confirmed.valid?
+    assert confirmed.errors.added?(:canceled_at, :present)
+    assert confirmed.errors.added?(:canceled_by, :present)
+    assert confirmed.errors.added?(:cancellation_reason, :present)
+  end
+
+  test "prevents overlapping blocking reservations on the same resource" do
+    build_reservation.save!
+    overlap = build_reservation(starts_at: @starts_at + 30.minutes, ends_at: @starts_at + 90.minutes)
+
+    assert_not overlap.valid?
+    assert overlap.errors.added?(:starts_at, :overlap)
+  end
+
+  test "allows adjacent, different-resource, and non-blocking reservations" do
+    original = build_reservation
+    original.save!
+
+    adjacent = build_reservation(starts_at: original.ends_at, ends_at: original.ends_at + 1.hour)
+    other_resource = ReservationResource.create!(name: "会議室B", kind: "room", capacity: 4)
+    simultaneous = build_reservation(reservation_resource: other_resource)
+    completed = build_reservation(status: "completed")
+
+    assert adjacent.valid?
+    assert simultaneous.valid?
+    assert completed.valid?
+
+    original.update!(status: "completed")
+    assert build_reservation.valid?
+  end
+
+  test "prevents ordinary edits after reaching a terminal status" do
+    reservation = build_reservation(status: "completed")
+    reservation.save!
+
+    reservation.memo = "書き換え"
+
+    assert_not reservation.valid?
+    assert reservation.errors.added?(:base, :terminal_record)
+  end
+
+  test "orders reservations by start time" do
+    later = build_reservation(starts_at: @starts_at + 2.hours, ends_at: @starts_at + 3.hours, status: "completed")
+    earlier = build_reservation(status: "completed")
+    later.save!
+    earlier.save!
+
+    assert_equal [ earlier, later ], Reservation.chronological.to_a
+  end
+
+  private
+    def build_reservation(attributes = {})
+      Reservation.new({
+        customer: @customer,
+        reservation_resource: @resource,
+        starts_at: @starts_at,
+        ends_at: @starts_at + 1.hour,
+        party_size: 2
+      }.merge(attributes))
+    end
+end
