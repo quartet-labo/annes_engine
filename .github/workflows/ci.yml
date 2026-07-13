@@ -30,31 +30,100 @@ jobs:
       - name: Check documentation
         run: ruby script/check_docs
 
+  changes:
+    name: Select tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      has_tests: ${{ steps.select.outputs.has_tests }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+
+      - name: Test CI target selector
+        run: ruby test/ci_target_selector_test.rb
+
+      - name: Select test targets
+        id: select
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+          PUSH_HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          case "$EVENT_NAME" in
+            pull_request)
+              base_sha="$PR_BASE_SHA"
+              head_sha="$PR_HEAD_SHA"
+              diff_range="${base_sha}...${head_sha}"
+              ;;
+            push)
+              base_sha="$PUSH_BASE_SHA"
+              head_sha="$PUSH_HEAD_SHA"
+              diff_range="${base_sha}..${head_sha}"
+              ;;
+            *)
+              ruby script/select_ci_targets \
+                --all-reason "unsupported event: $EVENT_NAME" \
+                --github-output "$GITHUB_OUTPUT" \
+                --summary "$GITHUB_STEP_SUMMARY"
+              exit 0
+              ;;
+          esac
+
+          if [[ -z "$base_sha" || -z "$head_sha" || "$base_sha" =~ ^0+$ ]]; then
+            ruby script/select_ci_targets \
+              --all-reason "comparison revisions are unavailable" \
+              --github-output "$GITHUB_OUTPUT" \
+              --summary "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          if ! git cat-file -e "${base_sha}^{commit}" || ! git cat-file -e "${head_sha}^{commit}"; then
+            ruby script/select_ci_targets \
+              --all-reason "comparison revisions could not be fetched" \
+              --github-output "$GITHUB_OUTPUT" \
+              --summary "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          changed_paths="$RUNNER_TEMP/changed-paths.txt"
+          if ! git diff --name-only --no-renames "$diff_range" > "$changed_paths"; then
+            ruby script/select_ci_targets \
+              --all-reason "git diff failed" \
+              --github-output "$GITHUB_OUTPUT" \
+              --summary "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          ruby script/select_ci_targets \
+            --github-output "$GITHUB_OUTPUT" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            "$changed_paths"
+
   test:
     name: Test / ${{ matrix.module }}
+    needs: changes
+    if: needs.changes.outputs.has_tests == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - module: anne_auth
-            path: anne_auth
-            database: anne_auth_test
-            test_command: bundle exec rake test
-          - module: anne_admin
-            path: anne_admin
-            database: anne_admin_test
-            test_command: bundle exec rake test
-          - module: anne_access
-            path: anne_access
-            database: anne_access_test
-            test_command: bundle exec rake test
-          - module: customer_management
-            path: examples/customer_management
-            database: anne_customer_management_test
-            test_command: bin/rails test
+      matrix: ${{ fromJSON(needs.changes.outputs.matrix) }}
 
     services:
       postgres:
@@ -95,3 +164,39 @@ jobs:
       - name: Run tests
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.test_command }}
+
+  test-result:
+    name: Tests
+    needs:
+      - changes
+      - test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check test results
+        shell: bash
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          HAS_TESTS: ${{ needs.changes.outputs.has_tests }}
+          TEST_RESULT: ${{ needs.test.result }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$CHANGES_RESULT" != "success" ]]; then
+            echo "Test selection failed: $CHANGES_RESULT"
+            exit 1
+          fi
+
+          if [[ "$HAS_TESTS" == "true" && "$TEST_RESULT" != "success" ]]; then
+            echo "Selected tests did not succeed: $TEST_RESULT"
+            exit 1
+          fi
+
+          if [[ "$HAS_TESTS" != "true" && "$TEST_RESULT" != "skipped" ]]; then
+            echo "Expected the matrix job to be skipped, but it was: $TEST_RESULT"
+            exit 1
+          fi
+
+          echo "Test selection and execution completed successfully."
