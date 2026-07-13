@@ -8,12 +8,16 @@ module AnneAdmin
 
     private
       def authorize_anne_admin!(action, record: nil)
-        return if anne_admin_authorized?(action, record:)
+        return if anne_admin_authorization_allowed?(action, record:)
 
         raise AnneAdmin::NotAuthorizedError, "Not authorized to #{action} #{@resource&.name}"
       end
 
       def anne_admin_authorized?(action, record: nil)
+        anne_admin_authorization_allowed?(action, record:)
+      end
+
+      def anne_admin_authorization_allowed?(action, record: nil)
         !!AnneAdmin.configuration.authorized?(anne_admin_authorization_context(action, record:))
       end
 

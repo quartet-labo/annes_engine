@@ -104,4 +104,20 @@ class AnneAdmin::AuthorizationTest < AnneAdmin::IntegrationTest
       assert_instance_of AnneAdmin::ResourcesController, context[:controller]
     end
   end
+
+  test "does not let a view helper override bypass controller authorization" do
+    @authorized_actions.delete(:edit)
+    controller_class = Class.new(AnneAdmin::ResourcesController) do
+      private
+        def anne_admin_authorized?(...)
+          true
+        end
+    end
+    controller = controller_class.new
+    controller.instance_variable_set(:@resource, AnneAdmin.configuration.resources.fetch("customers"))
+
+    assert_raises AnneAdmin::NotAuthorizedError do
+      controller.send(:authorize_anne_admin!, :edit, record: customers(:anan))
+    end
+  end
 end
