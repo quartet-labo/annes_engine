@@ -1,0 +1,12 @@
+<% content_for :title, "予約登録" %>
+
+<div class="stack">
+  <section class="panel">
+    <h1>予約を登録</h1>
+    <p class="muted">顧客、予約対象、利用日時を入力してください。</p>
+  </section>
+
+  <section class="panel">
+    <%= render "form", reservation: @reservation %>
+  </section>
+</div>

@@ -3,10 +3,10 @@ require "test_helper"
 class InternalRoutesTest < ActionDispatch::IntegrationTest
   test "public entry points redirect to the internal admin area" do
     get "/"
-    assert_redirected_to "/admin"
+    assert_redirected_to "/admin/reservations/schedule"
 
     get "/dashboard"
-    assert_redirected_to "/admin"
+    assert_redirected_to "/admin/reservations/schedule"
 
     get "/auth/login"
     assert_redirected_to "/admin/login"

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || anne_admin_site_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags if respond_to?(:javascript_importmap_tags) %>
+  </head>
+
+  <body>
+    <header>
+      <div class="container topbar">
+        <%= link_to anne_admin_site_name, main_app.admin_reservation_schedule_path, class: "brand" %>
+        <nav class="nav" aria-label="管理メニュー">
+          <%= link_to "予約スケジュール", main_app.admin_reservation_schedule_path %>
+          <% anne_admin_resources.each do |resource| %>
+            <%= link_to resource.label, anne_admin_resource_index_path(resource) %>
+          <% end %>
+          <% if anne_admin_current_user %>
+            <span class="account-name"><%= anne_admin_current_user.try(:email).presence || anne_admin_current_user.to_s %></span>
+            <%= button_to "ログアウト", main_app.admin_logout_path, method: :delete, class: "button secondary compact" %>
+          <% end %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container main">
+      <% if notice.present? %>
+        <div class="notice"><%= notice %></div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="alert"><%= alert %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

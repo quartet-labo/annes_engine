@@ -1,0 +1,77 @@
+<% content_for :title, "予約スケジュール" %>
+<% preserved_filters = request.query_parameters.symbolize_keys.slice(:reservation_resource_id, :status, :q, :per_page) %>
+
+<div class="stack">
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h1><%= @filter.date.strftime("%Y年%m月%d日") %>の予約</h1>
+        <p class="muted"><%= @filter.total_count %>件の予約があります。</p>
+      </div>
+      <% if can_access?(:create, :reservations) %>
+        <%= link_to "予約を登録", new_admin_reservation_path(date: @filter.date.iso8601), class: "button" %>
+      <% end %>
+    </div>
+
+    <div class="date-navigation" aria-label="日付移動">
+      <%= link_to "← 前日", admin_reservation_schedule_path(preserved_filters.merge(date: (@filter.date - 1.day).iso8601)), class: "button secondary" %>
+      <%= link_to "今日", admin_reservation_schedule_path(preserved_filters.merge(date: Date.current.iso8601)), class: "button secondary" %>
+      <%= link_to "翌日 →", admin_reservation_schedule_path(preserved_filters.merge(date: (@filter.date + 1.day).iso8601)), class: "button secondary" %>
+    </div>
+
+    <%= render "filters" %>
+  </section>
+
+  <section class="panel table-panel">
+    <% if @reservations.any? %>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>開始</th>
+              <th>終了</th>
+              <th>予約番号</th>
+              <th>顧客</th>
+              <th>予約対象</th>
+              <th>人数</th>
+              <th>状態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @reservations.each do |reservation| %>
+              <tr class="<%= 'canceled-row' if reservation.status == 'canceled' %>">
+                <td><%= reservation.starts_at.in_time_zone.strftime("%H:%M") %></td>
+                <td><%= reservation.ends_at.in_time_zone.strftime("%H:%M") %></td>
+                <td><%= reservation.reservation_number %></td>
+                <td><%= reservation.customer.name %></td>
+                <td><%= reservation.reservation_resource.name %></td>
+                <td><%= reservation.party_size %>名</td>
+                <td><span class="status-badge status-<%= reservation.status %>"><%= reservation.status_label %></span></td>
+                <td><%= link_to "詳細", admin_reservation_path(reservation) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% total_pages = [(@filter.total_count.to_f / @filter.per_page).ceil, 1].max %>
+      <% if total_pages > 1 %>
+        <nav class="pagination" aria-label="ページ移動">
+          <% if @filter.page > 1 %>
+            <%= link_to "前のページ", admin_reservation_schedule_path(request.query_parameters.merge(page: @filter.page - 1)) %>
+          <% end %>
+          <span><%= @filter.page %> / <%= total_pages %></span>
+          <% if @filter.page < total_pages %>
+            <%= link_to "次のページ", admin_reservation_schedule_path(request.query_parameters.merge(page: @filter.page + 1)) %>
+          <% end %>
+        </nav>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <h2>予約はありません</h2>
+        <p class="muted">条件を変更するか、新しい予約を登録してください。</p>
+      </div>
+    <% end %>
+  </section>
+</div>

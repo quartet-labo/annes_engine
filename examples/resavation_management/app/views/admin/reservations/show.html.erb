@@ -1,0 +1,65 @@
+<% content_for :title, @reservation.reservation_number %>
+
+<div class="stack">
+  <section class="panel">
+    <%= render "errors", reservation: @reservation %>
+
+    <div class="panel-header">
+      <div>
+        <h1><%= @reservation.reservation_number %></h1>
+        <span class="status-badge status-<%= @reservation.status %>"><%= @reservation.status_label %></span>
+      </div>
+      <%= link_to "一覧へ戻る", admin_reservation_schedule_path(date: @reservation.starts_at.to_date.iso8601), class: "button secondary" %>
+    </div>
+
+    <div class="actions reservation-actions">
+      <% if @reservation.blocking? && can_access?(:update, :reservations, record: @reservation) %>
+        <%= link_to "予約を編集", edit_admin_reservation_path(@reservation), class: "button secondary" %>
+      <% end %>
+
+      <% if @reservation.status == "provisional" && can_access?(:confirm, :reservations, record: @reservation) %>
+        <%= button_to "予約を確定", confirm_admin_reservation_path(@reservation), method: :patch,
+          params: { reservation: { lock_version: @reservation.lock_version } } %>
+      <% end %>
+
+      <% if @reservation.blocking? && can_access?(:cancel, :reservations, record: @reservation) %>
+        <%= link_to "予約を取消", cancel_confirmation_admin_reservation_path(@reservation), class: "button danger" %>
+      <% end %>
+
+      <% if @reservation.status == "confirmed" && @reservation.starts_at <= Time.current %>
+        <% if can_access?(:complete, :reservations, record: @reservation) %>
+          <%= button_to "利用完了", complete_admin_reservation_path(@reservation), method: :patch,
+            params: { reservation: { lock_version: @reservation.lock_version } } %>
+        <% end %>
+        <% if can_access?(:no_show, :reservations, record: @reservation) %>
+          <%= button_to "無断キャンセル", mark_no_show_admin_reservation_path(@reservation), method: :patch,
+            params: { reservation: { lock_version: @reservation.lock_version } }, class: "button secondary" %>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>予約情報</h2>
+    <dl class="meta-list">
+      <div><dt>顧客</dt><dd><%= @reservation.customer.display_name %></dd></div>
+      <div><dt>予約対象</dt><dd><%= @reservation.reservation_resource.name %></dd></div>
+      <div><dt>開始日時</dt><dd><%= @reservation.starts_at.in_time_zone.strftime("%Y-%m-%d %H:%M") %></dd></div>
+      <div><dt>終了日時</dt><dd><%= @reservation.ends_at.in_time_zone.strftime("%Y-%m-%d %H:%M") %></dd></div>
+      <div><dt>人数</dt><dd><%= @reservation.party_size %>名</dd></div>
+      <div><dt>受付経路</dt><dd><%= @reservation.channel_label %></dd></div>
+      <div><dt>メモ</dt><dd><%= simple_format(@reservation.memo.presence || "—") %></dd></div>
+    </dl>
+  </section>
+
+  <% if @reservation.status == "canceled" %>
+    <section class="panel cancellation-panel">
+      <h2>取消情報</h2>
+      <dl class="meta-list">
+        <div><dt>取消日時</dt><dd><%= @reservation.canceled_at.in_time_zone.strftime("%Y-%m-%d %H:%M") %></dd></div>
+        <div><dt>実行者</dt><dd><%= @reservation.canceled_by.email %></dd></div>
+        <div><dt>理由</dt><dd><%= simple_format(@reservation.cancellation_reason.presence || "—") %></dd></div>
+      </dl>
+    </section>
+  <% end %>
+</div>

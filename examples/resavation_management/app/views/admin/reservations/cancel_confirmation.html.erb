@@ -1,0 +1,25 @@
+<% content_for :title, "予約取消" %>
+
+<div class="stack">
+  <section class="panel">
+    <%= render "errors", reservation: @reservation %>
+    <h1>予約を取消</h1>
+    <p><strong><%= @reservation.reservation_number %></strong>（<%= @reservation.customer.name %>）を取り消します。</p>
+    <p class="muted">予約は削除されず、取消日時と実行者が記録されます。</p>
+  </section>
+
+  <section class="panel">
+    <%= form_with url: cancel_admin_reservation_path(@reservation), method: :patch,
+      scope: :reservation, class: "form", local: true do |form| %>
+      <%= form.hidden_field :lock_version, value: @reservation.lock_version %>
+      <div>
+        <%= form.label :cancellation_reason, "取消理由（任意）" %>
+        <%= form.text_area :cancellation_reason, value: @reservation.cancellation_reason %>
+      </div>
+      <div class="actions">
+        <%= form.submit "予約を取消", class: "button danger" %>
+        <%= link_to "戻る", admin_reservation_path(@reservation), class: "button secondary" %>
+      </div>
+    <% end %>
+  </section>
+</div>

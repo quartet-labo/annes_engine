@@ -1,18 +1,21 @@
 require "securerandom"
 
 module AccessHelpers
-  MASTER_RESOURCE_PERMISSIONS = {
+  ROLE_PERMISSIONS = {
     admin: {
       "customers" => %w[manage],
-      "reservation_resources" => %w[manage]
+      "reservation_resources" => %w[manage],
+      "reservations" => %w[manage confirm cancel complete no_show]
     },
     operator: {
       "customers" => %w[read create update],
-      "reservation_resources" => %w[read]
+      "reservation_resources" => %w[read],
+      "reservations" => %w[manage confirm cancel complete no_show]
     },
     viewer: {
       "customers" => %w[read],
-      "reservation_resources" => %w[read]
+      "reservation_resources" => %w[read],
+      "reservations" => %w[read]
     }
   }.freeze
 
@@ -27,7 +30,7 @@ module AccessHelpers
       record.system = true
     end
 
-    MASTER_RESOURCE_PERMISSIONS.fetch(role_key.to_sym).each do |resource, actions|
+    ROLE_PERMISSIONS.fetch(role_key.to_sym).each do |resource, actions|
       actions.each do |action|
         permission = AnneAccess::Permission.find_or_create_by!(resource:, action:) do |record|
           record.key = "#{resource}.#{action}"
@@ -42,7 +45,9 @@ module AccessHelpers
 
   def sign_in_as_role(role_key)
     account = account_with_role(role_key)
-    post admin_session_path, params: { email: account.email, password: "password-1234" }
+    post admin_session_path,
+      params: { email: account.email, password: "password-1234" },
+      headers: { "REMOTE_ADDR" => "192.0.2.#{SecureRandom.random_number(254) + 1}" }
     assert_redirected_to admin_root_path
     account
   end

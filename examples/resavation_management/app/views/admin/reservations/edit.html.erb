@@ -1,0 +1,12 @@
+<% content_for :title, "予約編集" %>
+
+<div class="stack">
+  <section class="panel">
+    <h1>予約を編集</h1>
+    <p class="muted"><%= @reservation.reservation_number %></p>
+  </section>
+
+  <section class="panel">
+    <%= render "form", reservation: @reservation %>
+  </section>
+</div>

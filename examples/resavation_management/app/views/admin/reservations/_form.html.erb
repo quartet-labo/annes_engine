@@ -1,0 +1,55 @@
+<%= render "errors", reservation: %>
+
+<%= form_with model: [:admin, reservation], class: "form reservation-form", local: true do |form| %>
+  <div class="form-grid">
+    <div>
+      <%= form.label :customer_id, "顧客" %>
+      <%= form.select :customer_id,
+        options_from_collection_for_select(@customers, :id, :display_name, reservation.customer_id),
+        { include_blank: "選択してください" }, required: true %>
+    </div>
+
+    <div>
+      <%= form.label :reservation_resource_id, "予約対象" %>
+      <%= form.select :reservation_resource_id,
+        options_from_collection_for_select(@reservation_resources, :id, :name, reservation.reservation_resource_id),
+        { include_blank: "選択してください" }, required: true %>
+    </div>
+
+    <div>
+      <%= form.label :starts_at, "開始日時" %>
+      <%= form.datetime_local_field :starts_at,
+        value: reservation.starts_at&.in_time_zone&.strftime("%Y-%m-%dT%H:%M"), required: true %>
+    </div>
+
+    <div>
+      <%= form.label :ends_at, "終了日時" %>
+      <%= form.datetime_local_field :ends_at,
+        value: reservation.ends_at&.in_time_zone&.strftime("%Y-%m-%dT%H:%M"), required: true %>
+    </div>
+
+    <div>
+      <%= form.label :party_size, "人数" %>
+      <%= form.number_field :party_size, min: 1, required: true %>
+    </div>
+
+    <div>
+      <%= form.label :channel, "受付経路" %>
+      <%= form.select :channel,
+        options_for_select(Reservation::CHANNEL_LABELS.map { |value, label| [label, value] }, reservation.channel),
+        {}, required: true %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :memo, "メモ" %>
+    <%= form.text_area :memo %>
+  </div>
+
+  <%= form.hidden_field :lock_version if reservation.persisted? %>
+
+  <div class="actions">
+    <%= form.submit reservation.persisted? ? "予約を更新" : "予約を登録" %>
+    <%= link_to "戻る", reservation.persisted? ? admin_reservation_path(reservation) : admin_reservation_schedule_path, class: "button secondary" %>
+  </div>
+<% end %>

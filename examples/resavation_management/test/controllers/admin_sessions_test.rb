@@ -2,7 +2,8 @@ require "test_helper"
 
 class AdminSessionsTest < ActionDispatch::IntegrationTest
   setup do
-    @account = Account.create!(
+    @account = account_with_role(:viewer)
+    @unassigned_account = Account.create!(
       email: "operator@example.com",
       password: "password-1234",
       password_confirmation: "password-1234"
@@ -16,7 +17,7 @@ class AdminSessionsTest < ActionDispatch::IntegrationTest
     assert_not_nil @account.reload.last_sign_in_at
 
     follow_redirect!
-    assert_redirected_to "/admin/"
+    assert_redirected_to "/admin/reservations/schedule"
 
     follow_redirect!
     assert_response :success
@@ -49,6 +50,6 @@ class AdminSessionsTest < ActionDispatch::IntegrationTest
   end
 
   test "anne access remains deny by default" do
-    assert_not AnneAccess.can?(@account, :read, :reservations)
+    assert_not AnneAccess.can?(@unassigned_account, :read, :reservations)
   end
 end

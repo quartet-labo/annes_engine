@@ -3,6 +3,7 @@ ja:
     models:
       account: アカウント
       customer: 顧客
+      reservation: 予約
       reservation_resource: 予約対象
     attributes:
       customer:
@@ -19,3 +20,28 @@ ja:
         capacity: 定員
         active: 利用可
         memo: メモ
+      reservation:
+        reservation_number: 予約番号
+        customer: 顧客
+        reservation_resource: 予約対象
+        starts_at: 開始日時
+        ends_at: 終了日時
+        status: 状態
+        party_size: 人数
+        channel: 受付経路
+        memo: メモ
+        cancellation_reason: 取消理由
+    errors:
+      models:
+        reservation:
+          attributes:
+            starts_at:
+              overlap: 指定時間は既に予約されています
+            ends_at:
+              same_business_day: は開始日時と同じ日を指定してください
+            customer:
+              inactive: は現在利用できません
+            reservation_resource:
+              inactive: は現在利用できません
+            base:
+              terminal_record: 完了・取消済みの予約は編集できません
