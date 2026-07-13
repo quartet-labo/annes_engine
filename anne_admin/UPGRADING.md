@@ -16,6 +16,48 @@ for actions the host app must perform.
 AnneAdmin usually does not ship host DB migrations. If a release has no manual
 steps, no action is needed beyond updating the gem and running tests.
 
+## 0.2.0 -> 0.2.1
+
+### Who Is Affected
+
+Host apps that configure `authorize_with`, especially callbacks that record an
+event or assume they are called only while processing the target action.
+
+### Behavior Change
+
+AnneAdmin now calls the configured authorization hook while rendering action
+controls:
+
+- `:new` on a resource index page
+- `:edit` on a resource show page, with the record in the context
+- each member custom action on a resource show page, with the record in the
+  context
+
+A false result hides the corresponding link or button. Controller actions
+still run authorization independently, so direct requests rejected by the hook
+continue to return `403 Forbidden`.
+
+### Required Steps
+
+1. Ensure `authorize_with` is a side-effect-free predicate that returns a
+   truthy or falsey result for every action it receives.
+2. Ensure member custom action names are handled if the host registers custom
+   actions.
+3. If the host provides custom resource templates, use
+   `anne_admin_authorized?(action, record: nil)` for the same visibility
+   decision as the standard templates.
+
+No host DB migration or resource definition change is required.
+
+### Verification
+
+- A user with create permission sees the `new` link; a user without it does
+  not.
+- A user with update permission sees the `edit` link; a user without it does
+  not.
+- Member custom action buttons follow their action-specific permissions.
+- Direct requests without permission still return `403 Forbidden`.
+
 ## 0.1.x -> 0.2.0
 
 ### Who Is Affected

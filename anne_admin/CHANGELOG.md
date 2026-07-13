@@ -2,8 +2,16 @@
 
 ## Unreleased
 
+## 0.2.1
+
+- Hide standard `new` and `edit` links and member custom action buttons when
+  the configured authorization hook rejects the action, while preserving
+  server-side authorization for direct requests.
+- Keep controller authorization enforcement independent from the view helper
+  used to decide action visibility.
 - Add Resource DSL, authentication/authorization, host customization,
   query/action/audit, and security guides, and expand the README quick start.
+- Add GitHub Packages metadata, release instructions, and a host upgrade guide.
 
 ## 0.2.0
 
