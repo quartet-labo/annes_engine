@@ -45,7 +45,7 @@ class AdminSessionsTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_login_path
 
     get "/admin"
-    assert_redirected_to admin_login_path
+    assert_redirected_to "/admin/login"
   end
 
   test "anne access remains deny by default" do

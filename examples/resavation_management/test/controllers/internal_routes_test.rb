@@ -23,6 +23,6 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
   test "admin area redirects anonymous users to login" do
     get "/admin"
 
-    assert_redirected_to admin_login_path
+    assert_redirected_to "/admin/login"
   end
 end

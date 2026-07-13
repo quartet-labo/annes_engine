@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Admin Login" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  </head>
+
+  <body>
+    <main class="container main">
+      <% if notice.present? %>
+        <div class="notice"><%= notice %></div>
+      <% end %>
+      <% if alert.present? %>
+        <div class="alert"><%= alert %></div>
+      <% end %>
+
+      <div class="panel">
+        <%= yield %>
+      </div>
+    </main>
+  </body>
+</html>

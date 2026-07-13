@@ -1,0 +1,18 @@
+<% content_for :title, "管理者ログイン" %>
+
+<h1>管理者ログイン</h1>
+<p class="muted">スタッフアカウントでログインしてください。</p>
+
+<%= form_with url: admin_session_path, method: :post, class: "form" do |form| %>
+  <div>
+    <%= form.label :email, "メールアドレス" %>
+    <%= form.email_field :email, autocomplete: "email", autofocus: true %>
+  </div>
+
+  <div>
+    <%= form.label :password, "パスワード" %>
+    <%= form.password_field :password, autocomplete: "current-password" %>
+  </div>
+
+  <%= form.submit "ログイン" %>
+<% end %>

@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: "noreply@example.com"
+  default from: AnneAuth.configuration.mailer_from
   layout "mailer"
 end
