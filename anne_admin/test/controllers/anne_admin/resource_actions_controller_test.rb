@@ -29,6 +29,15 @@ class AnneAdmin::ResourceActionsControllerTest < AnneAdmin::IntegrationTest
     assert_equal "normalize_name", payloads.last.fetch(:action)
   end
 
+  test "shows member custom action when authorization is not configured" do
+    customer = customers(:anan)
+
+    get anne_admin.resource_record_path("customers", customer)
+
+    assert_response :success
+    assert_includes response.body, "Normalize"
+  end
+
   test "rejects wrong http method" do
     customer = customers(:anan)
 

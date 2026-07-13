@@ -36,6 +36,8 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
   test "admin manages customer and reservation resource records" do
     sign_in_as_role(:admin)
+    assert_action_link_visibility("customers", @customer, create: true, update: true)
+    assert_action_link_visibility("reservation_resources", @resource, create: true, update: true)
 
     get "/admin/customers", params: { q: "Zulu" }
     assert_response :success
@@ -87,6 +89,8 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
   test "operator manages customers but can only read reservation resources" do
     sign_in_as_role(:operator)
+    assert_action_link_visibility("customers", @customer, create: true, update: true)
+    assert_action_link_visibility("reservation_resources", @resource, create: false, update: false)
 
     assert_readable("customers", @customer)
     assert_response_allowed(:get, "/admin/customers/new")
@@ -107,6 +111,8 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
   test "viewer can read both resources but cannot open or submit write forms" do
     sign_in_as_role(:viewer)
+    assert_action_link_visibility("customers", @customer, create: false, update: false)
+    assert_action_link_visibility("reservation_resources", @resource, create: false, update: false)
 
     assert_readable("customers", @customer)
     assert_response_forbidden(:get, "/admin/customers/new")
@@ -171,6 +177,16 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
     def assert_readable(resource_name, record)
       assert_response_allowed(:get, "/admin/#{resource_name}")
       assert_response_allowed(:get, "/admin/#{resource_name}/#{record.id}")
+    end
+
+    def assert_action_link_visibility(resource_name, record, create:, update:)
+      get "/admin/#{resource_name}"
+      assert_response :success
+      assert_select "a[href='/admin/#{resource_name}/new']", count: create ? 1 : 0
+
+      get "/admin/#{resource_name}/#{record.id}"
+      assert_response :success
+      assert_select "a[href='/admin/#{resource_name}/#{record.id}/edit']", count: update ? 1 : 0
     end
 
     def assert_response_allowed(method, path, params = {})

@@ -8,11 +8,13 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <%= link_to "一覧", anne_admin_resource_index_path(@resource), class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
-      <% if @resource.action?(:edit) %>
+      <% if @resource.action?(:edit) && anne_admin_authorized?(:edit, record: @record) %>
         <%= link_to "編集", anne_admin_edit_resource_record_path(@resource, @record), class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
       <% end %>
       <% @resource.member_custom_actions.each do |action| %>
-        <%= button_to action.label, anne_admin_resource_member_action_path(@resource, @record, action), method: action.method, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100", form: { data: { turbo_confirm: action.confirm } } %>
+        <% if anne_admin_authorized?(action.name, record: @record) %>
+          <%= button_to action.label, anne_admin_resource_member_action_path(@resource, @record, action), method: action.method, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100", form: { data: { turbo_confirm: action.confirm } } %>
+        <% end %>
       <% end %>
     </div>
   </div>
