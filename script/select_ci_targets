@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require "optparse"
+require_relative "ci_target_selector"
+
+options = {
+  force_all_reason: nil,
+  github_output: nil,
+  summary: nil
+}
+
+OptionParser.new do |parser|
+  parser.banner = "Usage: ruby script/select_ci_targets [options] [changed-paths-file]"
+  parser.on("--all-reason REASON", "Run all targets and record the reason") do |reason|
+    options[:force_all_reason] = reason
+  end
+  parser.on("--github-output PATH", "Append matrix outputs to a GitHub output file") do |path|
+    options[:github_output] = path
+  end
+  parser.on("--summary PATH", "Append the selection summary to a file") do |path|
+    options[:summary] = path
+  end
+end.parse!
+
+paths = if ARGV.first
+  File.readlines(ARGV.first, chomp: true)
+else
+  $stdin.each_line(chomp: true).to_a
+end
+
+selector = CiTargetSelector.new
+selection = selector.select(paths:, force_all_reason: options[:force_all_reason])
+summary = selection.summary(all_targets: CiTargetSelector::TARGETS)
+
+if options[:github_output]
+  File.open(options[:github_output], "a") do |output|
+    output.puts "matrix=#{JSON.generate(selection.matrix)}"
+    output.puts "has_tests=#{selection.has_tests?}"
+  end
+end
+
+File.open(options[:summary], "a") { |file| file.write(summary) } if options[:summary]
+
+puts summary
