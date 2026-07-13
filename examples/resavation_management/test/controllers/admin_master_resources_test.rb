@@ -35,13 +35,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "admin manages customer and reservation resource records" do
-    sign_in_with_permissions(
-      role_key: "admin",
-      permissions: {
-        "customers" => %w[manage],
-        "reservation_resources" => %w[manage]
-      }
-    )
+    sign_in_as_role(:admin)
 
     get "/admin/customers", params: { q: "Zulu" }
     assert_response :success
@@ -92,13 +86,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "operator manages customers but can only read reservation resources" do
-    sign_in_with_permissions(
-      role_key: "operator",
-      permissions: {
-        "customers" => %w[read create update],
-        "reservation_resources" => %w[read]
-      }
-    )
+    sign_in_as_role(:operator)
 
     assert_readable("customers", @customer)
     assert_response_allowed(:get, "/admin/customers/new")
@@ -108,41 +96,62 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
     assert_readable("reservation_resources", @resource)
     assert_response_forbidden(:get, "/admin/reservation_resources/new")
-    assert_response_forbidden(:post, "/admin/reservation_resources", reservation_resource: { name: "不可", kind: "room", capacity: 1 })
+    assert_no_difference("ReservationResource.count") do
+      assert_response_forbidden(:post, "/admin/reservation_resources", reservation_resource: { name: "不可", kind: "room", capacity: 1 })
+    end
     assert_response_forbidden(:get, "/admin/reservation_resources/#{@resource.id}/edit")
-    assert_response_forbidden(:patch, "/admin/reservation_resources/#{@resource.id}", reservation_resource: { name: "不可" })
+    assert_no_changes -> { @resource.reload.name } do
+      assert_response_forbidden(:patch, "/admin/reservation_resources/#{@resource.id}", reservation_resource: { name: "不可" })
+    end
   end
 
   test "viewer can read both resources but cannot open or submit write forms" do
-    sign_in_with_permissions(
-      role_key: "viewer",
-      permissions: {
-        "customers" => %w[read],
-        "reservation_resources" => %w[read]
-      }
-    )
+    sign_in_as_role(:viewer)
 
     assert_readable("customers", @customer)
     assert_response_forbidden(:get, "/admin/customers/new")
-    assert_response_forbidden(:post, "/admin/customers", customer: { name: "不可" })
+    assert_no_difference("Customer.count") do
+      assert_response_forbidden(:post, "/admin/customers", customer: { name: "不可" })
+    end
     assert_response_forbidden(:get, "/admin/customers/#{@customer.id}/edit")
-    assert_response_forbidden(:patch, "/admin/customers/#{@customer.id}", customer: { name: "不可" })
+    assert_no_changes -> { @customer.reload.name } do
+      assert_response_forbidden(:patch, "/admin/customers/#{@customer.id}", customer: { name: "不可" })
+    end
 
     assert_readable("reservation_resources", @resource)
     assert_response_forbidden(:get, "/admin/reservation_resources/new")
-    assert_response_forbidden(:post, "/admin/reservation_resources", reservation_resource: { name: "不可", kind: "room", capacity: 1 })
+    assert_no_difference("ReservationResource.count") do
+      assert_response_forbidden(:post, "/admin/reservation_resources", reservation_resource: { name: "不可", kind: "room", capacity: 1 })
+    end
     assert_response_forbidden(:get, "/admin/reservation_resources/#{@resource.id}/edit")
-    assert_response_forbidden(:patch, "/admin/reservation_resources/#{@resource.id}", reservation_resource: { name: "不可" })
+    assert_no_changes -> { @resource.reload.name } do
+      assert_response_forbidden(:patch, "/admin/reservation_resources/#{@resource.id}", reservation_resource: { name: "不可" })
+    end
+  end
+
+  test "role helpers grant the permission seed design for master resources" do
+    admin = account_with_role(:admin)
+    operator = account_with_role(:operator)
+    viewer = account_with_role(:viewer)
+
+    assert AnneAccess.can?(admin, :manage, :customers)
+    assert AnneAccess.can?(admin, :manage, :reservation_resources)
+
+    assert AnneAccess.can?(operator, :index, :customers)
+    assert AnneAccess.can?(operator, :new, :customers)
+    assert AnneAccess.can?(operator, :edit, :customers)
+    assert AnneAccess.can?(operator, :index, :reservation_resources)
+    assert_not AnneAccess.can?(operator, :new, :reservation_resources)
+    assert_not AnneAccess.can?(operator, :edit, :reservation_resources)
+
+    assert AnneAccess.can?(viewer, :index, :customers)
+    assert AnneAccess.can?(viewer, :index, :reservation_resources)
+    assert_not AnneAccess.can?(viewer, :new, :customers)
+    assert_not AnneAccess.can?(viewer, :edit, :reservation_resources)
   end
 
   test "destroy is unavailable for every master resource" do
-    sign_in_with_permissions(
-      role_key: "admin",
-      permissions: {
-        "customers" => %w[manage],
-        "reservation_resources" => %w[manage]
-      }
-    )
+    sign_in_as_role(:admin)
 
     delete "/admin/customers/#{@customer.id}"
     assert_response :not_found
@@ -155,7 +164,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
   private
     def assert_master_actions(resource)
-      assert_equal %i[index show new create edit update], resource.actions.sort_by { |action| %i[index show new create edit update].index(action) }
+      assert_equal %i[index show new create edit update], resource.actions
       assert_not resource.action?(:destroy)
     end
 
@@ -166,35 +175,11 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
 
     def assert_response_allowed(method, path, params = {})
       public_send(method, path, params:)
-      assert_response :success unless response.redirect?
+      assert_response(method == :get ? :success : :redirect)
     end
 
     def assert_response_forbidden(method, path, params = {})
       public_send(method, path, params:)
       assert_response :forbidden
-    end
-
-    def sign_in_with_permissions(role_key:, permissions:)
-      account = Account.create!(
-        email: "#{role_key}@example.com",
-        password: "password-1234",
-        password_confirmation: "password-1234"
-      )
-      role = AnneAccess::Role.create!(key: role_key, name: role_key.humanize, system: true)
-
-      permissions.each do |resource, actions|
-        actions.each do |action|
-          permission = AnneAccess::Permission.create!(
-            key: "#{resource}.#{action}",
-            resource:,
-            action:
-          )
-          AnneAccess::RolePermission.create!(role:, permission:)
-        end
-      end
-
-      AnneAccess::Assignment.create!(principal: account, role:)
-      post admin_session_path, params: { email: account.email, password: "password-1234" }
-      assert_redirected_to admin_root_path
     end
 end
