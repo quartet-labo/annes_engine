@@ -76,6 +76,7 @@ class Reservation < ApplicationRecord
     end
 
     def party_size_fits_resource
+      return unless new_record? || will_save_change_to_party_size? || will_save_change_to_reservation_resource_id?
       return if party_size.blank? || reservation_resource.blank? || reservation_resource.capacity.blank?
       return if party_size <= reservation_resource.capacity
 

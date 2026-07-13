@@ -124,6 +124,21 @@ class ReservationTest < ActiveSupport::TestCase
     assert reservation.errors.added?(:base, :terminal_record)
   end
 
+  test "allows closing an ended reservation after resource capacity is reduced" do
+    starts_at = Time.zone.yesterday.beginning_of_day + 10.hours
+    reservation = build_reservation(
+      starts_at: starts_at,
+      ends_at: starts_at + 1.hour,
+      party_size: 4
+    )
+    reservation.save!
+    @resource.update!(capacity: 2)
+
+    reservation.status = "completed"
+
+    assert reservation.save
+  end
+
   test "orders reservations by start time" do
     later = build_reservation(starts_at: @starts_at + 2.hours, ends_at: @starts_at + 3.hours, status: "completed")
     earlier = build_reservation(status: "completed")
