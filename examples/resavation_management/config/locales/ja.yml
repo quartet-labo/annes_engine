@@ -2,3 +2,20 @@ ja:
   activerecord:
     models:
       account: アカウント
+      customer: 顧客
+      reservation_resource: 予約対象
+    attributes:
+      customer:
+        customer_number: 顧客番号
+        name: 氏名
+        name_kana: 氏名カナ
+        email: メールアドレス
+        phone: 電話番号
+        active: 有効
+        memo: メモ
+      reservation_resource:
+        name: 名称
+        kind: 種別
+        capacity: 定員
+        active: 利用可
+        memo: メモ
