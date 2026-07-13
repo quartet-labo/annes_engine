@@ -96,6 +96,13 @@ AnneAdmin.configure do |config|
 end
 ```
 
+The authorization hook is also used to decide whether standard `new` and
+`edit` links and member custom action buttons are rendered. Host-provided
+resource templates can call `anne_admin_authorized?(action, record: nil)` to
+apply the same context and decision as controller authorization. Direct
+requests are always authorized separately and still return `403 Forbidden`
+when rejected.
+
 When using `anne_auth`, include its authentication concern into the controller
 that AnneAdmin uses before configuring these hooks.
 

@@ -7,7 +7,7 @@
       <h1 class="text-2xl font-semibold tracking-normal text-slate-950"><%= @resource.label %></h1>
       <p class="mt-1 text-sm text-slate-600"><%= @total_count %>件</p>
     </div>
-    <% if @resource.action?(:new) %>
+    <% if @resource.action?(:new) && anne_admin_authorized?(:new) %>
       <%= link_to "新規登録", anne_admin_new_resource_path(@resource), class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
     <% end %>
   </div>

@@ -55,6 +55,18 @@ class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
     assert_includes engine_response.body, customers(:anan).email
   end
 
+  test "shows configured action links when authorization is not configured" do
+    engine_get "/customers"
+
+    assert_engine_response :success
+    assert_includes engine_response.body, "新規登録"
+
+    engine_get "/customers/#{customers(:anan).id}"
+
+    assert_engine_response :success
+    assert_includes engine_response.body, "編集"
+  end
+
   test "creates a record with permitted attributes" do
     assert_difference "Customer.count", 1 do
       engine_post "/customers", params: {
