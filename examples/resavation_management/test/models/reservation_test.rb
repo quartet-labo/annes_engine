@@ -43,7 +43,7 @@ class ReservationTest < ActiveSupport::TestCase
     reservation = build_reservation(party_size: 5)
 
     assert_not reservation.valid?
-    assert reservation.errors.added?(:party_size, :less_than_or_equal_to, value: 5, count: 4)
+    assert reservation.errors.added?(:party_size, :less_than_or_equal_to, count: 4)
 
     reservation.party_size = 0
     assert_not reservation.valid?
@@ -72,7 +72,7 @@ class ReservationTest < ActiveSupport::TestCase
   end
 
   test "requires cancellation metadata only for canceled reservations" do
-    account = Account.create!(email: "operator@example.com", password: "password123")
+    account = Account.create!(email: "operator@example.com", password: "password123456")
     canceled = build_reservation(status: "canceled")
 
     assert_not canceled.valid?

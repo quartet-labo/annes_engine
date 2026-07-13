@@ -40,7 +40,7 @@ class ReservationConstraintsTest < ActiveSupport::TestCase
     other_resource = ReservationResource.create!(name: "別会議室", kind: "room", capacity: 4)
     insert_reservation!(number: "R-DB000003", resource: other_resource)
 
-    account = Account.create!(email: "cancel@example.com", password: "password123")
+    account = Account.create!(email: "cancel@example.com", password: "password123456")
     insert_reservation!(
       number: "R-DB000004",
       status: "canceled",

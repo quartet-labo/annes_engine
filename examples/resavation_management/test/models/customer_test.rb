@@ -34,6 +34,6 @@ class CustomerTest < ActiveSupport::TestCase
 
     assert_not customer.destroy
     assert Customer.exists?(customer.id)
-    assert customer.errors.added?(:base, :restrict_dependent_destroy, record: "reservations")
+    assert customer.errors.added?(:base, :"restrict_dependent_destroy.has_many", record: "reservations")
   end
 end

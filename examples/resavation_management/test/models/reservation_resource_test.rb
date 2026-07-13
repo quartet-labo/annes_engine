@@ -36,7 +36,7 @@ class ReservationResourceTest < ActiveSupport::TestCase
     resource.capacity = 4
 
     assert_not resource.valid?
-    assert resource.errors.added?(:capacity, :greater_than_or_equal_to, value: 4, count: 5)
+    assert resource.errors.added?(:capacity, :greater_than_or_equal_to, count: 5)
   end
 
   test "can reduce capacity when only terminal or past reservations exceed it" do
@@ -68,6 +68,6 @@ class ReservationResourceTest < ActiveSupport::TestCase
 
     assert_not resource.destroy
     assert ReservationResource.exists?(resource.id)
-    assert resource.errors.added?(:base, :restrict_dependent_destroy, record: "reservations")
+    assert resource.errors.added?(:base, :"restrict_dependent_destroy.has_many", record: "reservations")
   end
 end
