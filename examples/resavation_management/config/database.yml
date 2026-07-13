@@ -1,0 +1,22 @@
+<% database_url = ENV["RESERVATION_MANAGEMENT_DATABASE_URL"].to_s.empty? ? ENV["DATABASE_URL"].to_s : ENV["RESERVATION_MANAGEMENT_DATABASE_URL"].to_s %>
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+<% if database_url.empty? %>
+  database: anne_reservation_management_development
+<% else %>
+  url: <%= database_url %>
+<% end %>
+
+test:
+  <<: *default
+<% if database_url.empty? %>
+  database: anne_reservation_management_test
+<% else %>
+  url: <%= database_url %>
+<% end %>
