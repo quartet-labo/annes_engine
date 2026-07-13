@@ -31,6 +31,18 @@ module Reservations
       assert_equal 2, Reservation.find(@reservation.id).party_size
     end
 
+    test "does not update status outside the transition service" do
+      result = Update.new(
+        @reservation,
+        { "status" => "completed", "memo" => "通常項目だけ更新" },
+        lock_version: @reservation.lock_version
+      ).call
+
+      assert_empty result.errors
+      assert_equal "confirmed", result.reload.status
+      assert_equal "通常項目だけ更新", result.memo
+    end
+
     test "rejects edits to terminal reservations" do
       completed = create_reservation!(
         starts_at: @starts_at + 2.hours,
