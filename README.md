@@ -2,6 +2,17 @@
 
 Anne Engine is a monorepo for reusable Rails engines.
 
+## Project Scope
+
+Anne Engine is the shared foundation used by Quartet Labo LLC. for its
+semi-custom web application development services. Development and maintenance of
+the project prioritize contracted projects and customers with active support agreements.
+
+The source is published so other teams can inspect, use, and adapt the engines,
+but the public project is not operated as a community product with a committed
+roadmap or release schedule. The needs of applications developed and maintained
+by Quartet Labo LLC. guide the project roadmap.
+
 ## Gems
 
 - [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, and Google OAuth
@@ -150,3 +161,30 @@ Seed accounts use the development-only password `password-1234`:
 See the reservation management [requirements](examples/resavation_management/docs/requirements.md)
 and [design](examples/resavation_management/docs/design.md) for the workflow,
 authorization matrix, database constraints, and implementation boundaries.
+
+## License
+
+Anne Engine is available under the [MIT License](MIT-LICENSE). The license
+permits commercial and non-commercial use, modification, distribution,
+sublicensing, and sale, subject to preservation of the copyright and permission
+notices.
+
+## Support
+
+Use of the open-source software does not include support, maintenance, bug fixes,
+feature development, compatibility guarantees, or release commitments. Paid
+implementation, customization, and Standard Support are available separately
+from Quartet Labo LLC. See the [support policy](SUPPORT.md) for the boundary
+between community use and paid services.
+
+## Contributing
+
+External code contributions are not currently accepted. Issues may be used to
+share feedback, but they do not create a response or implementation commitment.
+See the [contribution policy](CONTRIBUTING.md) before opening an issue or pull
+request.
+
+## Security
+
+Do not disclose suspected vulnerabilities in public issues. Follow the
+[security policy](SECURITY.md) to submit a private report.
