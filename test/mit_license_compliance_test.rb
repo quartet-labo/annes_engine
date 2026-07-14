@@ -119,6 +119,8 @@ class MitLicenseComplianceTest < Minitest::Test
         gem.version = "1.0.0"
         gem.summary = "Fixture gem for license compliance tests"
         gem.authors = [ "Quartet Labo LLC." ]
+        gem.homepage = "https://github.com/quartet-labo/anne_engine"
+        gem.required_ruby_version = ">= 3.4.0"
         gem.files = [ "lib/fixture.rb" ]
         gem.files << "MIT-LICENSE" if license_text
         gem.license = license

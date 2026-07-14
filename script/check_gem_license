@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "pathname"
+require "tmpdir"
+require "rubygems/package"
+
+unless ARGV.one?
+  warn "Usage: ruby script/check_gem_license PATH_TO_GEM"
+  exit 2
+end
+
+root = Pathname(__dir__).join("..").expand_path
+expected_license_path = root.join("MIT-LICENSE")
+gem_path = Pathname(ARGV.fetch(0)).expand_path
+errors = []
+
+unless expected_license_path.file?
+  warn "Repository MIT-LICENSE is missing: #{expected_license_path}"
+  exit 1
+end
+
+unless gem_path.file?
+  warn "Gem file does not exist: #{gem_path}"
+  exit 1
+end
+
+expected_license = expected_license_path.binread
+
+begin
+  package = Gem::Package.new(gem_path.to_s)
+  licenses = package.spec.licenses
+  errors << "license metadata must be MIT (found: #{licenses.join(", ")})" unless licenses == [ "MIT" ]
+
+  Dir.mktmpdir("anne-engine-gem-license-") do |directory|
+    package.extract_files(directory)
+    packaged_license = Pathname(directory).join("MIT-LICENSE")
+
+    if !packaged_license.file?
+      errors << "MIT-LICENSE is missing from the gem root"
+    elsif packaged_license.binread != expected_license
+      errors << "MIT-LICENSE does not match the repository license"
+    end
+  end
+rescue Gem::Package::Error, Gem::Exception, SystemCallError => error
+  errors << "could not inspect gem: #{error.message}"
+end
+
+if errors.any?
+  errors.each { |error| warn "#{gem_path.basename}: #{error}" }
+  exit 1
+end
+
+puts "Verified MIT license in #{gem_path.basename}"
