@@ -48,7 +48,8 @@ class CiTargetSelectorTest < Minitest::Test
       "anne_auth/README.md",
       "anne_admin/docs/resource-dsl.md",
       "script/documentation_checker.rb",
-      "test/documentation_checker_test.rb"
+      "test/documentation_checker_test.rb",
+      "test/public_project_policy_test.rb"
     )
 
     assert_empty selection.targets
