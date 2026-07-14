@@ -325,3 +325,12 @@ end
 AnneAdmin passes resource names and controller actions to the hook. AnneAccess
 maps standard controller actions such as `index`, `show`, `new`, and `edit` to
 RBAC actions such as `read`, `create`, and `update`.
+
+## License and Support
+
+AnneAdmin is available under the
+[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+Open-source use does not include support, maintenance, fixes, compatibility
+guarantees, or release commitments. See the shared
+[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+for community-use boundaries and separately available paid services.

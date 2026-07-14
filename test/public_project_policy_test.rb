@@ -24,7 +24,7 @@ class PublicProjectPolicyTest < Minitest::Test
     end
 
     assert_match(/semi-custom web application development/i, readme)
-    assert_match(/contracted projects.*active support agreements.*priorit/i, readme)
+    assert_match(/priorit.*contracted projects.*active support agreements/im, readme)
     assert_match(/commercial and non-commercial use/i, readme)
     assert_match(/does not include support.*maintenance.*bug fixes.*feature development.*compatibility.*release commitments/im, readme)
 
@@ -43,14 +43,14 @@ class PublicProjectPolicyTest < Minitest::Test
     assert_match(/best-effort/i, support)
     assert_match(/does not include an SLA/i, support)
     assert_match(/response time.*recovery time.*resolution deadline.*uptime/im, support)
-    assert_match(/contracted projects.*active support agreements.*priorit/i, support)
-    assert_match(/does not create.*support obligation/i, support)
+    assert_match(/priorit.*contracted projects.*active support agreements/im, support)
+    assert_match(/does\s+not\s+create\s+a\s+support\s+obligation/i, support)
   end
 
   def test_contribution_policy_declines_external_code_for_now
     contributing = ROOT.join("CONTRIBUTING.md").read
 
-    assert_match(/not currently accepting external pull requests or code contributions/i, contributing)
+    assert_match(/not\s+currently\s+accepting\s+external\s+pull\s+requests\s+or\s+code\s+contributions/i, contributing)
     assert_match(/issues.*do not guarantee.*response.*investigation.*fix/im, contributing)
     assert_includes contributing, "[security policy](SECURITY.md)"
   end
