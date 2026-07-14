@@ -27,6 +27,9 @@ jobs:
       - name: Test documentation checker
         run: ruby test/documentation_checker_test.rb
 
+      - name: Verify public project policies
+        run: ruby test/public_project_policy_test.rb
+
       - name: Check documentation
         run: ruby script/check_docs
 
