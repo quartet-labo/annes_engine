@@ -247,3 +247,12 @@ AnneAuth only processes the Google callback when
 `config.google_oauth_client_secret` are all present. If Google login is disabled
 in AnneAuth, the callback redirects back to login without creating or signing in
 an account.
+
+## License and Support
+
+AnneAuth is available under the
+[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+Open-source use does not include support, maintenance, fixes, compatibility
+guarantees, or release commitments. See the shared
+[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+for community-use boundaries and separately available paid services.

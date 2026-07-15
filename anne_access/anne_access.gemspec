@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.metadata["github_repo"] = "ssh://github.com/quartet-labo/anne_engine"
 
   spec.files = Dir.chdir(__dir__) do
-    Dir["{app,config,db,docs,lib}/**/*", "Rakefile", "README.md", "CHANGELOG.md", "UPGRADING.md"]
+    Dir["{app,config,db,docs,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end
 
   spec.add_dependency "rails", ">= 8.1.0", "< 8.2"

@@ -87,6 +87,7 @@ class CiTargetSelector
     script/check_docs
     script/documentation_checker.rb
     test/documentation_checker_test.rb
+    test/public_project_policy_test.rb
   ].freeze
 
   SHARED_ROOT_FILES = %w[

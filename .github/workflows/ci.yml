@@ -27,8 +27,28 @@ jobs:
       - name: Test documentation checker
         run: ruby test/documentation_checker_test.rb
 
+      - name: Verify public project policies
+        run: ruby test/public_project_policy_test.rb
+
       - name: Check documentation
         run: ruby script/check_docs
+
+  license-compliance:
+    name: License compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+
+      - name: Verify MIT license packaging
+        run: ruby test/mit_license_compliance_test.rb
 
   changes:
     name: Select tests

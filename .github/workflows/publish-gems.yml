@@ -116,6 +116,10 @@ jobs:
           echo "gem_file=$gem_file" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Verify gem license
+        if: steps.select.outputs.should_publish == 'true'
+        run: ruby script/check_gem_license "${{ matrix.path }}/${{ steps.build.outputs.gem_file }}"
+
       - name: Push gem
         if: steps.select.outputs.should_publish == 'true'
         working-directory: ${{ matrix.path }}

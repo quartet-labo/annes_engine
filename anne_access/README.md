@@ -198,3 +198,12 @@ end
 
 Keep business-specific record ownership, tenant scoping, and workflow rules in
 the host application through `custom_rule` or host controllers.
+
+## License and Support
+
+AnneAccess is available under the
+[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+Open-source use does not include support, maintenance, fixes, compatibility
+guarantees, or release commitments. See the shared
+[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+for community-use boundaries and separately available paid services.
