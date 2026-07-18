@@ -203,6 +203,11 @@ bin/rails generate anne_auth:install
 bin/rails db:migrate
 ```
 
+These commands assume the default `accounts` table and `account_id` foreign
+key. If the host uses custom account mappings, do not run the generated
+invitation migration unchanged. Adapt it before migrating by following the two
+paths in the [upgrade guide](UPGRADING.md).
+
 Call the service directly from trusted application code. AnneAuth intentionally
 does not expose an HTTP endpoint that issues invitations.
 
@@ -257,8 +262,10 @@ end
 ```
 
 The host migration and associations must use the same table and foreign key.
-See the [configuration reference](docs/configuration.md) for the full mapping
-contract and [Security and operations](docs/security-and-operations.md) for
+Do not run the generator's default invitation migration unchanged for this
+mapping. See the [upgrade guide](UPGRADING.md) for a custom migration example,
+the [configuration reference](docs/configuration.md) for the full mapping
+contract, and [Security and operations](docs/security-and-operations.md) for
 bearer-token logging controls.
 
 ## Package Boundary
