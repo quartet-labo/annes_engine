@@ -19,7 +19,7 @@ end
 | Setting | Default | Contract and effect |
 | --- | --- | --- |
 | `mailer_from` | `"noreply@example.com"` | Sender passed to the account mailer. Replace it in every production host. |
-| `account_mailer_class_name` | `"AnneAuth::AccountMailer"` | Constant name used for verification and password-reset messages. |
+| `account_mailer_class_name` | `"AnneAuth::AccountMailer"` | Constant name used for verification, password-reset, and invitation messages. |
 | `account_email_format` | `URI::MailTo::EMAIL_REGEXP` | Regular expression used by the account email validation. |
 | `account_password_minimum_length` | `12` | Minimum length enforced on account creation and password reset. |
 | `account_session_cookie_name` | `:account_session_id` | Name of the signed session cookie. |
@@ -41,10 +41,13 @@ lifetime or secure behavior.
 | `profile_complete` | `(account)` | `true` | Predicate used by `require_verified_account` after authentication and email verification. |
 | `after_account_created` | `(account, controller)` | no-op | Notification hook after registration creates an account. Its return value is ignored. |
 | `account_password_reset_url` | `(mailer, plain_token)` | `mailer.edit_account_password_reset_url(token:)` | Absolute or host-generated password-reset URL included in mail. |
+| `account_invitation_url` | `(mailer, plain_token)` | `mailer.account_invitation_url(token:)` | Absolute or host-generated invitation activation URL included in mail. |
 
 Hooks running in a mounted Engine usually need `controller.main_app` to call
 host route helpers. Mailer URL generation also requires the host application's
 `default_url_options` to contain the correct production host and protocol.
+Both URL callables receive a plaintext bearer token only while rendering the
+message. Do not log their arguments or return values.
 
 ## Google OAuth
 
@@ -78,11 +81,13 @@ The defaults use Engine-owned models and host-installed tables.
 | `account_identity_class_name` | `"AnneAuth::AccountIdentity"` |
 | `account_verification_token_class_name` | `"AnneAuth::AccountVerificationToken"` |
 | `account_password_reset_token_class_name` | `"AnneAuth::AccountPasswordResetToken"` |
+| `account_invitation_token_class_name` | `"AnneAuth::AccountInvitationToken"` |
 | `account_table_name` | `"accounts"` |
 | `account_session_table_name` | `"account_sessions"` |
 | `account_identity_table_name` | `"account_identities"` |
 | `account_verification_token_table_name` | `"account_verification_tokens"` |
 | `account_password_reset_token_table_name` | `"account_password_reset_tokens"` |
+| `account_invitation_token_table_name` | `"account_invitation_tokens"` |
 | `account_foreign_key` | `:account_id` |
 
 These values form one mapping contract. Changing one model, table, or foreign
@@ -106,6 +111,26 @@ end
 Keep domain associations and business rules in the host subclass or concerns;
 do not add host constants to the Engine. Test registration, every token flow,
 session loading, and dependent deletion after changing model mappings.
+
+For example, a host that uses `CustomerAccount` and a custom invitation-token
+table must configure the account class, invitation class, table, and foreign key
+as one unit:
+
+```ruby
+AnneAuth.configure do |config|
+  config.account_class_name = "CustomerAccount"
+  config.account_table_name = "customer_accounts"
+  config.account_invitation_token_class_name = "CustomerAccountInvitationToken"
+  config.account_invitation_token_table_name = "customer_account_invitation_tokens"
+  config.account_foreign_key = :customer_account_id
+end
+```
+
+`CustomerAccountInvitationToken` should inherit
+`AnneAuth::AccountInvitationToken`. Its host migration must create
+`customer_account_invitation_tokens.customer_account_id` and the matching
+foreign key/index. Apply these settings during boot, before either model is
+eager-loaded.
 
 ## Verification Token Digest
 

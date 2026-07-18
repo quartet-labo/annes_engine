@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 0.3.2
+
+- Add dedicated one-hour account invitation tokens with digest-only storage,
+  single-use lookup, resend invalidation, and configurable host model/table
+  mapping.
+- Add a trusted synchronous invitation delivery API with status-only results and
+  multipart account-setup email templates.
+- Add a scanner-safe activation flow that removes the plaintext token after the
+  entry request and does not consume it until password submission succeeds.
+- Atomically set the password, verify the email address, and invalidate all
+  outstanding invitation/reset/verification tokens and account sessions without
+  automatically signing in the account.
+- Filter token parameters, set `Referrer-Policy: no-referrer` on invitation
+  responses, and document upstream request-URL log controls.
 - Add dedicated configuration, route integration, security/operations, and
   troubleshooting guides, and restructure the README as a complete quick start.
 

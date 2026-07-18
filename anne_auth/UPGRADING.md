@@ -12,12 +12,128 @@ for actions the host app must perform.
    - Preferred: run `bin/rails generate anne_auth:install` and review generated
      / skipped files.
    - Alternative: copy only the missing migration files from `anne_auth/db/migrate`.
-4. Run `bin/rails db:migrate`.
+4. If the host uses custom table or foreign-key mappings, adapt newly copied
+   migrations to that schema before running `bin/rails db:migrate`.
 5. Review `config/initializers/anne_auth.rb` for new settings.
 6. Run the host app authentication test suite.
 
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
+
+## 0.3.1 -> 0.3.2
+
+### Who Is Affected
+
+Host apps upgrading to 0.3.2 must install the invitation-token migration before
+calling the new invitation delivery API. Existing login, verification, and
+password-reset flows do not require invitation data.
+
+### Required Steps
+
+1. Copy the account-invitation-token migration, but do not run it until you
+   choose the default or custom mapping path below:
+
+   ```sh
+   bin/rails generate anne_auth:install
+   ```
+
+   Confirm that the host has exactly one unapplied migration ending in
+   `create_anne_auth_account_invitation_tokens.rb`.
+
+2. Choose the migration path that matches the host's existing account mapping:
+
+   **Default mapping (`accounts` / `account_id`):** Run the generated migration
+   unchanged:
+
+   ```sh
+   bin/rails db:migrate
+   ```
+
+   Confirm that it created `account_invitation_tokens` with `account_id`,
+   `token_digest`, `expires_at`, and `used_at`.
+
+   **Custom mapping:** Do not run the generated invitation migration unchanged.
+   Before `bin/rails db:migrate`, edit that migration or replace it with a host
+   migration whose table and reference match `account_invitation_token_table_name`
+   and `account_foreign_key`. For example, a host using `customer_accounts` and
+   `customer_account_id` needs the equivalent of:
+
+   ```ruby
+   create_table :customer_account_invitation_tokens do |t|
+     t.references :customer_account,
+       null: false,
+       foreign_key: { to_table: :customer_accounts },
+       index: { name: "idx_customer_invitation_tokens_on_account" }
+     t.string :token_digest, null: false
+     t.datetime :expires_at, null: false
+     t.datetime :used_at
+     t.timestamps
+   end
+
+   add_index :customer_account_invitation_tokens, :token_digest,
+     unique: true, name: "idx_customer_invitation_tokens_on_digest"
+   add_index :customer_account_invitation_tokens, :expires_at,
+     name: "idx_customer_invitation_tokens_on_expires_at"
+   add_index :customer_account_invitation_tokens, :used_at,
+     name: "idx_customer_invitation_tokens_on_used_at"
+   ```
+
+   Then run `bin/rails db:migrate` and confirm that the custom table and foreign
+   key were created. If the default migration was already applied, create a new
+   corrective host migration instead of editing migration history.
+
+3. Compare the current initializer template with
+   `config/initializers/anne_auth.rb`. The installer preserves an existing
+   initializer, so add or confirm these settings manually:
+
+   ```ruby
+   config.account_invitation_token_class_name = "AnneAuth::AccountInvitationToken"
+   config.account_invitation_token_table_name = "account_invitation_tokens"
+   config.account_invitation_url = ->(mailer, token) {
+     mailer.account_invitation_url(token: token)
+   }
+   ```
+
+4. For the custom migration path, create the corresponding invitation-token
+   subclass and update all five mapping settings together before AnneAuth models
+   load. These values must match the table and reference created in step 2:
+
+   ```ruby
+   config.account_class_name = "CustomerAccount"
+   config.account_table_name = "customer_accounts"
+   config.account_invitation_token_class_name = "CustomerAccountInvitationToken"
+   config.account_invitation_token_table_name = "customer_account_invitation_tokens"
+   config.account_foreign_key = :customer_account_id
+   ```
+
+5. Set production `config.action_mailer.default_url_options` and verify that
+   `account_invitation_url` produces an HTTPS URL with the Engine's actual mount
+   prefix.
+
+6. Review every reverse proxy, ingress, load balancer, CDN, Cloud Run request
+   log, tracing integration, and error reporter that can see the initial
+   `/invitation?token=...` URL. Exclude or sanitize query strings where possible;
+   otherwise use minimal retention and least-privilege access.
+
+7. Send invitations only from trusted host jobs or management operations:
+
+   ```ruby
+   result = AnneAuth::Accounts::InvitationDelivery.call(account)
+   # result.status is :delivered, :invalid_account, or :delivery_failed
+   ```
+
+### Verification
+
+- An invitation email contains the expected HTTPS activation URL and expires in
+  one hour.
+- Opening the link redirects to a URL without the token and does not consume the
+  invitation.
+- A validation error can be corrected with the same invitation session.
+- Successful activation redirects to login without authenticating the account
+  and invalidates its existing tokens and sessions.
+- Resending makes the previous invitation URL unusable.
+- Application and upstream request logs do not retain plaintext invitation
+  tokens.
 
 ## 0.3.0 -> 0.3.1
 

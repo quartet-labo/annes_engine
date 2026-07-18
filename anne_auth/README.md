@@ -2,8 +2,8 @@
 
 AnneAuth is a Rails Engine for reusable account authentication. It provides
 account models, registration, session handling, default authentication views,
-email verification, password resets, Google OAuth support, controller concerns,
-and host hooks.
+email verification, password resets, account invitation activation, Google OAuth
+support, controller concerns, and host hooks.
 
 This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
@@ -35,7 +35,7 @@ Add the engine to the host app:
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.0"
+  gem "anne_auth", "~> 0.3.2"
 end
 ```
 
@@ -85,6 +85,9 @@ When mounted at `/`, the Engine includes these default account routes and views:
 - `POST /account_registration`
 - `GET /password_reset/new`
 - `GET /password_reset/edit`
+- `GET /invitation?token=...`
+- `GET /invitation/edit`
+- `PATCH /invitation`
 - `GET /email_verification/pending`
 - `GET /logout/confirm`
 
@@ -106,6 +109,7 @@ AnneAuth.configure do |config|
   config.mailer_from = "noreply@example.com"
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
+  config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
 end
 ```
 
@@ -126,6 +130,7 @@ AnneAuth.configure do |config|
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
+  config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
   config.profile_complete = ->(_account) { true }
   config.after_account_created = ->(_account, _controller) {}
 end
@@ -186,6 +191,82 @@ confirming those tables are no longer used.
 The host app should keep domain models such as customers, projects, orders, or
 quotes outside this Engine and connect them through hooks or thin host
 controllers.
+
+## Account Invitations
+
+Version 0.3.2 adds a server-side invitation API and an activation flow for
+accounts created by trusted host jobs or management operations. Install the
+invitation-token migration before sending an invitation:
+
+```sh
+bin/rails generate anne_auth:install
+bin/rails db:migrate
+```
+
+These commands assume the default `accounts` table and `account_id` foreign
+key. If the host uses custom account mappings, do not run the generated
+invitation migration unchanged. Adapt it before migrating by following the two
+paths in the [upgrade guide](UPGRADING.md).
+
+Call the service directly from trusted application code. AnneAuth intentionally
+does not expose an HTTP endpoint that issues invitations.
+
+```ruby
+result = AnneAuth::Accounts::InvitationDelivery.call(account)
+
+case result.status
+when :delivered
+  # The invitation email was delivered synchronously.
+when :invalid_account
+  # The account is not persisted, is disabled, or is already verified.
+when :delivery_failed
+  # Retry from the host job according to its delivery policy.
+end
+```
+
+The Result contains only the status; it never returns the plaintext bearer
+token. Resending issues a new one-hour invitation and invalidates the previous
+link. Configure the absolute activation URL and production mailer host:
+
+```ruby
+# config/initializers/anne_auth.rb
+config.account_invitation_url = ->(mailer, token) {
+  mailer.account_invitation_url(token: token)
+}
+
+# config/environments/production.rb
+config.action_mailer.default_url_options = {
+  host: "app.example.com",
+  protocol: "https"
+}
+```
+
+The emailed link enters at `GET /invitation?token=...`. That request validates
+but does not consume the invitation, stores only the invitation record ID in the
+encrypted Rails session, and redirects to token-free `GET /invitation/edit`.
+`PATCH /invitation` sets the password and verifies the email address. Success
+invalidates the account's invitation, password-reset, verification, and session
+credentials, then sends the person to login without creating a new session.
+
+Host applications that map AnneAuth to custom account and token models must set
+the invitation class, table, and shared foreign key before the models load:
+
+```ruby
+AnneAuth.configure do |config|
+  config.account_class_name = "CustomerAccount"
+  config.account_table_name = "customer_accounts"
+  config.account_invitation_token_class_name = "CustomerAccountInvitationToken"
+  config.account_invitation_token_table_name = "customer_account_invitation_tokens"
+  config.account_foreign_key = :customer_account_id
+end
+```
+
+The host migration and associations must use the same table and foreign key.
+Do not run the generator's default invitation migration unchanged for this
+mapping. See the [upgrade guide](UPGRADING.md) for a custom migration example,
+the [configuration reference](docs/configuration.md) for the full mapping
+contract, and [Security and operations](docs/security-and-operations.md) for
+bearer-token logging controls.
 
 ## Package Boundary
 
