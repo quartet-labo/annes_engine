@@ -21,5 +21,18 @@ module AnneAuth
         subject: "パスワード再設定のご案内"
       )
     end
+
+    def invitation
+      @account = params.fetch(:account)
+      plain_token = params.fetch(:plain_token)
+      @invitation_url = AnneAuth.configuration.account_invitation_url.call(self, plain_token)
+      @invitation_expires_in_hours =
+        AnneAuth.configuration.account_invitation_token_class::DEFAULT_TTL.to_i / 1.hour.to_i
+
+      mail(
+        to: @account.email,
+        subject: "アカウント設定のご案内"
+      )
+    end
   end
 end
