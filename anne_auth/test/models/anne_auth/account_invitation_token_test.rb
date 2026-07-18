@@ -49,6 +49,7 @@ class AnneAuth::AccountInvitationTokenTest < ActiveSupport::TestCase
     @account.update!(disabled_at: Time.current)
     assert_equal :disabled_account, invitation_token_class.lookup(disabled_plain_token).status
     assert_not invitation_token_class.lookup(disabled_plain_token).success?
+    assert_not disabled_invitation.reload.used?
 
     reset_account!(@account, disabled_at: nil, email_verified_at: nil)
     verified_invitation, verified_plain_token = invitation_token_class.issue_for(@account)
@@ -58,7 +59,6 @@ class AnneAuth::AccountInvitationTokenTest < ActiveSupport::TestCase
 
     assert used_invitation.reload.used?
     assert expired_invitation.reload.expired?
-    assert_not disabled_invitation.reload.used?
     assert_not verified_invitation.reload.used?
   end
 
@@ -125,7 +125,8 @@ class AnneAuth::AccountInvitationTokenTest < ActiveSupport::TestCase
 
     assert_empty errors
     assert_equal 2, issued.length
-    assert_equal 1, invitation_token_class.where(account_id:, used_at: nil).count
+    foreign_key = AnneAuth.configuration.account_foreign_key
+    assert_equal 1, invitation_token_class.where(foreign_key => account_id, used_at: nil).count
     assert_equal 1, issued.count { |invitation, token| invitation_token_class.lookup(token).success? }
   ensure
     threads&.each { |thread| thread.kill if thread.alive? }

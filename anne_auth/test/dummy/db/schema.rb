@@ -52,6 +52,18 @@ ActiveRecord::Schema[8.1].define(version: 0) do
     t.index [ "token_digest" ], unique: true
   end
 
+  create_table "customer_account_invitation_tokens", force: :cascade do |t|
+    t.bigint "customer_account_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.timestamps
+    t.index [ "customer_account_id" ], name: "idx_customer_invitation_tokens_on_account_id"
+    t.index [ "expires_at" ], name: "idx_customer_invitation_tokens_on_expires_at"
+    t.index [ "token_digest" ], unique: true, name: "idx_customer_invitation_tokens_on_digest"
+    t.index [ "used_at" ], name: "idx_customer_invitation_tokens_on_used_at"
+  end
+
   create_table "customers", force: :cascade do |t|
     t.string "company_name"
     t.string "contact_name", null: false

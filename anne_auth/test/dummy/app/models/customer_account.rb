@@ -22,4 +22,9 @@ class CustomerAccount < AnneAuth::Account
     foreign_key: :customer_account_id,
     dependent: :destroy,
     inverse_of: :customer_account
+  has_many :customer_account_invitation_tokens,
+    class_name: "CustomerAccountInvitationToken",
+    foreign_key: :customer_account_id,
+    dependent: :destroy,
+    inverse_of: :customer_account
 end

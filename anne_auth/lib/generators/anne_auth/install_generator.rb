@@ -15,7 +15,13 @@ module AnneAuth
       end
 
       def copy_initializer
-        template "initializer.rb", "config/initializers/anne_auth.rb"
+        destination = File.join(destination_root, "config/initializers/anne_auth.rb")
+
+        if File.exist?(destination)
+          say_status :skip, "config/initializers/anne_auth.rb", :yellow
+        else
+          template "initializer.rb", "config/initializers/anne_auth.rb"
+        end
       end
 
       def copy_route_example
