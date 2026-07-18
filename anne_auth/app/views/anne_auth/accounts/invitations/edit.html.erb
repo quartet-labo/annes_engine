@@ -1,0 +1,30 @@
+<% content_for :title, "アカウント設定" %>
+
+<h1>アカウント設定</h1>
+
+<p>ログインに使用するパスワードを設定してください。</p>
+
+<% if @account&.errors&.any? %>
+  <div class="auth-errors" role="alert">
+    <p>入力内容を確認してください。</p>
+    <ul>
+      <% @account.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with url: auth_route(:account_invitation_path), method: :patch do |form| %>
+  <div>
+    <%= form.label :password, "パスワード" %>
+    <%= form.password_field :password, autocomplete: "new-password", autofocus: true, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :password_confirmation, "パスワード確認" %>
+    <%= form.password_field :password_confirmation, autocomplete: "new-password", required: true %>
+  </div>
+
+  <%= form.submit "設定する" %>
+<% end %>

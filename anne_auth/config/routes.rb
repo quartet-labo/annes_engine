@@ -3,6 +3,7 @@ AnneAuth::Engine.routes.draw do
   resource :account_session, only: :create, controller: "accounts/sessions"
   match "auth/:provider/callback", to: "accounts/omniauth_callbacks#create", via: %i[get post], as: :account_omniauth_callback
   match "auth/failure", to: "accounts/omniauth_callbacks#failure", via: %i[get post]
+  resource :account_invitation, path: "invitation", only: %i[show edit update], controller: "accounts/invitations"
   resource :account_password_reset, path: "password_reset", only: %i[new create edit update], controller: "accounts/password_resets"
   get "logout/confirm", to: "accounts/sessions#confirm", as: :account_logout_confirm
   delete "logout", to: "accounts/sessions#destroy", as: :account_logout

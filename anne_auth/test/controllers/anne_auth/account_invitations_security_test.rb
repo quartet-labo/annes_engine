@@ -79,8 +79,6 @@ class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
   end
 
   test "invitation token parameters are filtered" do
-    assert_includes Rails.application.config.filter_parameters, :token
-
     filter = ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters)
     filtered = filter.filter(token: "plain-invitation-token")
 

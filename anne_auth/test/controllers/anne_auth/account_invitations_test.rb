@@ -46,6 +46,18 @@ class AnneAuth::AccountInvitationsTest < ActionDispatch::IntegrationTest
     assert_select "h1", "ログイン"
   end
 
+  test "missing password parameters render validation errors without consuming the invitation" do
+    invitation, plain_token = CustomerAccountInvitationToken.issue_for(@account)
+    enter_invitation(plain_token)
+
+    patch "/auth/invitation"
+
+    assert_response :unprocessable_entity
+    assert_select ".auth-errors"
+    assert_not invitation.reload.used?
+    assert_not @account.reload.email_verified?
+  end
+
   test "successful activation clears the current target account session cookie" do
     sign_in(@account, expected_redirect: "/auth/email_verification/pending")
     account_session = @account.account_sessions.order(:created_at).last
