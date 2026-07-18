@@ -25,6 +25,20 @@ class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
     assert_select "input[name=token][value=?]", plain_token
   end
 
+  test "renders invitation edit view without the plain token" do
+    _invitation, plain_token =
+      CustomerAccountInvitationToken.issue_for(customer_accounts(:unverified))
+
+    get "/auth/invitation", params: { token: plain_token }
+    assert_response :see_other
+    follow_redirect!
+
+    assert_response :success
+    assert_select "h1", "アカウント設定"
+    assert_select "input[name=token]", count: 0
+    assert_not_includes response.body, plain_token
+  end
+
   test "renders logged-in account views from the engine" do
     post "/auth/account_session",
       params: { email: customer_accounts(:unverified).email, password: "password-123" }

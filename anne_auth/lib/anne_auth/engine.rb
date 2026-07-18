@@ -7,5 +7,9 @@ module AnneAuth
         append_view_path Engine.root.join("app/views")
       end
     end
+
+    initializer "anne_auth.filter_parameters" do |app|
+      app.config.filter_parameters += [ :token ] unless app.config.filter_parameters.include?(:token)
+    end
   end
 end
