@@ -30,6 +30,9 @@ Paths in this table assume the Engine is mounted at `/`.
 | POST | `/account_session` | `account_session_path` | `accounts/sessions#create` |
 | GET, POST | `/auth/:provider/callback` | `account_omniauth_callback_path` | `accounts/omniauth_callbacks#create` |
 | GET, POST | `/auth/failure` | none | `accounts/omniauth_callbacks#failure` |
+| GET | `/invitation?token=...` | `account_invitation_path` | `accounts/invitations#show` |
+| GET | `/invitation/edit` | `edit_account_invitation_path` | `accounts/invitations#edit` |
+| PATCH, PUT | `/invitation` | `account_invitation_path` | `accounts/invitations#update` |
 | GET | `/password_reset/new` | `new_account_password_reset_path` | `accounts/password_resets#new` |
 | POST | `/password_reset` | `account_password_reset_path` | `accounts/password_resets#create` |
 | GET | `/password_reset/edit` | `edit_account_password_reset_path` | `accounts/password_resets#edit` |
@@ -47,6 +50,27 @@ Paths in this table assume the Engine is mounted at `/`.
 Use the named helpers instead of hard-coded paths. The private `auth_route`
 helper used by Engine concerns looks for a helper on the current controller,
 then `main_app`, and finally the Engine route set.
+
+## Invitation Activation
+
+Invitation issuance is not an Engine route. A trusted host job or management
+operation calls `AnneAuth::Accounts::InvitationDelivery.call(account)`, which
+sends a URL for the token-bearing `GET /invitation` entry.
+
+The entry request validates the token without consuming it, stores only the
+invitation record ID in the encrypted Rails session, and returns `303 See Other`
+to `GET /invitation/edit`. The edit URL and form do not contain the plaintext
+token. Password validation errors return `422 Unprocessable Entity` and keep the
+same invitation session available for correction.
+
+Successful `PATCH /invitation` changes the password, marks the email verified,
+and invalidates outstanding invitation, password-reset, verification, and
+account-session credentials in one transaction. It redirects to login with
+`303 See Other` and does not automatically authenticate the account.
+
+When the Engine is mounted at `/auth`, these paths become
+`/auth/invitation`, `/auth/invitation/edit`, and `/auth/invitation` respectively.
+Keep the configured `account_invitation_url` aligned with the actual mount path.
 
 ## Adding Authentication to Host Controllers
 

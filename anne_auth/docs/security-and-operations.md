@@ -86,6 +86,44 @@ config.action_mailer.default_url_options = {
 If the host uses custom password-reset routes, configure
 `account_password_reset_url` to return the absolute URL sent in mail.
 
+## Account Invitation Tokens
+
+Invitation tokens are generated from 32 random bytes, stored only as SHA-256
+digests, and expire after one hour. Issuing or retrying an invitation marks the
+previous active invitation used. Only persisted, active, unverified accounts are
+eligible. The trusted `InvitationDelivery` service returns only `:delivered`,
+`:invalid_account`, or `:delivery_failed`; it never returns the plaintext token.
+
+Following the token-bearing GET validates but does not consume the invitation,
+so automated email-link scanners cannot complete activation. After that entry,
+only the invitation record ID is stored in the encrypted Rails session and the
+browser is redirected to a URL without the token. Activation success updates
+the password and email-verification state in one transaction, invalidates all
+outstanding invitation/reset/verification tokens and account sessions, and does
+not create a replacement login session.
+
+Invitation responses set `Referrer-Policy: no-referrer`, and AnneAuth adds
+`token` to the Rails parameter filter. These controls protect Rails request
+parameters and downstream navigation, but they cannot sanitize logs written
+upstream before Rails handles the request.
+
+Reverse proxies, ingress controllers, load balancers, CDNs, and platforms such
+as Cloud Run may record the original request URL, including its query string.
+For the token-bearing invitation entry:
+
+- disable, exclude, or sanitize request-URL logging at every upstream layer
+  where the platform supports it;
+- avoid copying query strings into analytics, tracing, error reports, or audit
+  payloads;
+- use the shortest operationally acceptable retention period for unavoidable
+  request logs;
+- grant log access with least privilege and review that access periodically;
+- verify the deployed logging path with a disposable invitation before launch.
+
+If an invitation URL may have been exposed, resend the invitation to invalidate
+the old token and review access to the affected logs. Do not rely on Rails
+parameter filtering or `Referrer-Policy` as protection for proxy/platform logs.
+
 ## Mail Delivery
 
 Replace the default sender and verify the host's delivery adapter:
@@ -96,9 +134,9 @@ AnneAuth.configure do |config|
 end
 ```
 
-Production smoke tests should verify delivery and links for both verification
-and password reset. Do not include plaintext codes or tokens in application
-logs, error reports, analytics, or audit payloads.
+Production smoke tests should verify delivery and links for verification,
+password reset, and invitation activation. Do not include plaintext codes or
+tokens in application logs, error reports, analytics, or audit payloads.
 
 ## Google OAuth
 
@@ -139,6 +177,8 @@ rather than waiting for each cookie to be presented.
 - Use a shared cache for rate limits in multi-process deployments.
 - Store OAuth secrets in the deployment secret store.
 - Verify the session expiration migration is installed.
-- Exercise login, logout, verification, password reset, and disabled-account flows.
+- Verify the account invitation-token migration is installed.
+- Exercise login, logout, verification, password reset, invitation activation, and disabled-account flows.
 - Confirm sensitive parameters are filtered from logs.
+- Confirm upstream request logs do not retain invitation query strings, or use minimal retention and access.
 - Monitor delivery failures and unusual rate-limit volume without storing secrets.
