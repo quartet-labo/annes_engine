@@ -24,6 +24,11 @@ module AnneAuth
       foreign_key: AnneAuth.configuration.account_foreign_key,
       dependent: :destroy,
       inverse_of: :account
+    has_many :account_invitation_tokens,
+      class_name: AnneAuth.configuration.account_invitation_token_class_name,
+      foreign_key: AnneAuth.configuration.account_foreign_key,
+      dependent: :destroy,
+      inverse_of: :account
 
     normalizes :email, with: ->(email) { email.strip.downcase }
 

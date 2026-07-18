@@ -11,6 +11,8 @@ AnneAuth.configure do |config|
   # the host app or anne_admin authorization.
   # config.account_class_name = "AnneAuth::Account"
   # config.account_session_class_name = "AnneAuth::AccountSession"
+  # config.account_invitation_token_class_name = "AnneAuth::AccountInvitationToken"
+  # config.account_invitation_token_table_name = "account_invitation_tokens"
   # config.account_foreign_key = :account_id
   # config.account_password_minimum_length = 12
   # config.account_session_expires_in = 2.weeks
@@ -20,6 +22,7 @@ AnneAuth.configure do |config|
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
+  config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
   config.profile_complete = ->(_account) { true }
   config.after_account_created = ->(_account, _controller) {}
 end
