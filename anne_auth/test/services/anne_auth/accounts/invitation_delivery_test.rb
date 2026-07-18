@@ -114,5 +114,13 @@ class AnneAuth::Accounts::InvitationDeliveryTest < ActiveSupport::TestCase
     assert_not_includes result.inspect, plain_token
     assert_not_includes @log_output.string, plain_token
     assert_match "DeliveryError", @log_output.string
+
+    RecordingInvitationMailer.fail_delivery = false
+    retry_result = AnneAuth::Accounts::InvitationDelivery.call(@account)
+    retry_plain_token = RecordingInvitationMailer.deliveries.last.fetch(:plain_token)
+
+    assert_equal :delivered, retry_result.status
+    assert_equal :used, CustomerAccountInvitationToken.lookup(plain_token).status
+    assert CustomerAccountInvitationToken.lookup(retry_plain_token).success?
   end
 end
