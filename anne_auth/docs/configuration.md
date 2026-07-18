@@ -119,6 +119,7 @@ as one unit:
 ```ruby
 AnneAuth.configure do |config|
   config.account_class_name = "CustomerAccount"
+  config.account_table_name = "customer_accounts"
   config.account_invitation_token_class_name = "CustomerAccountInvitationToken"
   config.account_invitation_token_table_name = "customer_account_invitation_tokens"
   config.account_foreign_key = :customer_account_id

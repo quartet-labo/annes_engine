@@ -55,10 +55,11 @@ password-reset flows do not require invitation data.
 
 3. If the host maps accounts to custom classes/tables, create the corresponding
    invitation-token subclass/table and make its foreign key match
-   `account_foreign_key`. Update all four mapping settings together:
+   `account_foreign_key`. Update all five mapping settings together:
 
    ```ruby
    config.account_class_name = "CustomerAccount"
+   config.account_table_name = "customer_accounts"
    config.account_invitation_token_class_name = "CustomerAccountInvitationToken"
    config.account_invitation_token_table_name = "customer_account_invitation_tokens"
    config.account_foreign_key = :customer_account_id
