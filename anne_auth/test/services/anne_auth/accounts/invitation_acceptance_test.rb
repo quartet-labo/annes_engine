@@ -91,6 +91,25 @@ class AnneAuth::Accounts::InvitationAcceptanceTest < ActiveSupport::TestCase
     assert_not verified_invitation.reload.used?
   end
 
+  test "credential invalidation failure rolls back the account update" do
+    invitation, = CustomerAccountInvitationToken.issue_for(@account)
+    service = AnneAuth::Accounts::InvitationAcceptance.new(
+      invitation_token: invitation,
+      password: "new-password-123",
+      password_confirmation: "new-password-123"
+    )
+    service.define_singleton_method(:invalidate_credentials!) do |_account, now:|
+      raise "credential invalidation failed at #{now.to_i}"
+    end
+
+    error = assert_raises(RuntimeError) { service.call }
+
+    assert_match "credential invalidation failed", error.message
+    assert_not @account.reload.email_verified?
+    assert @account.authenticate("password-123")
+    assert_not invitation.reload.used?
+  end
+
   test "concurrent acceptance succeeds only once" do
     invitation, = CustomerAccountInvitationToken.issue_for(@account)
     invitation_id = invitation.id
