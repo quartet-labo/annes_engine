@@ -41,7 +41,7 @@ module AnneAuth
 
       private
         def session_params
-          params.permit(:email, :password)
+          params.slice(:email, :password).permit(:email, :password)
         end
 
         def session_email_rate_limit_key
