@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Ignore framework and submit-button parameters before permitting password login
+  credentials so standard form submissions do not emit Strong Parameters warnings.
+
 ## 0.3.3
 
 - Limit `Referrer-Policy: no-referrer` to the token-bearing invitation entry
