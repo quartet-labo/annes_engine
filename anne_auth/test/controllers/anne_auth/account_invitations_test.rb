@@ -1,6 +1,8 @@
 require "test_helper"
 
 class AnneAuth::AccountInvitationsTest < ActionDispatch::IntegrationTest
+  DEFAULT_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
   setup do
     @account = customer_accounts(:unverified)
     @account.update!(email_verified_at: nil, disabled_at: nil)
@@ -23,7 +25,7 @@ class AnneAuth::AccountInvitationsTest < ActionDispatch::IntegrationTest
     }
 
     assert_response :unprocessable_entity
-    assert_equal "no-referrer", response.headers["Referrer-Policy"]
+    assert_equal DEFAULT_REFERRER_POLICY, response.headers["Referrer-Policy"]
     assert_select ".auth-errors"
     assert_not invitation.reload.used?
     assert_not @account.reload.email_verified?

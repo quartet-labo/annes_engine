@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Limit `Referrer-Policy: no-referrer` to the token-bearing invitation entry
+  response so invitation updates remain compatible with Rails origin-based CSRF
+  protection.
+
 ## 0.3.2
 
 - Add dedicated one-hour account invitation tokens with digest-only storage,
