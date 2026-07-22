@@ -6,7 +6,7 @@ module AnneAuth
 
       layout "anne_auth"
 
-      before_action :set_referrer_policy
+      before_action :set_referrer_policy, only: :show
 
       def show
         lookup = invitation_token_class.lookup(params[:token])

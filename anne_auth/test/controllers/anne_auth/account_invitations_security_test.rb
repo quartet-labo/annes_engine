@@ -1,6 +1,7 @@
 require "test_helper"
 
 class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
+  DEFAULT_REFERRER_POLICY = "strict-origin-when-cross-origin"
   INVALID_INVITATION_MESSAGE = "招待リンクが無効または期限切れです。"
 
   setup do
@@ -29,11 +30,38 @@ class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_response :success
-    assert_equal "no-referrer", response.headers["Referrer-Policy"]
+    assert_equal DEFAULT_REFERRER_POLICY, response.headers["Referrer-Policy"]
     assert_select "h1", "アカウント設定"
     assert_select "form[action=?]", "/auth/invitation"
     assert_select "input[name=token]", count: 0
     assert_not_includes response.body, plain_token
+  end
+
+  test "same-origin update succeeds with CSRF origin verification enabled" do
+    invitation, plain_token = CustomerAccountInvitationToken.issue_for(@account)
+
+    with_forgery_protection do
+      get "/auth/invitation", params: { token: plain_token }
+      assert_response :see_other
+
+      follow_redirect!
+      assert_response :success
+      assert_equal DEFAULT_REFERRER_POLICY, response.headers["Referrer-Policy"]
+      authenticity_token = css_select("input[name=authenticity_token]").first["value"]
+
+      patch "/auth/invitation",
+        params: {
+          authenticity_token:,
+          password: "new-password-123",
+          password_confirmation: "new-password-123"
+        },
+        headers: { "Origin" => "http://www.example.com" }
+    end
+
+    assert_response :see_other
+    assert_redirected_to "/auth/login"
+    assert invitation.reload.used?
+    assert @account.reload.email_verified?
   end
 
   test "invalid invitation states share one generic response" do
@@ -62,7 +90,7 @@ class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
   test "edit requires invitation state established by the token entry" do
     get "/auth/invitation/edit"
 
-    assert_invalid_response
+    assert_invalid_response(referrer_policy: DEFAULT_REFERRER_POLICY)
   end
 
   test "edit revalidates invitation state and clears stale session state" do
@@ -72,10 +100,10 @@ class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
 
     invitation.mark_used!
     get "/auth/invitation/edit"
-    assert_invalid_response
+    assert_invalid_response(referrer_policy: DEFAULT_REFERRER_POLICY)
 
     get "/auth/invitation/edit"
-    assert_invalid_response
+    assert_invalid_response(referrer_policy: DEFAULT_REFERRER_POLICY)
   end
 
   test "invitation token parameters are filtered" do
@@ -89,15 +117,26 @@ class AnneAuth::AccountInvitationsSecurityTest < ActionDispatch::IntegrationTest
     def assert_invalid_entry(plain_token)
       get "/auth/invitation", params: { token: plain_token }
 
-      assert_invalid_response
+      assert_invalid_response(referrer_policy: "no-referrer")
       assert_not_includes response.location, plain_token
       assert_not_includes response.body, plain_token
     end
 
-    def assert_invalid_response
+    def assert_invalid_response(referrer_policy:)
       assert_response :see_other
       assert_redirected_to "/auth/login"
       assert_equal INVALID_INVITATION_MESSAGE, flash[:alert]
-      assert_equal "no-referrer", response.headers["Referrer-Policy"]
+      assert_equal referrer_policy, response.headers["Referrer-Policy"]
+    end
+
+    def with_forgery_protection
+      original_allow_forgery_protection = ActionController::Base.allow_forgery_protection
+      original_origin_check = ActionController::Base.forgery_protection_origin_check
+      ActionController::Base.allow_forgery_protection = true
+      ActionController::Base.forgery_protection_origin_check = true
+      yield
+    ensure
+      ActionController::Base.allow_forgery_protection = original_allow_forgery_protection
+      ActionController::Base.forgery_protection_origin_check = original_origin_check
     end
 end
