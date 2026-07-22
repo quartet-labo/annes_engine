@@ -35,7 +35,7 @@ Add the engine to the host app:
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.2"
+  gem "anne_auth", "~> 0.3.3"
 end
 ```
 
