@@ -33,9 +33,17 @@ class AnneAuth::RateLimitsTest < ActionDispatch::IntegrationTest
   end
 
   test "limits repeated login attempts for the same email across source IPs" do
-    5.times do |index|
+    email_variants = [
+      " verified@example.com ",
+      "VERIFIED@example.com",
+      "Verified@Example.Com",
+      "verified@example.com ",
+      " VERIFIED@EXAMPLE.COM "
+    ]
+
+    email_variants.each_with_index do |email, index|
       post "/auth/account_session",
-        params: { email: "verified@example.com", password: "wrong" },
+        params: { email:, password: "wrong" },
         headers: remote_addr(index)
       assert_redirected_to "/auth/login"
       assert_equal "メールアドレスまたはパスワードが正しくありません。", flash[:alert]
