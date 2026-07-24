@@ -76,12 +76,16 @@ class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
     engine_get "/customers/new"
 
     assert_engine_response :success
+    assert_engine_selector "form[data-anne-admin-submit-guard='true']"
+    assert_engine_selector "script[defer][src*='anne_admin/submit_guard']"
     assert_engine_selector "input.anne-admin-action.anne-admin-action--primary[type='submit'][value='保存']"
     assert_engine_selector "a.anne-admin-action.anne-admin-action--secondary[href='/admin/customers']"
 
     engine_get "/customers/#{customers(:anan).id}/edit"
 
     assert_engine_response :success
+    assert_engine_selector "form[data-anne-admin-submit-guard='true']"
+    assert_engine_selector "script[defer][src*='anne_admin/submit_guard']"
     assert_engine_selector "input.anne-admin-action.anne-admin-action--primary[type='submit'][value='保存']"
     assert_engine_selector "a.anne-admin-action.anne-admin-action--secondary[href='/admin/customers/#{customers(:anan).id}']"
   end

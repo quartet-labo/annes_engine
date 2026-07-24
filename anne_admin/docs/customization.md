@@ -135,6 +135,33 @@ changes the AnneAdmin theme. Do not remove visible focus indicators. The
 Engine stylesheet currently owns action controls only, so standard Engine
 views still use the host Tailwind stylesheet for layout, forms, and tables.
 
+## Resource Form Submit Guard
+
+The shared `anne_admin/resources/_form` partial opts standard create and update
+forms into the Engine submit guard with:
+
+```erb
+data: { anne_admin_submit_guard: true }
+```
+
+Keep that data attribute when overriding the resource form. Do not apply it to
+search GET forms, logout, member custom actions, or host-specific forms unless
+the host intentionally owns their submission behavior.
+
+When replacing `layouts/anne_admin/application`, also load the namespaced
+Engine JavaScript asset before application scripts that may intercept submit:
+
+```erb
+<%= javascript_include_tag "anne_admin/submit_guard",
+  "data-turbo-track": "reload",
+  defer: true %>
+```
+
+The guard listens for the constraint-validation-aware `submit` event, allows
+the initial request, and blocks later submits while the form is busy. It
+restores only the state it changed on `pageshow` and `turbo:submit-end`.
+Re-evaluating the asset does not register duplicate listeners.
+
 ## Path Helper Overrides
 
 Engine templates call overridable wrapper helpers. When a host controller uses

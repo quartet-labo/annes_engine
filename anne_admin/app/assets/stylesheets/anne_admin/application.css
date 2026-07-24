@@ -54,5 +54,5 @@
 .anne-admin-action:disabled,
 .anne-admin-action[aria-disabled="true"] {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: wait;
 }

@@ -6,4 +6,11 @@ Rake::TestTask.new(:test) do |task|
   task.pattern = "test/**/*_test.rb"
 end
 
+desc "Run JavaScript behavior tests"
+task :javascript_test do
+  sh "node test/javascript/submit_guard_test.js"
+end
+
+Rake::Task[:test].enhance([:javascript_test])
+
 task default: :test

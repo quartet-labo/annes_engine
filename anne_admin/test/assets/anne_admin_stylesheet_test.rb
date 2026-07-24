@@ -23,6 +23,7 @@ class AnneAdmin::StylesheetTest < AnneAdmin::TestCase
     assert_match(/\.anne-admin-action--primary:hover\s*\{[^}]*background-color:\s*#334155;/m, stylesheet)
     assert_match(/\.anne-admin-action:focus-visible\s*\{[^}]*outline:\s*2px\s+solid/m, stylesheet)
     assert_match(/\.anne-admin-action:disabled,\s*\.anne-admin-action\[aria-disabled="true"\]/m, stylesheet)
+    assert_match(/\.anne-admin-action:disabled,[^}]*cursor:\s*wait;/m, stylesheet)
     refute_match(/var\(--(?:tw|color)-/, stylesheet)
     refute_includes stylesheet, "!important"
   end

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prevent repeated standard resource create/update submissions with a
+  dependency-free Engine JavaScript asset, while preserving native validation,
+  Turbo restoration, and browser history restoration behavior.
+
 ## 0.2.2
 
 - Ship namespaced primary and secondary action styles from the Engine so button
