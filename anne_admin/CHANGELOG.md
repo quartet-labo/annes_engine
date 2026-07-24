@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.2
+
 - Ship namespaced primary and secondary action styles from the Engine so button
   contrast no longer depends on the host Tailwind build scanning gem templates.
 - Add explicit hover and keyboard-focus states to standard action controls.

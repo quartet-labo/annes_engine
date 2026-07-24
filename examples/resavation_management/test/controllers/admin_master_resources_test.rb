@@ -37,6 +37,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   test "admin manages customer and reservation resource records" do
     sign_in_as_role(:admin)
     assert_action_link_visibility("customers", @customer, create: true, update: true)
+    assert_select "link[rel='stylesheet'][href*='anne_admin/application']"
     assert_action_link_visibility("reservation_resources", @resource, create: true, update: true)
 
     get "/admin/customers", params: { q: "Zulu" }
