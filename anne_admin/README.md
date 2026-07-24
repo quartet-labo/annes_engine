@@ -254,6 +254,37 @@ class Admin::CustomersController < AnneAdmin::ResourcesController
 end
 ```
 
+### Action Styles
+
+The default layout loads `anne_admin/application` after the host `tailwind`
+stylesheet. The Engine stylesheet owns the visual states for standard action
+controls, so primary button contrast and keyboard focus do not depend on
+Tailwind detecting classes inside the installed gem.
+
+Host views can use the same semantic classes:
+
+```erb
+<%= link_to "Create",
+  new_customer_path,
+  class: "anne-admin-action anne-admin-action--primary" %>
+
+<%= link_to "Back",
+  customers_path,
+  class: "anne-admin-action anne-admin-action--secondary" %>
+```
+
+If the host overrides `layouts/anne_admin/application`, include the Engine
+stylesheet after `tailwind`:
+
+```erb
+<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
+```
+
+Load host theme overrides after `anne_admin/application`. The Engine
+stylesheet covers action controls only; the remaining standard view utilities
+still use the host Tailwind stylesheet.
+
 ### Service Delegation
 
 For business workflows, prefer host controllers and host services. Use custom actions only for generic resource actions that belong in the configurable engine surface. The engine should not reference host-specific service constants directly.

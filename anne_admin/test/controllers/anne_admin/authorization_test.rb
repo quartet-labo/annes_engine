@@ -61,6 +61,7 @@ class AnneAdmin::AuthorizationTest < AnneAdmin::IntegrationTest
     assert_response :success
     assert_includes response.body, "編集"
     assert_includes response.body, "Normalize"
+    assert_select "button.anne-admin-action.anne-admin-action--secondary", text: "Normalize"
   end
 
   test "keeps direct access to rejected actions forbidden" do

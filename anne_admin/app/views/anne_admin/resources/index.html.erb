@@ -8,7 +8,7 @@
       <p class="mt-1 text-sm text-slate-600"><%= @total_count %>件</p>
     </div>
     <% if @resource.action?(:new) && anne_admin_authorized?(:new) %>
-      <%= link_to "新規登録", anne_admin_new_resource_path(@resource), class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+      <%= link_to "新規登録", anne_admin_new_resource_path(@resource), class: "anne-admin-action anne-admin-action--primary rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
     <% end %>
   </div>
 
@@ -19,7 +19,7 @@
           <%= form.label :q, "キーワード", class: "block text-sm font-medium text-slate-700" %>
           <%= form.search_field :q, value: params[:q], class: "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm" %>
         </div>
-        <%= form.submit "検索", class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+        <%= form.submit "検索", class: "anne-admin-action anne-admin-action--primary rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
       </div>
     <% end %>
   <% end %>

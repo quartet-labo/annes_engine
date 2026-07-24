@@ -20,7 +20,7 @@
   <% end %>
 
   <div class="flex flex-wrap items-center gap-3">
-    <%= form.submit "保存", class: "rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
-    <%= link_to "戻る", record.persisted? ? anne_admin_resource_record_path(resource, record) : anne_admin_resource_index_path(resource), class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+    <%= form.submit "保存", class: "anne-admin-action anne-admin-action--primary rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+    <%= link_to "戻る", record.persisted? ? anne_admin_resource_record_path(resource, record) : anne_admin_resource_index_path(resource), class: "anne-admin-action anne-admin-action--secondary rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
   </div>
 <% end %>
