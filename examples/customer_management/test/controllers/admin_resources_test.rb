@@ -32,6 +32,7 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_includes response.body, label
+      assert_select "link[rel='stylesheet'][href*='anne_admin/application']"
     end
   end
 
