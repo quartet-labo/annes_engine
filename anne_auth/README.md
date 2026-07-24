@@ -27,6 +27,22 @@ Run the engine-focused test suite from this directory:
 bundle exec rake test
 ```
 
+## Default Login Form Submit Guard
+
+The default email/password login form opts into AnneAuth's dependency-free
+submit guard. After the browser accepts the first submit event, the form is
+marked `aria-busy="true"` and its submit controls are disabled. Repeated
+submits are blocked until browser history restoration or a Turbo submission
+completion resets the state. Native constraint validation still runs before the
+guard, and the submitter's `name=value` remains in the request.
+
+Applications that override the login view must preserve
+`data-anne-auth-submit-guard` on the credential form. Applications that
+override the AnneAuth layout must render
+`layouts/anne_auth/submit_guard`; the partial supplies its inline script with
+the current Content Security Policy nonce. No Turbo, Stimulus, importmap,
+rails-ujs, or npm runtime dependency is required.
+
 ## Quick Start
 
 Add the engine to the host app:

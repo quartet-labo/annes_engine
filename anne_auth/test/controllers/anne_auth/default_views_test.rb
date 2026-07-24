@@ -5,6 +5,10 @@ class AnneAuth::DefaultViewsTest < ActionDispatch::IntegrationTest
     get "/auth/login"
     assert_response :success
     assert_select "h1", "ログイン"
+    assert_select "form[data-anne-auth-submit-guard=true]", count: 1
+    assert_select "script[nonce]", count: 1 do |scripts|
+      assert_includes scripts.first.text, "window.AnneAuthSubmitGuard"
+    end
 
     get "/auth/signup"
     assert_response :success
