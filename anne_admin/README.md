@@ -285,6 +285,29 @@ Load host theme overrides after `anne_admin/application`. The Engine
 stylesheet covers action controls only; the remaining standard view utilities
 still use the host Tailwind stylesheet.
 
+### Resource Form Submit Guard
+
+The standard new/edit resource form opts into AnneAdmin's dependency-free
+submit guard. After the browser accepts the first submit event, the form is
+marked `aria-busy="true"` and its submit controls are disabled. Repeated
+submits are blocked until browser history restoration or a Turbo submission
+completion resets the state. Native constraint validation still runs before the
+guard, and the submitter's `name=value` remains in the request.
+
+Applications that override `anne_admin/resources/_form` must preserve
+`data-anne-admin-submit-guard` on the create/update form. Applications that
+override `layouts/anne_admin/application` must load the Engine asset:
+
+```erb
+<%= javascript_include_tag "anne_admin/submit_guard",
+  "data-turbo-track": "reload",
+  defer: true %>
+```
+
+Search, logout, custom action, and host-specific forms do not opt in by
+default. No Turbo, Stimulus, importmap, rails-ujs, or npm runtime dependency is
+added.
+
 ### Service Delegation
 
 For business workflows, prefer host controllers and host services. Use custom actions only for generic resource actions that belong in the configurable engine surface. The engine should not reference host-specific service constants directly.

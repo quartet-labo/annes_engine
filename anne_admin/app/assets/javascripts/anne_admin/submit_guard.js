@@ -1,0 +1,86 @@
+(() => {
+  const guard = window.AnneAdminSubmitGuard ||= {};
+  if (guard.installed) return;
+
+  const formSelector = "[data-anne-admin-submit-guard]";
+  const lockedAttribute = "data-anne-admin-submit-guard-locked";
+  const disabledAttribute = "data-anne-admin-submit-guard-disabled";
+  const submitControlSelector =
+    'button:not([type]), button[type="submit"], input[type="submit"], input[type="image"]';
+
+  guard.installed = true;
+  guard.states = new WeakMap();
+  guard.lockedForms = new Set();
+
+  const isGuardedForm = (form) =>
+    form?.nodeName === "FORM" && form.matches(formSelector);
+
+  const restoreAttribute = (element, name, value) => {
+    if (value === null) {
+      element.removeAttribute(name);
+    } else {
+      element.setAttribute(name, value);
+    }
+  };
+
+  const resetForm = (form) => {
+    const state = guard.states.get(form);
+    if (!state) return;
+
+    state.disabledControls.forEach((control) => {
+      if (control.getAttribute(disabledAttribute) !== "true") return;
+
+      control.disabled = false;
+      control.removeAttribute(disabledAttribute);
+    });
+
+    restoreAttribute(form, "aria-busy", state.ariaBusy);
+    restoreAttribute(form, lockedAttribute, state.locked);
+    guard.states.delete(form);
+    guard.lockedForms.delete(form);
+  };
+
+  const resetAllForms = () => {
+    Array.from(guard.lockedForms).forEach(resetForm);
+  };
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (!isGuardedForm(form) || event.defaultPrevented) return;
+
+    if (guard.states.has(form)) {
+      event.preventDefault();
+      return;
+    }
+
+    const state = {
+      ariaBusy: form.getAttribute("aria-busy"),
+      locked: form.getAttribute(lockedAttribute),
+      disabledControls: []
+    };
+
+    guard.states.set(form, state);
+    guard.lockedForms.add(form);
+    form.setAttribute(lockedAttribute, "true");
+    form.setAttribute("aria-busy", "true");
+
+    // Keep the submitter enabled until the submit event has finished so its
+    // name and value remain part of the browser-generated request payload.
+    setTimeout(() => {
+      if (guard.states.get(form) !== state) return;
+
+      form.querySelectorAll(submitControlSelector).forEach((control) => {
+        if (control.disabled) return;
+
+        control.disabled = true;
+        control.setAttribute(disabledAttribute, "true");
+        state.disabledControls.push(control);
+      });
+    }, 0);
+  });
+
+  window.addEventListener("pageshow", resetAllForms);
+  document.addEventListener("turbo:submit-end", (event) => {
+    if (isGuardedForm(event.target)) resetForm(event.target);
+  });
+})();

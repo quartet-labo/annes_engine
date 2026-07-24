@@ -1,6 +1,8 @@
 <% action_path = record.persisted? ? anne_admin_resource_record_path(resource, record) : anne_admin_resource_index_path(resource) %>
 
-<%= form_with model: record, scope: resource.param_key, url: action_path, class: "space-y-5 rounded-lg border border-slate-200 bg-white p-6 shadow-sm" do |form| %>
+<%= form_with model: record, scope: resource.param_key, url: action_path,
+  class: "space-y-5 rounded-lg border border-slate-200 bg-white p-6 shadow-sm",
+  data: { anne_admin_submit_guard: true } do |form| %>
   <% if record.errors.any? %>
     <div class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
       <p class="font-semibold">入力内容を確認してください。</p>
