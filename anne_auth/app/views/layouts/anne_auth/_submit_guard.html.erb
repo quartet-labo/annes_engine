@@ -68,10 +68,6 @@
       // Keep the submitter enabled until the submit event has finished so its
       // name and value remain part of the browser-generated request payload.
       setTimeout(() => {
-        if (event.defaultPrevented) {
-          resetForm(form);
-          return;
-        }
         if (guard.states.get(form) !== state) return;
 
         form.querySelectorAll(submitControlSelector).forEach((control) => {

@@ -167,7 +167,7 @@ test("ignores forms without opt-in and already-cancelled submits", () => {
   assert.equal(cancelledForm.getAttribute("aria-busy"), null);
 });
 
-test("unlocks a submit cancelled by a later event listener", () => {
+test("keeps guarding a submit claimed by a later event listener", () => {
   const { document, runTimers } = setup();
   const control = new Control();
   const form = new Form({ controls: [control] });
@@ -176,12 +176,9 @@ test("unlocks a submit cancelled by a later event listener", () => {
   assert.equal(document.dispatchEvent(createEvent("submit", form)), false);
   runTimers();
 
-  assert.equal(control.disabled, false);
-  assert.equal(form.getAttribute("aria-busy"), null);
-  assert.equal(
-    form.getAttribute("data-anne-auth-submit-guard-locked"),
-    null
-  );
+  assert.equal(control.disabled, true);
+  assert.equal(form.getAttribute("aria-busy"), "true");
+  assert.equal(document.dispatchEvent(createEvent("submit", form)), false);
 });
 
 test("pageshow resets only state changed by the guard", () => {
