@@ -25,6 +25,13 @@ class AnneAuth::PackageBoundaryTest < ActiveSupport::TestCase
     /\bafter_admin_login_path\b/
   ]
 
+  test "built gem includes the submit guard view partial" do
+    gemspec_path = AnneAuth::Engine.root.join("anne_auth.gemspec").to_s
+    spec = Gem::Specification.load(gemspec_path)
+
+    assert_includes spec.files, "app/views/layouts/anne_auth/_submit_guard.html.erb"
+  end
+
   test "runtime files do not reference host application domain constants" do
     runtime_files = Dir[
       AnneAuth::Engine.root.join("app/**/*.rb"),

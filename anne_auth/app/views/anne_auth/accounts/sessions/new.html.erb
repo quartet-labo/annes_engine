@@ -2,7 +2,8 @@
 
 <h1>ログイン</h1>
 
-<%= form_with url: auth_route(:account_session_path), method: :post do |form| %>
+<%= form_with url: auth_route(:account_session_path), method: :post,
+  data: { anne_auth_submit_guard: true } do |form| %>
   <div>
     <%= form.label :email, "メールアドレス" %>
     <%= form.email_field :email, autocomplete: "email", autofocus: true, required: true %>

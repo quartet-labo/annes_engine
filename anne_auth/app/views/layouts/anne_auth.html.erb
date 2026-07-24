@@ -85,6 +85,12 @@
         cursor: pointer;
       }
 
+      input[type="submit"]:disabled,
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
       .auth-secondary {
         background: #e5e7eb;
         color: #1f2933;
@@ -142,5 +148,6 @@
         </section>
       </div>
     </main>
+    <%= render "layouts/anne_auth/submit_guard" %>
   </body>
 </html>

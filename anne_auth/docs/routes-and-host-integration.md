@@ -155,6 +155,27 @@ flow thin and prefer configuration hooks when a path or lifecycle callback is
 the only difference. Test both route resolution and redirects because Engine
 controllers and host controllers have different helper lookup contexts.
 
+## Overriding the Login View or Layout
+
+The standard credential login form is protected from repeated submissions by a
+small package-local script. If the host overrides
+`anne_auth/accounts/sessions/new`, keep the
+`data-anne-auth-submit-guard` attribute on the email/password form. Do not add
+it to OAuth, registration, password-reset, invitation, or host-specific forms
+unless the host intentionally owns their submission behavior.
+
+If the host overrides `layouts/anne_auth`, render the guard once:
+
+```erb
+<%= render "layouts/anne_auth/submit_guard" %>
+```
+
+The partial emits a CSP nonce-bearing inline script. It listens for the
+constraint-validation-aware `submit` event, allows the initial request, and
+blocks later submits while the form is busy. It also restores only the state it
+changed on `pageshow` and `turbo:submit-end`. Re-evaluating the partial does not
+register duplicate listeners.
+
 ## Host Account Classes
 
 The default `AnneAuth::Account` owns generic authentication behavior. A host can

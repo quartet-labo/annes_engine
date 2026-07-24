@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Prevent repeated credential login submissions with a CSP nonce-bearing,
+  dependency-free submit guard that is safe across browser history and Turbo
+  restoration.
 - Ignore framework and submit-button parameters before permitting password login
   credentials so standard form submissions do not emit Strong Parameters warnings.
 
