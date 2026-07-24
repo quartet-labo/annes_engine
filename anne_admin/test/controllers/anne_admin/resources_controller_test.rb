@@ -60,11 +60,30 @@ class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
 
     assert_engine_response :success
     assert_includes engine_response.body, "新規登録"
+    assert_engine_selector "link[rel='stylesheet'][href*='anne_admin/application']"
+    assert_engine_selector "a.anne-admin-action.anne-admin-action--primary[href='/admin/customers/new']"
+    assert_engine_selector "input.anne-admin-action.anne-admin-action--primary[type='submit'][value='検索']"
 
     engine_get "/customers/#{customers(:anan).id}"
 
     assert_engine_response :success
     assert_includes engine_response.body, "編集"
+    assert_engine_selector "a.anne-admin-action.anne-admin-action--secondary[href='/admin/customers']"
+    assert_engine_selector "a.anne-admin-action.anne-admin-action--primary[href='/admin/customers/#{customers(:anan).id}/edit']"
+  end
+
+  test "styles form actions with engine action classes" do
+    engine_get "/customers/new"
+
+    assert_engine_response :success
+    assert_engine_selector "input.anne-admin-action.anne-admin-action--primary[type='submit'][value='保存']"
+    assert_engine_selector "a.anne-admin-action.anne-admin-action--secondary[href='/admin/customers']"
+
+    engine_get "/customers/#{customers(:anan).id}/edit"
+
+    assert_engine_response :success
+    assert_engine_selector "input.anne-admin-action.anne-admin-action--primary[type='submit'][value='保存']"
+    assert_engine_selector "a.anne-admin-action.anne-admin-action--secondary[href='/admin/customers/#{customers(:anan).id}']"
   end
 
   test "creates a record with permitted attributes" do
@@ -186,6 +205,12 @@ class AnneAdmin::ResourcesControllerTest < AnneAdmin::IntegrationTest
     def assert_engine_redirected_to(path)
       assert_includes 300...400, engine_response.status
       assert_equal path, URI.parse(engine_response.headers.fetch("Location")).path
+    end
+
+    def assert_engine_selector(selector)
+      element = Nokogiri::HTML5.parse(engine_response.body).at_css(selector)
+
+      assert element, "Expected response to include #{selector.inspect}"
     end
 
     def engine_status_code(status)
