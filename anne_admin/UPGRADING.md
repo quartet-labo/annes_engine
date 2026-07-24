@@ -16,6 +16,65 @@ for actions the host app must perform.
 AnneAdmin usually does not ship host DB migrations. If a release has no manual
 steps, no action is needed beyond updating the gem and running tests.
 
+## 0.2.1 -> 0.2.2
+
+### Who Is Affected
+
+All host apps using AnneAdmin standard resource actions should update. Hosts
+that override `layouts/anne_admin/application`, standard resource views, or
+Tailwind source configuration need the additional checks below.
+
+### Behavior Change
+
+AnneAdmin now ships a namespaced `anne_admin/application` stylesheet for
+primary and secondary action controls. Standard resource actions no longer
+depend on the host Tailwind build scanning templates inside the installed gem
+for their background, text, border, hover, disabled, and keyboard-focus styles.
+
+### Required Steps
+
+1. Update AnneAdmin and rebuild or precompile host assets:
+
+   ```sh
+   bundle update anne_admin
+   bin/rails assets:precompile
+   ```
+
+2. If the host overrides `layouts/anne_admin/application`, load the Engine
+   stylesheet after `tailwind` and before any deliberate host theme override:
+
+   ```erb
+   <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+   <%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
+   <%= stylesheet_link_tag "admin_overrides", "data-turbo-track": "reload" %>
+   ```
+
+3. Remove resource view overrides created only to restore standard action
+   contrast. Returning to the standard views also preserves the
+   authorization-aware `new`, `edit`, and member custom action visibility
+   introduced in 0.2.1.
+
+4. After confirming the Engine stylesheet is loaded, remove Tailwind
+   `safelist`, `@source`, or equivalent entries that were added only for
+   AnneAdmin action utilities.
+
+5. Host-owned action views can opt into the Engine presentation with:
+
+   - `anne-admin-action anne-admin-action--primary`
+   - `anne-admin-action anne-admin-action--secondary`
+
+No host DB migration or resource definition change is required.
+
+### Verification
+
+- Standard `new`, search, `edit`, and save actions retain visible default,
+  hover, and keyboard-focus states without scanning gem templates in Tailwind.
+- List, back, and member custom actions have visible borders and focus
+  indicators.
+- Users without create or update permission still do not see the corresponding
+  standard actions.
+- A host layout override serves `anne_admin/application` successfully.
+
 ## 0.2.0 -> 0.2.1
 
 ### Who Is Affected
