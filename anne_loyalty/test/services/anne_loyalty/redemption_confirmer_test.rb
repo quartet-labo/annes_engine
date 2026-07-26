@@ -31,6 +31,22 @@ class AnneLoyalty::RedemptionConfirmerTest < AnneLoyalty::TestCase
     end
   end
 
+  test "reports already redeemed before expiry for used tokens" do
+    issued_at = Time.zone.parse("2026-07-26 12:00")
+    member = create_member
+    location = create_location(member.loyalty_program)
+    reward = create_reward(program: member.loyalty_program, required_points: 20)
+    AnneLoyalty.earn!(member:, location:, amount_cents: 3_000, source: { type: "Receipt", key: "R-001" })
+    issue = AnneLoyalty.redeem_reward!(member:, reward:, issued_at:)
+
+    AnneLoyalty.confirm_redemption!(token: issue.token, location:, occurred_at: issued_at + 1.minute)
+
+    assert_raises(AnneLoyalty::AlreadyRedeemedError) do
+      AnneLoyalty.confirm_redemption!(token: issue.token, location:, occurred_at: issued_at + 20.minutes)
+    end
+    assert issue.redemption.reload.redeemed?
+  end
+
   test "rejects invalid, expired, and mismatched location tokens" do
     member = create_member
     location = create_location(member.loyalty_program)

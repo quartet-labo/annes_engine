@@ -21,13 +21,14 @@ module AnneLoyalty
         member = redemption.loyalty_member
         member.lock!
 
+        validate_redemption_status!(redemption)
+
         if redemption.token_expired?(at: occurred_at)
           redemption.update!(status: "expired") if redemption.issued?
           expired = true
           next redemption
         end
 
-        validate_redemption_status!(redemption)
         validate_location!(redemption)
         consume_points!(member, redemption)
         ledger = create_ledger_entry!(member, redemption)
