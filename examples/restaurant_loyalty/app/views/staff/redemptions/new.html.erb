@@ -1,0 +1,16 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Members", staff_members_path %>
+    <%= link_to "Earn", staff_earn_points_path %>
+  </nav>
+
+  <h1>特典利用</h1>
+  <% if @error.present? %>
+    <p><%= @error %></p>
+  <% end %>
+  <%= form_with url: staff_redemptions_path do |form| %>
+    <%= form.label :token, "Redemption token" %>
+    <%= form.text_field :token, required: true %>
+    <%= form.submit "利用確定" %>
+  <% end %>
+</main>

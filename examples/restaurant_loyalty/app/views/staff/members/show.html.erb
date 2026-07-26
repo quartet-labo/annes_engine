@@ -1,0 +1,18 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Members", staff_members_path %>
+    <%= link_to "Earn", staff_earn_points_path(member_key: @member.member_key) %>
+    <%= link_to "Redeem", staff_redemptions_path %>
+  </nav>
+
+  <h1><%= @member.member_key %></h1>
+  <p><%= @member.owner&.display_name %></p>
+  <p>現在ポイント: <%= @balance.cached_balance %> pt</p>
+
+  <h2>最近の履歴</h2>
+  <ul>
+    <% @ledger_entries.each do |entry| %>
+      <li><%= entry.entry_type %> <%= entry.points_delta %> pt</li>
+    <% end %>
+  </ul>
+</main>

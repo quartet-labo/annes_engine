@@ -1,0 +1,30 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Members", staff_members_path %>
+    <%= link_to "Redeem", staff_redemptions_path %>
+  </nav>
+
+  <h1>ポイント付与</h1>
+  <% if @error.present? %>
+    <p><%= @error %></p>
+  <% end %>
+  <%= form_with url: staff_earn_points_path do |form| %>
+    <div>
+      <%= form.label :member_key, "会員番号" %>
+      <%= form.text_field :member_key, value: params[:member_key], required: true %>
+    </div>
+    <div>
+      <%= form.label :amount_cents, "会計金額" %>
+      <%= form.number_field :amount_cents, value: params[:amount_cents], min: 1, required: true %>
+    </div>
+    <div>
+      <%= form.label :receipt_number, "レシート番号" %>
+      <%= form.text_field :receipt_number, value: params[:receipt_number] %>
+    </div>
+    <%= form.submit "付与確定" %>
+  <% end %>
+
+  <% if @quote %>
+    <p>付与予定: <%= @quote.total_points %> pt</p>
+  <% end %>
+</main>

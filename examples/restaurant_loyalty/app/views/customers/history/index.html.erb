@@ -1,0 +1,37 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Home", customer_root_path(customer_query) %>
+    <%= link_to "Card", customer_card_path(customer_query) %>
+    <%= link_to "Rewards", customer_rewards_path(customer_query) %>
+    <%= button_to "Logout", customer_logout_path, method: :delete %>
+  </nav>
+
+  <h1>履歴</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>日時</th>
+        <th>種別</th>
+        <th>ポイント</th>
+        <th>店舗</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @ledger_entries.each do |entry| %>
+        <tr>
+          <td><%= l entry.occurred_at, format: :short %></td>
+          <td><%= entry_type_label(entry) %></td>
+          <td><%= points_label(entry.points_delta) %></td>
+          <td><%= entry.loyalty_location&.name || "-" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <h2>特典交換</h2>
+  <ul>
+    <% @redemptions.each do |redemption| %>
+      <li><%= redemption.loyalty_reward.name %> - <%= redemption.status %></li>
+    <% end %>
+  </ul>
+</main>

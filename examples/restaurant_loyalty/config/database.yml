@@ -1,0 +1,22 @@
+<% database_url = ENV["RESTAURANT_LOYALTY_DATABASE_URL"].to_s.empty? ? ENV["DATABASE_URL"].to_s : ENV["RESTAURANT_LOYALTY_DATABASE_URL"].to_s %>
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+<% if database_url.empty? %>
+  database: anne_restaurant_loyalty_development
+<% else %>
+  url: <%= database_url %>
+<% end %>
+
+test:
+  <<: *default
+<% if database_url.empty? %>
+  database: anne_restaurant_loyalty_test
+<% else %>
+  url: <%= database_url %>
+<% end %>

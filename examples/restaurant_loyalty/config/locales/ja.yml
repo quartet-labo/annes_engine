@@ -1,0 +1,19 @@
+ja:
+  time:
+    formats:
+      short: "%Y/%m/%d %H:%M"
+      long: "%Y/%m/%d %H:%M"
+  activerecord:
+    models:
+      customer: 顧客
+      receipt: 会計
+      visit: 来店
+    attributes:
+      customer:
+        customer_number: 会員番号
+        name: 氏名
+      receipt:
+        receipt_number: レシート番号
+        amount_cents: 会計金額
+      visit:
+        visited_at: 来店日時

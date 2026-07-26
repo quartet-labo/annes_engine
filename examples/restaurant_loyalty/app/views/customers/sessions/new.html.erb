@@ -1,0 +1,17 @@
+<main class="loyalty-page">
+  <h1>顧客ログイン</h1>
+
+  <%= form_with url: customer_session_path do |form| %>
+    <div class="form-row">
+      <%= form.label :customer_number, "会員番号" %>
+      <%= form.text_field :customer_number, required: true, autocomplete: "username" %>
+    </div>
+
+    <div class="form-row">
+      <%= form.label :access_code, "アクセスコード" %>
+      <%= form.password_field :access_code, required: true, autocomplete: "current-password" %>
+    </div>
+
+    <%= form.submit "ログイン" %>
+  <% end %>
+</main>

@@ -2,8 +2,23 @@
 
 - Type: technical concept
 - Date: 2026-07-26
-- Status: Draft
+- Status: Plan 1 MVP implemented
 - Target: `anne_loyalty` engine and `examples/restaurant_loyalty`
+
+## 0. 実装ステータス
+
+2026-07-26時点で、Plan 1 MVPとして次を実装済み。
+
+- `anne_loyalty` engine skeleton、public API、migration、model、service、test
+- program、location、member、ledger entry、point lot、reward、redemption
+- 基本付与、残高取得、FIFO lot消費、取消entry、冪等付与
+- redemption tokenの発行、HMAC digest保存、期限・状態・location検証、一度きり利用
+- 飲食店demo appの顧客画面、スタッフ会員検索、ポイント付与、特典利用確定
+- 顧客画面のsession認証。表示対象はログイン済み顧客のみで、`customer_id` queryでは切り替えない
+- AnneAdminでのprogram、location、reward管理
+- admin / manager / staff / viewerのseed権限、demo seed、受け入れtest、CI selector
+
+未実装の将来項目: campaign evaluator、point expiration batch、rank / tier、集計report、POS import adapter、camera QR scan、PWA、offline対応、push/メール通知。
 
 ## 1. 目的
 
@@ -81,6 +96,8 @@ flowchart LR
 | QR 提示・読み取り UI | host app | 業態ごとに体験が変わる |
 | 会計・注文・来店 | host app | POS や店舗運用に依存 |
 | push 通知、メール配信 | host app or future engine | 初期 scope では外す |
+
+Plan 1 MVPではcampaign model/evaluatorとreportsは未実装。管理画面はprogram、location、rewardのCRUDに限定する。
 
 ## 5. ドメインモデル案
 
@@ -440,6 +457,8 @@ EarnQuote = Data.define(
 - Campaigns: キャンペーン CRUD
 - Reports: 会員数、発行ポイント、利用ポイント、未利用残高、人気特典
 
+Plan 1 MVPで実装済みの管理画面はProgram settings、Location、Rewards。CampaignsとReportsは次フェーズ以降。
+
 ## 9. 権限案
 
 `anne_access` に以下の permission を定義する。
@@ -460,6 +479,8 @@ EarnQuote = Data.define(
 - Manager: 設定管理と集計閲覧、付与・利用
 - Staff: 会員閲覧、付与、特典利用
 - Viewer: 集計閲覧のみ
+
+Plan 1 MVPの実装では、AnneAccessのresource/actionとして`loyalty_programs`、`loyalty_locations`、`loyalty_rewards`、`loyalty_members`、`loyalty_points`、`loyalty_redemptions`を使う。Viewerは会員閲覧のみで、集計reportは未実装。
 
 ## 10. 整合性とセキュリティ
 
@@ -545,8 +566,8 @@ host app が持つ責務:
 5. reward / redemption と token 検証を実装する。
 6. `examples/restaurant_loyalty` を作成し、顧客・会計・来店の最小モデルを置く。店舗は `LoyaltyLocation` を使う。
 7. 顧客画面とスタッフ画面から engine service を呼ぶ。
-8. `anne_admin` で reward と campaign の管理画面を接続する。
-9. campaign evaluator を追加し、ランチ 2 倍などの demo data を入れる。
+8. `anne_admin` で program、location、reward の管理画面を接続する。
+9. campaign evaluator を追加し、ランチ 2 倍などの demo data を入れる。（次フェーズ）
 10. README、設計書、upgrade guide を整える。
 
 ## 14. 未決事項

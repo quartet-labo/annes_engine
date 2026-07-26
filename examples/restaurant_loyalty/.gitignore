@@ -1,0 +1,5 @@
+/log/*
+/public/assets/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep

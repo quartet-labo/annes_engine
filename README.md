@@ -18,8 +18,10 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, and Google OAuth
 - [`anne_access`](anne_access/README.md) - lightweight role-based authorization
 - [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
+- [`anne_loyalty`](anne_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
 - [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
+- [`examples/restaurant_loyalty`](examples/restaurant_loyalty/README.md) - restaurant point card demo integrating loyalty, auth, access, and admin screens
 
 ## Responsibilities
 
@@ -28,6 +30,7 @@ by Quartet Labo LLC. guide the project roadmap.
 | AnneAuth | Login, account sessions, email verification, password resets, Google OAuth | Administrator status, roles, or permissions |
 | AnneAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnneAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
+| AnneLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
 
 For applications using all three engines, adopt them in this order:
 
@@ -57,6 +60,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "anne_auth", "~> 0.3.0"
   gem "anne_admin", "~> 0.2.0"
   gem "anne_access", "~> 0.1.0"
+  gem "anne_loyalty", "~> 0.1.0"
 end
 ```
 
@@ -66,6 +70,7 @@ For local development from a host application:
 gem "anne_auth", path: "../anne_engine/anne_auth"
 gem "anne_admin", path: "../anne_engine/anne_admin"
 gem "anne_access", path: "../anne_engine/anne_access"
+gem "anne_loyalty", path: "../anne_engine/anne_loyalty"
 ```
 
 ## Publishing
@@ -82,12 +87,15 @@ guide, then commit the release change:
   `anne_admin/UPGRADING.md`
 - `anne_access/lib/anne_access/version.rb`, `anne_access/CHANGELOG.md`, and
   `anne_access/UPGRADING.md`
+- `anne_loyalty/lib/anne_loyalty/version.rb`, `anne_loyalty/CHANGELOG.md`, and
+  `anne_loyalty/UPGRADING.md`
 
 See the package-specific upgrade guides before updating a host application:
 
 - [AnneAuth upgrade guide](anne_auth/UPGRADING.md)
 - [AnneAccess upgrade guide](anne_access/UPGRADING.md)
 - [AnneAdmin upgrade guide](anne_admin/UPGRADING.md)
+- [AnneLoyalty upgrade guide](anne_loyalty/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
 target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
@@ -112,8 +120,13 @@ git tag anne_access-v0.1.0
 git push origin anne_access-v0.1.0
 ```
 
-You can also run the workflow manually and choose `anne_auth`, `anne_admin`, or
-`anne_access`, or `all`. Manual runs publish the version currently defined by
+```sh
+git tag anne_loyalty-v0.1.0
+git push origin anne_loyalty-v0.1.0
+```
+
+You can also run the workflow manually and choose `anne_auth`, `anne_admin`,
+`anne_access`, `anne_loyalty`, or `all`. Manual runs publish the version currently defined by
 each gemspec, so bump and commit the version first. Manual runs are not
 tag-triggered, so they do not create GitHub Releases.
 
@@ -161,6 +174,32 @@ Seed accounts use the development-only password `password-1234`:
 See the reservation management [requirements](examples/resavation_management/docs/requirements.md)
 and [design](examples/resavation_management/docs/design.md) for the workflow,
 authorization matrix, database constraints, and implementation boundaries.
+
+### Restaurant Loyalty
+
+[`examples/restaurant_loyalty`](examples/restaurant_loyalty/README.md) is a
+restaurant point card demo. It uses `anne_loyalty` for the point ledger, reward
+exchange, and redemption tokens; `anne_auth` for staff login; `anne_access` for
+RBAC; and `anne_admin` for program, location, and reward CRUD.
+
+```sh
+cd examples/restaurant_loyalty
+bundle install
+bin/rails db:setup
+bin/rails test
+bin/rails server
+```
+
+Seed accounts use the development-only password `password-1234`:
+
+- Admin: `admin@example.com`
+- Manager: `manager@example.com`
+- Staff: `staff@example.com`
+- Viewer: `viewer@example.com`
+
+See the restaurant loyalty [README](examples/restaurant_loyalty/README.md) and
+[technical concept](examples/restaurant_loyalty/docs/technical_concept.md) for
+the demo workflow, MVP boundaries, and future items.
 
 ## License
 

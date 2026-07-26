@@ -1,0 +1,14 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Home", customer_root_path(customer_query) %>
+    <%= link_to "Rewards", customer_rewards_path(customer_query) %>
+    <%= link_to "History", customer_history_path(customer_query) %>
+    <%= button_to "Logout", customer_logout_path, method: :delete %>
+  </nav>
+
+  <h1>会員カード</h1>
+  <p>会員番号: <%= loyalty_member.member_key %></p>
+  <p>現在ポイント: <%= points_label(@balance.cached_balance) %></p>
+  <div class="qr-payload"><%= @member_qr_payload %></div>
+  <p>キャンペーン情報は次フェーズで表示します。</p>
+</main>

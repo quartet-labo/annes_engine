@@ -1,0 +1,7 @@
+<main class="loyalty-page">
+  <h1>ポイント付与完了</h1>
+  <p><%= @member.member_key %></p>
+  <p>付与ポイント: <%= @entry.points_delta %> pt</p>
+  <p>現在ポイント: <%= @balance.cached_balance %> pt</p>
+  <%= link_to "会員詳細へ", staff_member_path(@member.member_key) %>
+</main>
