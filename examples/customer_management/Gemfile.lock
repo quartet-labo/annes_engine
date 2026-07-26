@@ -1,19 +1,19 @@
 PATH
   remote: ../../anne_access
   specs:
-    anne_access (0.1.1)
+    anne_access (0.1.2)
       rails (>= 8.1.0, < 8.2)
 
 PATH
   remote: ../../anne_admin
   specs:
-    anne_admin (0.2.2)
+    anne_admin (0.2.3)
       rails (>= 8.1.0, < 8.2)
 
 PATH
   remote: ../../anne_auth
   specs:
-    anne_auth (0.3.3)
+    anne_auth (0.3.4)
       bcrypt (~> 3.1.7)
       omniauth (~> 2.1)
       omniauth-google-oauth2 (~> 1.2)
