@@ -29,6 +29,7 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "顧客ログイン"
+    assert_select "link[rel=?][href*=?]", "stylesheet", "application"
     assert_select "form[action=?][method=?]", customer_session_path, "post"
   end
 
@@ -37,6 +38,7 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "管理者ログイン"
+    assert_select "link[rel=?][href*=?]", "stylesheet", "application"
     assert_select "form[action=?][method=?]", admin_session_path, "post"
   end
 
