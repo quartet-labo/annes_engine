@@ -304,12 +304,15 @@ The distribution target is GitHub Packages. Use this flow for releases:
 
 1. Run the engine test suite from the engine repository with `bundle exec rake test`.
 2. Update `lib/anne_auth/version.rb` to the version you want to publish.
-3. Update `CHANGELOG.md` for that version.
-4. Commit the release.
-5. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
-6. Confirm the `Publish Gems` workflow published the package to GitHub Packages
+3. Update `CHANGELOG.md` and `UPGRADING.md` for that version.
+4. Update the dependent example app lockfiles by running `bundle update anne_auth`
+   from `examples/customer_management`, `examples/resavation_management`, and
+   `examples/restaurant_loyalty`.
+5. Commit the release, including the changed example `Gemfile.lock` files.
+6. Push a gem-specific tag such as `anne_auth-vX.Y.Z`, matching `AnneAuth::VERSION`.
+7. Confirm the `Publish Gems` workflow published the package to GitHub Packages
    and created the GitHub Release for the tag.
-7. Update host applications with `bundle update anne_auth` and run their full test suites.
+8. Update host applications with `bundle update anne_auth` and run their full test suites.
 
 The workflow fails if the tag version does not match `AnneAuth::VERSION`. You
 can also run the `Publish Gems` workflow manually and choose `anne_auth`; manual
