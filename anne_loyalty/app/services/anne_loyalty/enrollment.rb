@@ -12,12 +12,19 @@ module AnneLoyalty
 
     def call
       LoyaltyMember.transaction do
-        LoyaltyMember.lock.find_by(loyalty_program: program, owner:) ||
+        program.lock!
+        find_existing_member ||
           LoyaltyMember.create!(loyalty_program: program, owner:, member_key:)
       end
+    rescue ActiveRecord::RecordNotUnique
+      find_existing_member || raise
     end
 
     private
       attr_reader :program, :owner, :member_key
+
+      def find_existing_member
+        LoyaltyMember.find_by(loyalty_program: program, owner:)
+      end
   end
 end

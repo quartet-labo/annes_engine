@@ -24,6 +24,7 @@ class AnneLoyalty::RedemptionConfirmerTest < AnneLoyalty::TestCase
     assert_equal(-20, ledger.points_delta)
     assert_equal redemption.id.to_s, ledger.source_key
     assert_equal "staff@example.com", ledger.metadata.fetch("actor_label")
+    assert_equal 20, ledger.metadata.fetch("consumed_lots").sole.fetch("points")
     assert_equal "127.0.0.1", redemption.metadata.fetch("ip")
 
     assert_raises(AnneLoyalty::AlreadyRedeemedError) do

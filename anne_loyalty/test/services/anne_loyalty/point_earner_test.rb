@@ -43,4 +43,42 @@ class AnneLoyalty::PointEarnerTest < AnneLoyalty::TestCase
     assert_equal 1, member.loyalty_ledger_entries.count
     assert_equal 1, member.loyalty_point_lots.count
   end
+
+  test "rejects earning at a location from another program" do
+    member = create_member
+    other_location = create_location(create_program(code: "other-earn-program"))
+
+    assert_raises(AnneLoyalty::InvalidEarningLocationError) do
+      AnneLoyalty.earn!(
+        member:,
+        location: other_location,
+        amount_cents: 1_000,
+        source: { type: "Receipt", key: "R-002" }
+      )
+    end
+
+    assert_equal 0, member.reload.cached_balance
+    assert_equal 0, member.loyalty_ledger_entries.count
+    assert_equal 0, member.loyalty_point_lots.count
+  end
+
+  test "returns a zero earn result without creating ledger records" do
+    member = create_member
+    location = create_location(member.loyalty_program)
+
+    result = AnneLoyalty.earn!(
+      member:,
+      location:,
+      amount_cents: 99,
+      source: { type: "Receipt", key: "R-003" }
+    )
+
+    assert_instance_of AnneLoyalty::ZeroEarnResult, result
+    assert_equal 0, result.points_delta
+    assert_equal "Receipt", result.source_type
+    assert_equal "R-003", result.source_key
+    assert_equal 0, member.reload.cached_balance
+    assert_equal 0, member.loyalty_ledger_entries.count
+    assert_equal 0, member.loyalty_point_lots.count
+  end
 end

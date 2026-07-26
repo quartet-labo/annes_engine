@@ -1,4 +1,14 @@
 module AnneLoyalty
+  ZeroEarnResult = Data.define(:points_delta, :source_type, :source_key, :metadata) do
+    def entry_type
+      "earn"
+    end
+
+    def persisted?
+      false
+    end
+  end
+
   class PointEarner
     def self.call(member:, location:, amount_cents:, source:, occurred_at: Time.current, actor: nil, metadata: {})
       new(member:, location:, amount_cents:, source:, occurred_at:, actor:, metadata:).call
@@ -17,11 +27,14 @@ module AnneLoyalty
     def call
       LoyaltyMember.transaction do
         member.lock!
+        validate_location!
 
         existing_entry = existing_idempotent_entry
         return existing_entry if existing_entry
 
         quote = EarnQuote.call(member:, location:, amount_cents:, occurred_at:, context: {})
+        return zero_earn_result(quote) if quote.total_points.zero?
+
         entry = create_ledger_entry!(quote)
         create_point_lot!(quote.total_points)
         update_member_balance!(quote.total_points)
@@ -34,6 +47,21 @@ module AnneLoyalty
 
       def existing_idempotent_entry
         member.loyalty_ledger_entries.find_by(source_type: source.type, source_key: source.key)
+      end
+
+      def validate_location!
+        return if location.loyalty_program_id == member.loyalty_program_id
+
+        raise InvalidEarningLocationError, "location does not belong to the member program"
+      end
+
+      def zero_earn_result(quote)
+        ZeroEarnResult.new(
+          points_delta: 0,
+          source_type: source.type,
+          source_key: source.key,
+          metadata: AuditMetadata.build(actor:, metadata: metadata.merge("quote" => quote.to_h))
+        )
       end
 
       def create_ledger_entry!(quote)

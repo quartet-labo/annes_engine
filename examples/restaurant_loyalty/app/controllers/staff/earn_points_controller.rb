@@ -22,7 +22,7 @@ module Staff
       @balance = AnneLoyalty.balance_for(member: @member)
       render :created, status: :created
     rescue ActiveRecord::RecordInvalid, AnneLoyalty::Error => error
-      @error = error.message
+      @error = error_message(error)
       render :new, status: :unprocessable_content
     end
 
@@ -30,6 +30,7 @@ module Staff
       def find_or_create_receipt!
         receipt_number = params[:receipt_number].presence
         receipt = receipt_number ? Receipt.find_or_initialize_by(receipt_number:) : Receipt.new
+        validate_existing_receipt!(receipt) if receipt.persisted?
         receipt.assign_attributes(
           customer: @member.owner,
           loyalty_location: current_location,
@@ -38,6 +39,21 @@ module Staff
         ) if receipt.new_record?
         receipt.save!
         receipt
+      end
+
+      def validate_existing_receipt!(receipt)
+        return if receipt.customer == @member.owner && receipt.loyalty_location_id == current_location.id
+
+        receipt.errors.add(:receipt_number, "has already been used for another member or location")
+        raise ActiveRecord::RecordInvalid, receipt
+      end
+
+      def error_message(error)
+        if error.respond_to?(:record) && error.record.errors.any?
+          return error.record.errors.full_messages.to_sentence
+        end
+
+        error.message
       end
   end
 end

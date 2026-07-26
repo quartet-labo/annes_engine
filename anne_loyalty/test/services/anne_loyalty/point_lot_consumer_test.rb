@@ -18,12 +18,24 @@ class AnneLoyalty::PointLotConsumerTest < AnneLoyalty::TestCase
       status: "open"
     )
 
-    AnneLoyalty::PointLotConsumer.call(member:, points: 12)
+    consumed_lots = AnneLoyalty::PointLotConsumer.call(member:, points: 12)
 
     assert_equal 0, earlier.reload.remaining_points
     assert_equal "consumed", earlier.status
     assert_equal 18, later.reload.remaining_points
     assert_equal "open", later.status
+    assert_equal [
+      {
+        "loyalty_point_lot_id" => earlier.id.to_s,
+        "points" => 10,
+        "expires_on" => earlier.expires_on.iso8601
+      },
+      {
+        "loyalty_point_lot_id" => later.id.to_s,
+        "points" => 2,
+        "expires_on" => later.expires_on.iso8601
+      }
+    ], consumed_lots
   end
 
   test "rejects consumption beyond available points" do

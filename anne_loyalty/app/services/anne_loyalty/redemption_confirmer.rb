@@ -30,8 +30,8 @@ module AnneLoyalty
         end
 
         validate_location!(redemption)
-        consume_points!(member, redemption)
-        ledger = create_ledger_entry!(member, redemption)
+        consumed_lots = consume_points!(member, redemption)
+        ledger = create_ledger_entry!(member, redemption, consumed_lots:)
         mark_redeemed!(redemption, ledger)
         redemption
       end
@@ -62,12 +62,13 @@ module AnneLoyalty
       end
 
       def consume_points!(member, redemption)
-        PointLotConsumer.call(member:, points: redemption.loyalty_reward.required_points)
+        consumed_lots = PointLotConsumer.call(member:, points: redemption.loyalty_reward.required_points)
         member.cached_balance -= redemption.loyalty_reward.required_points
         member.save!
+        consumed_lots
       end
 
-      def create_ledger_entry!(member, redemption)
+      def create_ledger_entry!(member, redemption, consumed_lots:)
         member.loyalty_ledger_entries.create!(
           loyalty_location: location,
           entry_type: "redeem",
@@ -79,7 +80,8 @@ module AnneLoyalty
             actor:,
             metadata: metadata.merge(
               "loyalty_redemption_id" => redemption.id.to_s,
-              "loyalty_reward_id" => redemption.loyalty_reward_id.to_s
+              "loyalty_reward_id" => redemption.loyalty_reward_id.to_s,
+              "consumed_lots" => consumed_lots
             )
           )
         )

@@ -47,6 +47,31 @@ class StaffLoyaltyWorkflowTest < ActionDispatch::IntegrationTest
     assert_equal 1, @member.loyalty_ledger_entries.where(source_type: "Receipt", source_key: "R-ST-001").count
   end
 
+  test "staff cannot reuse another customer's receipt number" do
+    sign_in_as_role(:staff)
+    other_customer = Customer.create!(name: "佐藤 花子")
+    other_member = AnneLoyalty.enroll!(
+      program: @program,
+      owner: other_customer,
+      member_key: other_customer.customer_number
+    )
+    Receipt.create!(
+      customer: @customer,
+      loyalty_location: @location,
+      amount_cents: 2_500,
+      receipt_number: "R-ST-REUSED",
+      purchased_at: Time.current
+    )
+
+    post staff_earn_points_path,
+      params: { member_key: other_member.member_key, amount_cents: 2_500, receipt_number: "R-ST-REUSED" }
+
+    assert_response :unprocessable_content
+    assert_includes response.body, "already been used"
+    assert_equal 0, other_member.reload.cached_balance
+    assert_equal 0, other_member.loyalty_ledger_entries.count
+  end
+
   test "staff can confirm redemption tokens once" do
     sign_in_as_role(:staff)
     AnneLoyalty.earn!(member: @member, location: @location, amount_cents: 3_000, source: { type: "Receipt", key: "R-ST-002" })
