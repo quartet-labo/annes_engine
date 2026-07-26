@@ -18,19 +18,19 @@ module AnneLoyalty
     end
 
     def enroll!(**)
-      raise NotImplementedError, "AnneLoyalty.enroll! is implemented in Task 1.3"
+      Enrollment.call(**)
     end
 
     def quote_earn(**)
-      raise NotImplementedError, "AnneLoyalty.quote_earn is implemented in Task 1.3"
+      EarnQuote.call(**)
     end
 
     def earn!(**)
-      raise NotImplementedError, "AnneLoyalty.earn! is implemented in Task 1.3"
+      PointEarner.call(**)
     end
 
     def balance_for(**)
-      raise NotImplementedError, "AnneLoyalty.balance_for is implemented in Task 1.3"
+      BalanceReader.call(**)
     end
 
     def redeem_reward!(**)
@@ -42,7 +42,7 @@ module AnneLoyalty
     end
 
     def reverse!(**)
-      raise NotImplementedError, "AnneLoyalty.reverse! is implemented in Task 1.3"
+      LedgerReverser.call(**)
     end
   end
 end
