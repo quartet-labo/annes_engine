@@ -41,10 +41,9 @@ for their background, text, border, hover, disabled, and keyboard-focus styles.
    ```
 
 2. If the host overrides `layouts/anne_admin/application`, load the Engine
-   stylesheet after `tailwind` and before any deliberate host theme override:
+   stylesheet before any deliberate host theme override:
 
    ```erb
-   <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
    <%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
    <%= stylesheet_link_tag "admin_overrides", "data-turbo-track": "reload" %>
    ```
