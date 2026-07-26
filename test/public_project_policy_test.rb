@@ -34,6 +34,20 @@ class PublicProjectPolicyTest < Minitest::Test
     assert_includes readme, "[security policy](SECURITY.md)"
   end
 
+  def test_publishing_instructions_include_dependent_example_lockfiles
+    readme = ROOT.join("README.md").read
+
+    assert_match(/dependent sample app lockfiles/i, readme)
+    assert_includes readme, "bundle update <gem_name>"
+    assert_includes readme, "`anne_auth`"
+    assert_includes readme, "`anne_admin`"
+    assert_includes readme, "`anne_access`"
+    assert_includes readme, "`anne_loyalty`"
+    assert_includes readme, "examples/customer_management/Gemfile.lock"
+    assert_includes readme, "examples/resavation_management/Gemfile.lock"
+    assert_includes readme, "examples/restaurant_loyalty/Gemfile.lock"
+  end
+
   def test_support_policy_separates_community_use_from_paid_services
     support = ROOT.join("SUPPORT.md").read
 

@@ -78,8 +78,8 @@ gem "anne_loyalty", path: "../anne_engine/anne_loyalty"
 Publishing is automated by the `Publish Gems` GitHub Actions workflow. The
 workflow uses the repository `GITHUB_TOKEN` with `packages: write` permission.
 
-Before publishing, update the target gem's version file, changelog, and upgrade
-guide, then commit the release change:
+Before publishing, update the target gem's version file, changelog, upgrade
+guide, and the dependent sample app lockfiles, then commit the release change:
 
 - `anne_auth/lib/anne_auth/version.rb`, `anne_auth/CHANGELOG.md`, and
   `anne_auth/UPGRADING.md`
@@ -89,6 +89,31 @@ guide, then commit the release change:
   `anne_access/UPGRADING.md`
 - `anne_loyalty/lib/anne_loyalty/version.rb`, `anne_loyalty/CHANGELOG.md`, and
   `anne_loyalty/UPGRADING.md`
+
+After changing a target gem version, refresh every example app `Gemfile.lock`
+that depends on that gem so the path-sourced gemspec version is committed with
+the release:
+
+- `anne_auth`: `examples/customer_management/Gemfile.lock`,
+  `examples/resavation_management/Gemfile.lock`, and
+  `examples/restaurant_loyalty/Gemfile.lock`
+- `anne_admin`: `examples/customer_management/Gemfile.lock`,
+  `examples/resavation_management/Gemfile.lock`, and
+  `examples/restaurant_loyalty/Gemfile.lock`
+- `anne_access`: `examples/customer_management/Gemfile.lock`,
+  `examples/resavation_management/Gemfile.lock`, and
+  `examples/restaurant_loyalty/Gemfile.lock`
+- `anne_loyalty`: `examples/restaurant_loyalty/Gemfile.lock`
+
+Run `bundle update <gem_name>` from each affected example directory. For
+releases that bump multiple engines together, pass all affected gem names in
+the same command for each example app. For example, an AnneAuth release needs:
+
+```sh
+(cd examples/customer_management && bundle update anne_auth)
+(cd examples/resavation_management && bundle update anne_auth)
+(cd examples/restaurant_loyalty && bundle update anne_auth)
+```
 
 See the package-specific upgrade guides before updating a host application:
 
