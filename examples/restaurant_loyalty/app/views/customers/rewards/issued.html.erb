@@ -1,0 +1,7 @@
+<main class="loyalty-page">
+  <h1>特典QR</h1>
+  <p><%= @reward.name %></p>
+  <p>有効期限: <%= l @issue.redemption.expires_at, format: :long %></p>
+  <div class="qr-payload"><%= @redemption_qr_payload %></div>
+  <%= link_to "特典一覧へ戻る", customer_rewards_path(customer_query) %>
+</main>

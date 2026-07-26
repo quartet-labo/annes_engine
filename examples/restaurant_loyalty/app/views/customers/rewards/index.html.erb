@@ -1,0 +1,28 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Home", customer_root_path(customer_query) %>
+    <%= link_to "Card", customer_card_path(customer_query) %>
+    <%= link_to "History", customer_history_path(customer_query) %>
+  </nav>
+
+  <h1>特典</h1>
+  <p>現在ポイント: <%= points_label(@balance.cached_balance) %></p>
+
+  <% if @redemption_error.present? %>
+    <p><%= @redemption_error %></p>
+  <% end %>
+
+  <ul class="reward-list">
+    <% @rewards.each do |reward| %>
+      <li>
+        <strong><%= reward.name %></strong>
+        <span><%= points_label(reward.required_points) %></span>
+        <% if @balance.cached_balance >= reward.required_points %>
+          <%= button_to "交換", customer_reward_redemption_path(reward, customer_query) %>
+        <% else %>
+          <span>あと <%= points_label(reward.required_points - @balance.cached_balance) %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</main>

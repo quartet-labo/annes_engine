@@ -2,3 +2,30 @@ body {
   font-family: system-ui, sans-serif;
   margin: 2rem;
 }
+
+.loyalty-page {
+  max-width: 56rem;
+}
+
+.loyalty-nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.balance {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.qr-payload {
+  border: 1px solid #222;
+  display: inline-block;
+  font-family: ui-monospace, monospace;
+  padding: 1rem;
+}
+
+.reward-list {
+  display: grid;
+  gap: 0.75rem;
+}

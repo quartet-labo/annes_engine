@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   scope :customer, as: :customer, module: :customers do
     root to: "dashboard#show"
+    get "card", to: "cards#show", as: :card
+    get "rewards", to: "rewards#index", as: :rewards
+    post "rewards/:id/redeem", to: "rewards#create", as: :reward_redemption
+    get "history", to: "history#index", as: :history
   end
 
   namespace :staff do

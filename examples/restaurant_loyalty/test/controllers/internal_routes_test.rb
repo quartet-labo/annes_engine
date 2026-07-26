@@ -1,6 +1,18 @@
 require "test_helper"
 
 class InternalRoutesTest < ActionDispatch::IntegrationTest
+  setup do
+    Customer.create!(name: "Route Test Customer")
+    AnneLoyalty::LoyaltyProgram.create!(
+      code: "route-test",
+      name: "Route Test",
+      point_name: "pt",
+      earn_unit_amount_cents: 100,
+      earn_points_per_unit: 1,
+      default_expiration_months: 12
+    )
+  end
+
   test "public entry points route to customer and staff areas" do
     get "/"
     assert_redirected_to "/customer"
@@ -10,7 +22,7 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
 
     get "/customer"
     assert_response :success
-    assert_includes response.body, "Restaurant loyalty customer dashboard"
+    assert_includes response.body, "ポイントカード"
   end
 
   test "admin login is available" do

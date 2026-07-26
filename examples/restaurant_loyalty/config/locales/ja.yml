@@ -1,4 +1,8 @@
 ja:
+  time:
+    formats:
+      short: "%Y/%m/%d %H:%M"
+      long: "%Y/%m/%d %H:%M"
   activerecord:
     models:
       customer: 顧客

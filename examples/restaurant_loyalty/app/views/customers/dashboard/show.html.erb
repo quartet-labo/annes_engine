@@ -1,0 +1,27 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Home", customer_root_path(customer_query) %>
+    <%= link_to "Card", customer_card_path(customer_query) %>
+    <%= link_to "Rewards", customer_rewards_path(customer_query) %>
+    <%= link_to "History", customer_history_path(customer_query) %>
+  </nav>
+
+  <h1><%= current_customer.name %> ポイントカード</h1>
+  <p class="balance"><%= points_label(@balance.cached_balance) %></p>
+  <p>Rank: <%= loyalty_member.tier_key.presence || "Regular" %></p>
+
+  <% if @next_reward %>
+    <p>次の特典: <%= @next_reward.name %></p>
+    <p>次の特典まで <%= points_label(@next_reward.required_points - @balance.cached_balance) %></p>
+    <progress value="<%= @balance.cached_balance %>" max="<%= @next_reward.required_points %>"></progress>
+  <% else %>
+    <p>交換可能な特典があります。</p>
+  <% end %>
+
+  <h2>交換できる特典</h2>
+  <ul>
+    <% @affordable_rewards.each do |reward| %>
+      <li><%= reward.name %> - <%= points_label(reward.required_points) %></li>
+    <% end %>
+  </ul>
+</main>
