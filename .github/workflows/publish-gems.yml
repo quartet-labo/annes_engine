@@ -13,11 +13,13 @@ on:
           - anne_auth
           - anne_admin
           - anne_access
+          - anne_loyalty
   push:
     tags:
       - anne_auth-v*
       - anne_admin-v*
       - anne_access-v*
+      - anne_loyalty-v*
 
 permissions:
   contents: write
@@ -45,6 +47,10 @@ jobs:
             path: anne_access
             gemspec: anne_access.gemspec
             tag_prefix: anne_access-v
+          - gem: anne_loyalty
+            path: anne_loyalty
+            gemspec: anne_loyalty.gemspec
+            tag_prefix: anne_loyalty-v
 
     steps:
       - name: Select package
