@@ -26,7 +26,7 @@ cd examples/restaurant_loyalty
 bundle install
 bin/rails db:setup
 bin/rails test
-bin/rails server
+bin/dev
 ```
 
 ブラウザで <http://localhost:3000/customer> を開いてください。

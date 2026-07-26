@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+if ! bundle check >/dev/null 2>&1; then
+  bundle install
+fi
+
+bin/rails assets:clobber assets:precompile
+exec bin/rails server "$@"
