@@ -1,6 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
 
 require_relative "dummy/config/environment"
+require "securerandom"
 
 def ensure_dummy_database!
   ActiveRecord::Tasks::DatabaseTasks.database_configuration = Rails.application.config.database_configuration
@@ -36,5 +37,33 @@ module AnneLoyalty
 
   class TestCase < ActiveSupport::TestCase
     include TestConfiguration
+
+    def create_program(code: "cafe", name: "Cafe")
+      AnneLoyalty::LoyaltyProgram.create!(
+        code:,
+        name:,
+        point_name: "pt",
+        earn_unit_amount_cents: 100,
+        earn_points_per_unit: 1,
+        default_expiration_months: 12
+      )
+    end
+
+    def create_location(program = create_program, code: "main")
+      AnneLoyalty::LoyaltyLocation.create!(
+        loyalty_program: program,
+        code:,
+        name: "#{code.to_s.titleize} Store",
+        time_zone: "Asia/Tokyo"
+      )
+    end
+
+    def create_member(program: create_program, owner: Account.create!(email: "member-#{SecureRandom.hex(4)}@example.com"), member_key: "CARD-#{SecureRandom.hex(3).upcase}")
+      AnneLoyalty::LoyaltyMember.create!(
+        loyalty_program: program,
+        owner:,
+        member_key:
+      )
+    end
   end
 end
