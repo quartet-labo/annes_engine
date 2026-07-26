@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0
+
 - Add the initial AnneLoyalty engine with program, location, member, ledger,
   point lot, reward, and redemption models.
 - Add public services for enrollment, earning, balance reads, FIFO point lot

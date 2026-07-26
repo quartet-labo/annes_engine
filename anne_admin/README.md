@@ -26,7 +26,7 @@ Add the engine to the host app.
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_admin", "~> 0.2.0"
+  gem "anne_admin", "~> 0.2.3"
 end
 ```
 

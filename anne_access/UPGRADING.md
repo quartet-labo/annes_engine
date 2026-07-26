@@ -20,6 +20,11 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 0.1.1 -> 0.1.2
+
+This release expands documentation only. No host-app code or database changes
+are required.
+
 ## 0.1.0 -> 0.1.1
 
 ### Who Is Affected

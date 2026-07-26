@@ -20,6 +20,26 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 0.3.3 -> 0.3.4
+
+### Who Is Affected
+
+Host apps that use the default AnneAuth credential login form get repeated
+submission protection automatically. Hosts that override the login view or
+AnneAuth layout should review the required steps below.
+
+### Required Steps
+
+1. If the host overrides `anne_auth/accounts/sessions/new`, preserve
+   `data-anne-auth-submit-guard` on the credential form.
+2. If the host overrides `layouts/anne_auth`, render the submit guard partial:
+
+   ```erb
+   <%= render "layouts/anne_auth/submit_guard" %>
+   ```
+
+No host DB migration is required.
+
 ## 0.3.1 -> 0.3.2
 
 ### Who Is Affected
