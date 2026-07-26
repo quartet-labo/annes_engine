@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.3
+
 - Prevent repeated standard resource create/update submissions with a
   dependency-free Engine JavaScript asset, while preserving native validation,
   Turbo restoration, and browser history restoration behavior.

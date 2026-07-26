@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.4
+
 - Prevent repeated credential login submissions with a CSP nonce-bearing,
   dependency-free submit guard that is safe across browser history and Turbo
   restoration.

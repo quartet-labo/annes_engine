@@ -16,6 +16,30 @@ for actions the host app must perform.
 AnneAdmin usually does not ship host DB migrations. If a release has no manual
 steps, no action is needed beyond updating the gem and running tests.
 
+## 0.2.2 -> 0.2.3
+
+### Who Is Affected
+
+Host apps that use the standard AnneAdmin new/edit resource form get repeated
+submission protection automatically. Hosts that override
+`anne_admin/resources/_form` or `layouts/anne_admin/application` should review
+the required steps below.
+
+### Required Steps
+
+1. If the host overrides `anne_admin/resources/_form`, preserve
+   `data-anne-admin-submit-guard` on the create/update form.
+2. If the host overrides `layouts/anne_admin/application`, load the Engine
+   JavaScript asset:
+
+   ```erb
+   <%= javascript_include_tag "anne_admin/submit_guard",
+     "data-turbo-track": "reload",
+     defer: true %>
+   ```
+
+No host DB migration is required.
+
 ## 0.2.1 -> 0.2.2
 
 ### Who Is Affected

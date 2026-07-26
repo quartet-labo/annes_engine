@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.2
+
 - Add RBAC setup, configuration/API, record-scoping, AnneAdmin integration, and
   security guides, and expand the README into a complete allow/deny quick start.
 

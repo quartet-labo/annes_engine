@@ -29,7 +29,7 @@ Add the engine to the host app.
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_access", "~> 0.1.0"
+  gem "anne_access", "~> 0.1.2"
 end
 ```
 
