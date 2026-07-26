@@ -38,7 +38,7 @@ module AnneLoyalty
   class TestCase < ActiveSupport::TestCase
     include TestConfiguration
 
-    def create_program(code: "cafe", name: "Cafe")
+    def create_program(code: "cafe-#{SecureRandom.hex(4)}", name: "Cafe")
       AnneLoyalty::LoyaltyProgram.create!(
         code:,
         name:,
@@ -63,6 +63,28 @@ module AnneLoyalty
         loyalty_program: program,
         owner:,
         member_key:
+      )
+    end
+
+    def create_reward(program: create_program, code: "free-coffee", required_points: 50)
+      AnneLoyalty::LoyaltyReward.create!(
+        loyalty_program: program,
+        code:,
+        name: code.to_s.titleize,
+        required_points:,
+        valid_minutes: 10
+      )
+    end
+
+    def create_redemption(member: create_member, reward: nil, token_digest: "digest-1", issued_at: Time.current)
+      reward ||= create_reward(program: member.loyalty_program)
+      AnneLoyalty::LoyaltyRedemption.create!(
+        loyalty_member: member,
+        loyalty_reward: reward,
+        status: "issued",
+        token_digest:,
+        issued_at:,
+        expires_at: issued_at + reward.valid_minutes.minutes
       )
     end
   end

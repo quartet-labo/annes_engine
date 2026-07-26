@@ -4,6 +4,11 @@ module AnneLoyalty
 
     belongs_to :loyalty_program
     has_many :loyalty_ledger_entries, dependent: :restrict_with_exception
+    has_many :loyalty_redemptions,
+      class_name: "AnneLoyalty::LoyaltyRedemption",
+      foreign_key: :redeemed_loyalty_location_id,
+      dependent: :restrict_with_exception,
+      inverse_of: :redeemed_loyalty_location
 
     before_validation :normalize_code
 

@@ -76,9 +76,45 @@ ActiveRecord::Schema[8.1].define(version: 0) do
     t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'consumed'::character varying, 'expired'::character varying, 'voided'::character varying]::text[])", name: "anne_loyalty_point_lots_known_status"
   end
 
+  create_table "anne_loyalty_loyalty_rewards", force: :cascade do |t|
+    t.bigint "loyalty_program_id", null: false
+    t.string "code", null: false
+    t.string "name", null: false
+    t.integer "required_points", null: false
+    t.integer "valid_minutes", null: false
+    t.boolean "active", default: true, null: false
+    t.timestamps
+    t.index [ "active" ], name: "index_anne_loyalty_loyalty_rewards_on_active"
+    t.index [ "loyalty_program_id", "code" ], name: "index_loyalty_rewards_on_program_and_code", unique: true
+    t.check_constraint "required_points > 0 AND valid_minutes > 0", name: "anne_loyalty_rewards_positive_settings"
+  end
+
+  create_table "anne_loyalty_loyalty_redemptions", force: :cascade do |t|
+    t.bigint "loyalty_member_id", null: false
+    t.bigint "loyalty_reward_id", null: false
+    t.bigint "redeemed_loyalty_location_id"
+    t.string "status", null: false
+    t.string "token_digest", null: false
+    t.datetime "issued_at", null: false
+    t.datetime "redeemed_at"
+    t.datetime "expires_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.timestamps
+    t.index [ "loyalty_member_id", "status" ], name: "index_loyalty_redemptions_on_member_and_status"
+    t.index [ "loyalty_reward_id", "status" ], name: "index_loyalty_redemptions_on_reward_and_status"
+    t.index [ "token_digest" ], name: "index_loyalty_redemptions_on_token_digest", unique: true
+    t.check_constraint "expires_at > issued_at", name: "anne_loyalty_redemptions_expiry_after_issue"
+    t.check_constraint "redeemed_at IS NULL OR redeemed_at >= issued_at", name: "anne_loyalty_redemptions_redeemed_after_issue"
+    t.check_constraint "status::text = ANY (ARRAY['issued'::character varying, 'redeemed'::character varying, 'expired'::character varying, 'canceled'::character varying]::text[])", name: "anne_loyalty_redemptions_known_status"
+  end
+
   add_foreign_key "anne_loyalty_loyalty_locations", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
   add_foreign_key "anne_loyalty_loyalty_members", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
   add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
   add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
   add_foreign_key "anne_loyalty_loyalty_point_lots", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
+  add_foreign_key "anne_loyalty_loyalty_rewards", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
+  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
+  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_rewards", column: "loyalty_reward_id"
+  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_locations", column: "redeemed_loyalty_location_id"
 end

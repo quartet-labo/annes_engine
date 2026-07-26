@@ -4,6 +4,7 @@ module AnneLoyalty
 
     has_many :loyalty_locations, dependent: :restrict_with_exception
     has_many :loyalty_members, dependent: :restrict_with_exception
+    has_many :loyalty_rewards, dependent: :restrict_with_exception
 
     before_validation :normalize_code
 

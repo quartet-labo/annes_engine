@@ -6,6 +6,7 @@ module AnneLoyalty
     belongs_to :owner, polymorphic: true
     has_many :loyalty_ledger_entries, dependent: :restrict_with_exception
     has_many :loyalty_point_lots, dependent: :restrict_with_exception
+    has_many :loyalty_redemptions, dependent: :restrict_with_exception
 
     before_validation :normalize_member_key
 
