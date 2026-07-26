@@ -14,6 +14,7 @@
 - 基本付与、残高取得、FIFO lot消費、取消entry、冪等付与
 - redemption tokenの発行、HMAC digest保存、期限・状態・location検証、一度きり利用
 - 飲食店demo appの顧客画面、スタッフ会員検索、ポイント付与、特典利用確定
+- 顧客画面のsession認証。表示対象はログイン済み顧客のみで、`customer_id` queryでは切り替えない
 - AnneAdminでのprogram、location、reward管理
 - admin / manager / staff / viewerのseed権限、demo seed、受け入れtest、CI selector
 

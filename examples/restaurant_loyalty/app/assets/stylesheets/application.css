@@ -9,8 +9,38 @@ body {
 
 .loyalty-nav {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+.loyalty-nav form {
+  display: inline;
+}
+
+.form-row {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  max-width: 20rem;
+}
+
+.flash {
+  border: 1px solid #ddd;
+  margin: 0 0 1rem;
+  max-width: 56rem;
+  padding: 0.75rem;
+}
+
+.flash-alert {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.flash-notice {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
 }
 
 .balance {

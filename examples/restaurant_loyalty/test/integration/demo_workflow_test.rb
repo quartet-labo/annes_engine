@@ -8,9 +8,11 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
     member = customer.loyalty_member
     coffee = AnneLoyalty::LoyaltyReward.find_by!(code: "coffee")
 
-    get customer_root_path(customer_id: customer.id)
+    sign_in_seeded_customer(customer.customer_number)
+    get customer_root_path(customer_id: Customer.find_by!(customer_number: "C-DEMO-002").id)
     assert_response :success
     assert_includes response.body, customer.name
+    assert_not_includes response.body, "佐藤 花子"
     assert_includes response.body, "25 pt"
 
     sign_in_as_role(:staff)
@@ -24,7 +26,7 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
     assert_response :created
     assert_equal 40, member.reload.cached_balance
 
-    post customer_reward_redemption_path(coffee, customer_id: customer.id)
+    post customer_reward_redemption_path(coffee)
     assert_response :created
     token = response.body.match(/redemption:([A-Za-z0-9._-]+)/)[1]
     assert_equal 1, member.loyalty_redemptions.where(loyalty_reward: coffee).count
@@ -82,5 +84,12 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
         params: { email:, password: "password-1234" },
         headers: { "REMOTE_ADDR" => "192.0.2.55" }
       assert_redirected_to admin_root_path
+    end
+
+    def sign_in_seeded_customer(customer_number)
+      post "/customer/session",
+        params: { customer_number:, access_code: "123456" },
+        headers: { "REMOTE_ADDR" => "198.51.100.55" }
+      assert_redirected_to customer_root_path
     end
 end

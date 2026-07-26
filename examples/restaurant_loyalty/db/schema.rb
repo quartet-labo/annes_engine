@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_020113) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -235,6 +235,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_020113) do
   end
 
   create_table "customers", force: :cascade do |t|
+    t.string "access_code_digest"
     t.boolean "active", default: true, null: false
     t.date "birthday"
     t.datetime "created_at", null: false

@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   get "dashboard", to: redirect("/customer")
 
   scope :customer, as: :customer, module: :customers do
+    get "login", to: "sessions#new", as: :login
+    post "session", to: "sessions#create", as: :session
+    delete "logout", to: "sessions#destroy", as: :logout
+
     root to: "dashboard#show"
     get "card", to: "cards#show", as: :card
     get "rewards", to: "rewards#index", as: :rewards

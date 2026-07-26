@@ -2,7 +2,8 @@ require "test_helper"
 
 class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   setup do
-    @customer = Customer.create!(name: "山田 太郎", email: "taro@example.com")
+    @customer = Customer.create!(name: "山田 太郎", email: "taro@example.com", access_code: "123456")
+    @other_customer = Customer.create!(name: "佐藤 花子", email: "hanako@example.com", access_code: "654321")
     @program = AnneLoyalty::LoyaltyProgram.create!(
       code: "restaurant-demo",
       name: "Restaurant Demo",
@@ -18,6 +19,7 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
       time_zone: "Asia/Tokyo"
     )
     @member = AnneLoyalty.enroll!(program: @program, owner: @customer, member_key: @customer.customer_number)
+    AnneLoyalty.enroll!(program: @program, owner: @other_customer, member_key: @other_customer.customer_number)
     @coffee = AnneLoyalty::LoyaltyReward.create!(
       loyalty_program: @program,
       code: "coffee",
@@ -41,8 +43,43 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "customer dashboard shows balance and next reward progress" do
+  test "customer pages require customer authentication" do
     get customer_root_path(customer_id: @customer.id)
+
+    assert_redirected_to customer_login_path
+  end
+
+  test "customer can sign in and sign out" do
+    get customer_login_path
+    assert_response :success
+    assert_includes response.body, "顧客ログイン"
+
+    post customer_session_path, params: { customer_number: @customer.customer_number, access_code: "wrong" }
+    assert_response :unprocessable_content
+
+    sign_in_customer(@customer)
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "山田 太郎"
+
+    delete customer_logout_path
+    assert_redirected_to customer_login_path
+  end
+
+  test "customer_id query does not switch the authenticated customer" do
+    sign_in_customer(@customer)
+
+    get customer_root_path(customer_id: @other_customer.id)
+
+    assert_response :success
+    assert_includes response.body, "山田 太郎"
+    assert_not_includes response.body, "佐藤 花子"
+    assert_not_includes response.body, "customer_id="
+  end
+
+  test "customer dashboard shows balance and next reward progress" do
+    sign_in_customer(@customer)
+    get customer_root_path
 
     assert_response :success
     assert_includes response.body, "山田 太郎"
@@ -51,7 +88,8 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "customer card shows member QR payload" do
-    get customer_card_path(customer_id: @customer.id)
+    sign_in_customer(@customer)
+    get customer_card_path
 
     assert_response :success
     assert_includes response.body, @member.member_key
@@ -59,7 +97,8 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "rewards page distinguishes available and unavailable rewards" do
-    get customer_rewards_path(customer_id: @customer.id)
+    sign_in_customer(@customer)
+    get customer_rewards_path
 
     assert_response :success
     assert_includes response.body, "コーヒー無料"
@@ -68,7 +107,8 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "customer can issue a redemption token" do
-    post customer_reward_redemption_path(@coffee, customer_id: @customer.id)
+    sign_in_customer(@customer)
+    post customer_reward_redemption_path(@coffee)
 
     assert_response :created
     assert_includes response.body, "特典QR"
@@ -77,7 +117,8 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "history shows loyalty ledger entries" do
-    get customer_history_path(customer_id: @customer.id)
+    sign_in_customer(@customer)
+    get customer_history_path
 
     assert_response :success
     assert_includes response.body, "付与"

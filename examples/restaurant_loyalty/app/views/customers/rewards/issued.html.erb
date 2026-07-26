@@ -4,4 +4,5 @@
   <p>有効期限: <%= l @issue.redemption.expires_at, format: :long %></p>
   <div class="qr-payload"><%= @redemption_qr_payload %></div>
   <%= link_to "特典一覧へ戻る", customer_rewards_path(customer_query) %>
+  <%= button_to "Logout", customer_logout_path, method: :delete %>
 </main>

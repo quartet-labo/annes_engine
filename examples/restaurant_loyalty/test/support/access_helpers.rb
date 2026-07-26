@@ -60,4 +60,12 @@ module AccessHelpers
     assert_redirected_to admin_root_path
     account
   end
+
+  def sign_in_customer(customer, access_code: "123456")
+    post "/customer/session",
+      params: { customer_number: customer.customer_number, access_code: },
+      headers: { "REMOTE_ADDR" => "198.51.100.#{SecureRandom.random_number(254) + 1}" }
+    assert_redirected_to customer_root_path
+    customer
+  end
 end

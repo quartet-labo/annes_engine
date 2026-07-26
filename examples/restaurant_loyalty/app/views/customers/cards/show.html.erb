@@ -3,6 +3,7 @@
     <%= link_to "Home", customer_root_path(customer_query) %>
     <%= link_to "Rewards", customer_rewards_path(customer_query) %>
     <%= link_to "History", customer_history_path(customer_query) %>
+    <%= button_to "Logout", customer_logout_path, method: :delete %>
   </nav>
 
   <h1>会員カード</h1>

@@ -21,8 +21,15 @@ class InternalRoutesTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/customer"
 
     get "/customer"
+    assert_redirected_to "/customer/login"
+  end
+
+  test "customer login is available" do
+    get customer_login_path
+
     assert_response :success
-    assert_includes response.body, "ポイントカード"
+    assert_includes response.body, "顧客ログイン"
+    assert_select "form[action=?][method=?]", customer_session_path, "post"
   end
 
   test "admin login is available" do

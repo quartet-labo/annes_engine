@@ -1,6 +1,8 @@
 require "securerandom"
 
 class Customer < ApplicationRecord
+  has_secure_password :access_code, validations: false
+
   has_one :loyalty_member,
     class_name: "AnneLoyalty::LoyaltyMember",
     as: :owner,

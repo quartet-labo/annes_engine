@@ -14,7 +14,8 @@ class SeedIdempotencyTest < ActiveSupport::TestCase
       customers: Customer.count,
       members: AnneLoyalty::LoyaltyMember.count,
       receipts: Receipt.count,
-      ledger_entries: AnneLoyalty::LoyaltyLedgerEntry.count
+      ledger_entries: AnneLoyalty::LoyaltyLedgerEntry.count,
+      customer_access_codes: Customer.where.not(access_code_digest: nil).count
     }
 
     Rails.application.load_seed
@@ -29,5 +30,6 @@ class SeedIdempotencyTest < ActiveSupport::TestCase
     assert_equal counts.fetch(:members), AnneLoyalty::LoyaltyMember.count
     assert_equal counts.fetch(:receipts), Receipt.count
     assert_equal counts.fetch(:ledger_entries), AnneLoyalty::LoyaltyLedgerEntry.count
+    assert_equal counts.fetch(:customer_access_codes), Customer.where.not(access_code_digest: nil).count
   end
 end

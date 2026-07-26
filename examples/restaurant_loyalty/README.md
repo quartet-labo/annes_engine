@@ -67,13 +67,14 @@ CIなど複数アプリで共通化する場合は`DATABASE_URL`も利用でき�
 
 Seed customer:
 
-- `C-DEMO-001`: 初期25 pt、coffee交換可能
-- `C-DEMO-002`: 初期0 pt
+- `C-DEMO-001` / access code `123456`: 初期25 pt、coffee交換可能
+- `C-DEMO-002` / access code `123456`: 初期0 pt
 
 ## Main Screens
 
 | URL | 用途 |
 | --- | --- |
+| `/customer/login` | 顧客ログイン |
 | `/customer` | 顧客ホーム。現在ポイントと次の特典を表示 |
 | `/customer/card` | 会員QR payload表示 |
 | `/customer/rewards` | 特典一覧とredemption token発行 |
@@ -88,13 +89,14 @@ Seed customer:
 
 ## Demo Workflow
 
-1. `/customer`で`C-DEMO-001`の残高25 ptを確認します。
-2. `/admin/login`で`staff@example.com`としてログインします。
-3. `/staff/earn`でmember key `C-DEMO-001`、receipt number `R-DEMO-UI-001`、amount `1500`を入力し、15 ptを付与します。
-4. `/customer/rewards`で`コーヒー無料`を交換し、表示された`redemption:<token>`のtoken部分を控えます。
-5. `/staff/redemptions`でtokenを入力し、特典利用を確定します。
-6. 同じtokenをもう一度送信すると二重利用として拒否されます。
-7. `/admin/loyalty_rewards`を`admin@example.com`で開き、特典CRUDを確認します。
+1. `/customer/login`で会員番号`C-DEMO-001`、access code `123456`としてログインします。
+2. `/customer`で`C-DEMO-001`の残高25 ptを確認します。
+3. `/admin/login`で`staff@example.com`としてログインします。
+4. `/staff/earn`でmember key `C-DEMO-001`、receipt number `R-DEMO-UI-001`、amount `1500`を入力し、15 ptを付与します。
+5. `/customer/rewards`で`コーヒー無料`を交換し、表示された`redemption:<token>`のtoken部分を控えます。
+6. `/staff/redemptions`でtokenを入力し、特典利用を確定します。
+7. 同じtokenをもう一度送信すると二重利用として拒否されます。
+8. `/admin/loyalty_rewards`を`admin@example.com`で開き、特典CRUDを確認します。
 
 ## Test
 
@@ -106,6 +108,7 @@ bin/rails test
 主な受け入れテスト:
 
 - seedから顧客画面、スタッフ付与、顧客交換、スタッフ利用確定、二重利用拒否を確認
+- 顧客画面はログイン済み顧客のsessionから表示対象を決め、`customer_id` queryでは切り替わらないことを確認
 - adminはrewardを作成でき、viewerはadmin write操作とstaff付与を拒否されることを確認
 - seedを2回読み込んでも主要データ数が増えないことを確認
 
@@ -126,6 +129,7 @@ bin/rails test
 ## Security Notes
 
 - `config/initializers/anne_loyalty.rb`ではtoken digest secretに`secret_key_base`を使います。本番では安定したsecretを設定してください。
+- 顧客向け画面は`session[:customer_id]`でログイン済み顧客だけを表示します。`customer_id` queryで顧客を切り替える挙動は提供しません。
 - QRには`member:<member_key>`または`redemption:<token>`だけを表示し、残高や個人情報は含めません。
 - ポイントの付与・利用は`anne_loyalty` service経由で行い、ledgerを直接更新しません。
 - demo seedの固定パスワードは開発用です。本番環境では使用しないでください。

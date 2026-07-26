@@ -1,4 +1,5 @@
 seed_password = "password-1234"
+customer_access_code = "123456"
 role_permissions = {
   "admin" => {
     "loyalty_programs" => %w[manage],
@@ -76,7 +77,7 @@ customers = {
   "C-DEMO-002" => { name: "佐藤 花子", name_kana: "サトウ ハナコ", email: "hanako@example.com", phone: "090-3333-4444" }
 }.to_h do |customer_number, attributes|
   customer = Customer.find_or_initialize_by(customer_number:)
-  customer.assign_attributes(attributes.merge(active: true))
+  customer.assign_attributes(attributes.merge(active: true, access_code: customer_access_code))
   customer.save!
   member = AnneLoyalty.enroll!(program:, owner: customer, member_key: customer.customer_number)
   [ customer_number, { customer:, member: } ]
@@ -106,6 +107,6 @@ unless Rails.env.test?
   puts "  manager@example.com / #{seed_password}"
   puts "  staff@example.com / #{seed_password}"
   puts "  viewer@example.com / #{seed_password}"
-  puts "  customer: C-DEMO-001"
+  puts "  customer: C-DEMO-001 / #{customer_access_code}"
   puts "  rewards: #{rewards.keys.join(", ")}"
 end
