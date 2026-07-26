@@ -34,11 +34,11 @@ module AnneLoyalty
     end
 
     def redeem_reward!(**)
-      raise NotImplementedError, "AnneLoyalty.redeem_reward! is implemented in Task 2.2"
+      RewardRedemptionIssuer.call(**)
     end
 
     def confirm_redemption!(**)
-      raise NotImplementedError, "AnneLoyalty.confirm_redemption! is implemented in Task 2.2"
+      RedemptionConfirmer.call(**)
     end
 
     def reverse!(**)
