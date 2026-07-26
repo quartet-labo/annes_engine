@@ -108,12 +108,12 @@ end
 This additionally assigns `@customer` or `@customers` while retaining the
 generic variables.
 
-## Action Styles
+## Admin Styles
 
 The default AnneAdmin layout loads the namespaced
-`anne_admin/application` stylesheet after the host `tailwind` stylesheet. It
-defines the complete default, hover, disabled, and keyboard-focus presentation
-for:
+`anne_admin/application` stylesheet. It defines the default layout utilities
+for Engine views and the complete default, hover, disabled, and keyboard-focus
+presentation for:
 
 - `anne-admin-action anne-admin-action--primary`
 - `anne-admin-action anne-admin-action--secondary`
@@ -122,18 +122,18 @@ These classes do not depend on Tailwind theme variables or on the host build
 scanning Engine templates. Use them in host-owned AnneAdmin views instead of
 copying a standard Engine template only to restore button contrast.
 
-When replacing `layouts/anne_admin/application`, preserve the order:
+When replacing `layouts/anne_admin/application`, preserve the Engine stylesheet
+and load deliberate host overrides after it:
 
 ```erb
-<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 <%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
 <%= stylesheet_link_tag "admin_overrides", "data-turbo-track": "reload" %>
 ```
 
 The optional host stylesheet comes last when the application deliberately
 changes the AnneAdmin theme. Do not remove visible focus indicators. The
-Engine stylesheet currently owns action controls only, so standard Engine
-views still use the host Tailwind stylesheet for layout, forms, and tables.
+Engine stylesheet owns the standard Engine layout, forms, tables, and action
+controls.
 
 ## Resource Form Submit Guard
 
