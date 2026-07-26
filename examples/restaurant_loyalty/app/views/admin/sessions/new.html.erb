@@ -1,0 +1,13 @@
+<h1>管理者ログイン</h1>
+
+<%= form_with url: admin_session_path do |form| %>
+  <div>
+    <%= form.label :email, "メールアドレス" %>
+    <%= form.email_field :email, required: true, autofocus: true %>
+  </div>
+  <div>
+    <%= form.label :password, "パスワード" %>
+    <%= form.password_field :password, required: true %>
+  </div>
+  <%= form.submit "ログイン" %>
+<% end %>
