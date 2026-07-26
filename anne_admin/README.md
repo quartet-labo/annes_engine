@@ -254,12 +254,12 @@ class Admin::CustomersController < AnneAdmin::ResourcesController
 end
 ```
 
-### Action Styles
+### Admin Styles
 
-The default layout loads `anne_admin/application` after the host `tailwind`
-stylesheet. The Engine stylesheet owns the visual states for standard action
-controls, so primary button contrast and keyboard focus do not depend on
-Tailwind detecting classes inside the installed gem.
+The default layout loads `anne_admin/application`. The Engine stylesheet owns
+the standard layout utilities and the visual states for standard action
+controls, so primary button contrast, spacing, tables, and keyboard focus do
+not depend on a host Tailwind build detecting classes inside the installed gem.
 
 Host views can use the same semantic classes:
 
@@ -274,16 +274,15 @@ Host views can use the same semantic classes:
 ```
 
 If the host overrides `layouts/anne_admin/application`, include the Engine
-stylesheet after `tailwind`:
+stylesheet:
 
 ```erb
-<%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 <%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
 ```
 
 Load host theme overrides after `anne_admin/application`. The Engine
-stylesheet covers action controls only; the remaining standard view utilities
-still use the host Tailwind stylesheet.
+stylesheet covers the default AnneAdmin presentation; host stylesheets should
+only override the parts the application deliberately themes.
 
 ### Resource Form Submit Guard
 

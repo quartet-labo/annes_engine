@@ -1,3 +1,148 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font: inherit;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+.block { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.hidden { display: none; }
+.inline-flex { display: inline-flex; }
+.min-h-screen { min-height: 100vh; }
+.min-w-full { min-width: 100%; }
+.h-4 { height: 1rem; }
+.w-4 { width: 1rem; }
+.w-full { width: 100%; }
+.max-w-6xl { max-width: 72rem; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mb-5 { margin-bottom: 1.25rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-5 > * + * { margin-top: 1.25rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.items-center { align-items: center; }
+.items-end { align-items: flex-end; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.flex-1 { flex: 1 1 0%; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.overflow-hidden { overflow: hidden; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.border { border-width: 1px; border-style: solid; }
+.border-b { border-bottom-width: 1px; border-bottom-style: solid; }
+.border-emerald-200 { border-color: #a7f3d0; }
+.border-red-200 { border-color: #fecaca; }
+.border-slate-200 { border-color: #e2e8f0; }
+.border-slate-300 { border-color: #cbd5e1; }
+.bg-emerald-50 { background-color: #ecfdf5; }
+.bg-red-50 { background-color: #fef2f2; }
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-slate-900 { background-color: #0f172a; }
+.bg-white { background-color: #ffffff; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+.pl-5 { padding-left: 1.25rem; }
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.uppercase { text-transform: uppercase; }
+.tracking-normal { letter-spacing: 0; }
+.text-emerald-800 { color: #065f46; }
+.text-red-800 { color: #991b1b; }
+.text-slate-500 { color: #64748b; }
+.text-slate-600 { color: #475569; }
+.text-slate-700 { color: #334155; }
+.text-slate-900 { color: #0f172a; }
+.text-slate-950 { color: #020617; }
+.text-white { color: #ffffff; }
+.shadow-sm { box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.05); }
+.divide-y > * + * { border-top-width: 1px; border-top-style: solid; }
+.divide-slate-100 > * + * { border-color: #f1f5f9; }
+.divide-slate-200 > * + * { border-color: #e2e8f0; }
+.list-disc { list-style-type: disc; }
+.underline { text-decoration-line: underline; }
+.decoration-slate-300 { text-decoration-color: #cbd5e1; }
+.underline-offset-2 { text-underline-offset: 2px; }
+.hover\:bg-slate-100:hover { background-color: #f1f5f9; }
+.hover\:bg-slate-700:hover { background-color: #334155; }
+
+@media (min-width: 640px) {
+  .sm\:col-span-2 { grid-column: span 2 / span 2; }
+  .sm\:flex-row { flex-direction: row; }
+  .sm\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sm\:items-center { align-items: center; }
+  .sm\:items-end { align-items: flex-end; }
+  .sm\:justify-between { justify-content: space-between; }
+  .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
 .anne-admin-action {
   box-sizing: border-box;
   display: inline-flex;
