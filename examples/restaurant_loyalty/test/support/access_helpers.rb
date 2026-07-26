@@ -10,6 +10,14 @@ module AccessHelpers
       "loyalty_points" => %w[earn adjust],
       "loyalty_redemptions" => %w[redeem]
     },
+    manager: {
+      "loyalty_programs" => %w[read update],
+      "loyalty_locations" => %w[manage],
+      "loyalty_rewards" => %w[manage],
+      "loyalty_members" => %w[read],
+      "loyalty_points" => %w[earn adjust],
+      "loyalty_redemptions" => %w[redeem]
+    },
     staff: {
       "loyalty_members" => %w[read],
       "loyalty_points" => %w[earn],
@@ -46,7 +54,7 @@ module AccessHelpers
 
   def sign_in_as_role(role_key)
     account = account_with_role(role_key)
-    post admin_session_path,
+    post "/admin/session",
       params: { email: account.email, password: "password-1234" },
       headers: { "REMOTE_ADDR" => "192.0.2.#{SecureRandom.random_number(254) + 1}" }
     assert_redirected_to admin_root_path
