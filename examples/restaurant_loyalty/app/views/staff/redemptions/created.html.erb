@@ -1,0 +1,7 @@
+<main class="loyalty-page">
+  <h1>特典利用完了</h1>
+  <p><%= @redemption.loyalty_reward.name %></p>
+  <p><%= @member.member_key %></p>
+  <p>現在ポイント: <%= @balance.cached_balance %> pt</p>
+  <%= link_to "会員詳細へ", staff_member_path(@member.member_key) %>
+</main>

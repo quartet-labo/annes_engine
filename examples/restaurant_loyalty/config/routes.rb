@@ -13,6 +13,11 @@ Rails.application.routes.draw do
 
   namespace :staff do
     root to: "members#index"
+    resources :members, only: %i[index show], param: :member_key
+    get "earn", to: "earn_points#new", as: :earn_points
+    post "earn", to: "earn_points#create"
+    get "redemptions", to: "redemptions#new", as: :redemptions
+    post "redemptions", to: "redemptions#create"
   end
 
   namespace :admin do

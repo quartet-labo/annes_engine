@@ -1,0 +1,32 @@
+<main class="loyalty-page">
+  <nav class="loyalty-nav">
+    <%= link_to "Members", staff_members_path %>
+    <%= link_to "Earn", staff_earn_points_path %>
+    <%= link_to "Redeem", staff_redemptions_path %>
+  </nav>
+
+  <h1>会員検索</h1>
+  <%= form_with url: staff_members_path, method: :get do |form| %>
+    <%= form.search_field :q, value: @query, placeholder: "会員番号" %>
+    <%= form.submit "検索" %>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>会員番号</th>
+        <th>顧客</th>
+        <th>ポイント</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @members.each do |member| %>
+        <tr>
+          <td><%= link_to member.member_key, staff_member_path(member.member_key) %></td>
+          <td><%= member.owner&.display_name %></td>
+          <td><%= member.cached_balance %> pt</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</main>
