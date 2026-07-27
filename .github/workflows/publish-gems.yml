@@ -7,19 +7,16 @@ on:
         description: Gem to publish
         required: true
         type: choice
-        default: all
+        default: anne_auth
         options:
-          - all
           - anne_auth
           - anne_admin
           - anne_access
           - anne_loyalty
-  push:
-    tags:
-      - anne_auth-v*
-      - anne_admin-v*
-      - anne_access-v*
-      - anne_loyalty-v*
+      version:
+        description: Expected gem version to publish
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -27,73 +24,51 @@ permissions:
 
 jobs:
   publish:
-    name: Publish / ${{ matrix.gem }}
+    name: Publish / ${{ github.event.inputs.gem }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - gem: anne_auth
-            path: anne_auth
-            gemspec: anne_auth.gemspec
-            tag_prefix: anne_auth-v
-          - gem: anne_admin
-            path: anne_admin
-            gemspec: anne_admin.gemspec
-            tag_prefix: anne_admin-v
-          - gem: anne_access
-            path: anne_access
-            gemspec: anne_access.gemspec
-            tag_prefix: anne_access-v
-          - gem: anne_loyalty
-            path: anne_loyalty
-            gemspec: anne_loyalty.gemspec
-            tag_prefix: anne_loyalty-v
-
     steps:
-      - name: Select package
-        id: select
-        shell: bash
-        run: |
-          should_publish=false
-          expected_version=""
-
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            selected_gem="${{ github.event.inputs.gem }}"
-
-            if [[ "$selected_gem" == "all" || "$selected_gem" == "${{ matrix.gem }}" ]]; then
-              should_publish=true
-            fi
-          else
-            ref_name="${{ github.ref_name }}"
-
-            if [[ "$ref_name" == "${{ matrix.tag_prefix }}"* ]]; then
-              should_publish=true
-              expected_version="${ref_name#${{ matrix.tag_prefix }}}"
-            fi
-          fi
-
-          echo "should_publish=$should_publish" >> "$GITHUB_OUTPUT"
-          echo "expected_version=$expected_version" >> "$GITHUB_OUTPUT"
-
       - name: Checkout
-        if: steps.select.outputs.should_publish == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Ruby
-        if: steps.select.outputs.should_publish == 'true'
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.4.9
 
+      - name: Prepare release
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          notes_file="${RUNNER_TEMP}/${{ github.event.inputs.gem }}-${{ github.event.inputs.version }}-release-notes.md"
+
+          ruby script/prepare_gem_release \
+            --gem "${{ github.event.inputs.gem }}" \
+            --version "${{ github.event.inputs.version }}" \
+            --notes-file "$notes_file" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Verify remote tag is available
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_name="${{ steps.prepare.outputs.tag_name }}"
+          if git ls-remote --tags origin "$tag_name" | grep -q .; then
+            echo "Remote tag already exists: $tag_name"
+            exit 1
+          fi
+
       - name: Configure RubyGems credentials
-        if: steps.select.outputs.should_publish == 'true'
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           mkdir -p ~/.gem
           cat > ~/.gem/credentials <<EOF
           ---
@@ -102,64 +77,52 @@ jobs:
           chmod 0600 ~/.gem/credentials
 
       - name: Build gem
-        if: steps.select.outputs.should_publish == 'true'
         id: build
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ steps.prepare.outputs.path }}
         shell: bash
         run: |
-          version="$(ruby -e 'spec = Gem::Specification.load(ARGV.fetch(0)); abort "Could not load gemspec" unless spec; puts spec.version' "${{ matrix.gemspec }}")"
-          expected_version="${{ steps.select.outputs.expected_version }}"
+          set -euo pipefail
 
-          if [[ -n "$expected_version" && "$version" != "$expected_version" ]]; then
-            echo "Tag version $expected_version does not match ${{ matrix.gem }} gemspec version $version"
-            exit 1
-          fi
+          version="${{ steps.prepare.outputs.version }}"
+          gem build "${{ steps.prepare.outputs.gemspec }}"
 
-          gem build "${{ matrix.gemspec }}"
-
-          gem_file="${{ matrix.gem }}-${version}.gem"
+          gem_file="${{ github.event.inputs.gem }}-${version}.gem"
           test -f "$gem_file"
           echo "gem_file=$gem_file" >> "$GITHUB_OUTPUT"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Verify gem license
-        if: steps.select.outputs.should_publish == 'true'
-        run: ruby script/check_gem_license "${{ matrix.path }}/${{ steps.build.outputs.gem_file }}"
+        run: ruby script/check_gem_license "${{ steps.prepare.outputs.path }}/${{ steps.build.outputs.gem_file }}"
 
       - name: Push gem
-        if: steps.select.outputs.should_publish == 'true'
-        working-directory: ${{ matrix.path }}
+        working-directory: ${{ steps.prepare.outputs.path }}
         run: gem push --key github --host https://rubygems.pkg.github.com/quartet-labo "${{ steps.build.outputs.gem_file }}"
 
-      - name: Prepare GitHub Release notes
-        if: steps.select.outputs.should_publish == 'true' && github.event_name == 'push'
-        id: release_notes
+      - name: Configure git author
         shell: bash
         run: |
-          notes_file="${RUNNER_TEMP}/${{ matrix.gem }}-${{ steps.build.outputs.version }}-release-notes.md"
+          set -euo pipefail
 
-          awk -v version="${{ steps.build.outputs.version }}" '
-            $0 == "## " version { in_section = 1; next }
-            in_section && /^## / { exit }
-            in_section { print }
-          ' "${{ matrix.path }}/CHANGELOG.md" > "$notes_file"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if ! grep -q '[^[:space:]]' "$notes_file"; then
-            echo "Published ${{ matrix.gem }} ${{ steps.build.outputs.version }} to GitHub Packages." > "$notes_file"
-          fi
+      - name: Create and push tag
+        shell: bash
+        run: |
+          set -euo pipefail
 
-          printf '\nPublished to GitHub Packages by [Publish Gems](%s/%s/actions/runs/%s).\n' \
-            "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> "$notes_file"
-
-          echo "notes_file=$notes_file" >> "$GITHUB_OUTPUT"
+          tag_name="${{ steps.prepare.outputs.tag_name }}"
+          git tag "$tag_name" "$GITHUB_SHA"
+          git push origin "$tag_name"
 
       - name: Create GitHub Release
-        if: steps.select.outputs.should_publish == 'true' && github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
+          set -euo pipefail
+
+          tag_name="${{ steps.prepare.outputs.tag_name }}"
+          gh release create "$tag_name" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "${{ matrix.gem }} ${{ steps.build.outputs.version }}" \
-            --notes-file "${{ steps.release_notes.outputs.notes_file }}" \
+            --title "${{ github.event.inputs.gem }} ${{ steps.prepare.outputs.version }}" \
+            --notes-file "${{ steps.prepare.outputs.notes_file }}" \
             --verify-tag
