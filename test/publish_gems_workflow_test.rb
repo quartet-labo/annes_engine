@@ -1,0 +1,65 @@
+# frozen_string_literal: true
+
+require "minitest/autorun"
+require "pathname"
+require "yaml"
+
+class PublishGemsWorkflowTest < Minitest::Test
+  ROOT = Pathname(__dir__).join("..").expand_path
+  WORKFLOW_PATH = ROOT.join(".github/workflows/publish-gems.yml")
+
+  def test_workflow_is_dispatch_only
+    triggers = workflow.fetch("on") { workflow.fetch(true) }
+
+    assert_equal [ "workflow_dispatch" ], triggers.keys
+    refute_includes workflow_source, "push:"
+    refute_includes workflow_source, "tags:"
+  end
+
+  def test_dispatch_inputs_require_one_gem_and_version
+    inputs = workflow.fetch("on") { workflow.fetch(true) }.fetch("workflow_dispatch").fetch("inputs")
+    gem_input = inputs.fetch("gem")
+    version_input = inputs.fetch("version")
+
+    assert_equal true, gem_input.fetch("required")
+    assert_equal "choice", gem_input.fetch("type")
+    assert_equal %w[anne_auth anne_admin anne_access anne_loyalty], gem_input.fetch("options")
+    refute_includes gem_input.fetch("options"), "all"
+
+    assert_equal true, version_input.fetch("required")
+    assert_equal "string", version_input.fetch("type")
+  end
+
+  def test_publish_job_uses_release_preparation_script_without_a_matrix
+    publish_job = workflow.fetch("jobs").fetch("publish")
+
+    refute_includes publish_job.keys, "strategy"
+    assert_includes workflow_source, "ruby script/prepare_gem_release"
+    assert_includes workflow_source, "--gem \"${{ github.event.inputs.gem }}\""
+    assert_includes workflow_source, "--version \"${{ github.event.inputs.version }}\""
+  end
+
+  def test_publish_job_checks_remote_tag_before_publishing
+    assert_includes workflow_source, "git ls-remote --tags origin \"$tag_name\""
+    assert_operator(
+      workflow_source.index("git ls-remote --tags origin \"$tag_name\""),
+      :<,
+      workflow_source.index("gem push --key github")
+    )
+  end
+
+  def test_publish_success_creates_tag_and_github_release
+    assert_operator workflow_source.index("gem push --key github"), :<, workflow_source.index("git tag \"$tag_name\" \"$GITHUB_SHA\"")
+    assert_operator workflow_source.index("git tag \"$tag_name\" \"$GITHUB_SHA\""), :<, workflow_source.index("git push origin \"$tag_name\"")
+    assert_operator workflow_source.index("git push origin \"$tag_name\""), :<, workflow_source.index("gh release create \"$tag_name\"")
+  end
+
+  private
+    def workflow
+      @workflow ||= YAML.load_file(WORKFLOW_PATH)
+    end
+
+    def workflow_source
+      @workflow_source ||= WORKFLOW_PATH.read
+    end
+end
