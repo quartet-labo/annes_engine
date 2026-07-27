@@ -199,6 +199,28 @@ end
 Keep business-specific record ownership, tenant scoping, and workflow rules in
 the host application through `custom_rule` or host controllers.
 
+## Release Workflow
+
+The distribution target is GitHub Packages. Use this flow for releases:
+
+1. Run the engine test suite from the engine repository with `bundle exec rake test`.
+2. Update `lib/anne_access/version.rb` to the version you want to publish.
+3. Update `CHANGELOG.md` and `UPGRADING.md` for that version.
+4. Update the dependent example app lockfiles by running `bundle update anne_access`
+   from `examples/customer_management`, `examples/resavation_management`, and
+   `examples/restaurant_loyalty`.
+5. Commit the release, including the changed example `Gemfile.lock` files.
+6. Run the `Publish Gems` workflow with the `workflow_dispatch` trigger,
+   selecting the `main` ref, `gem` = `anne_access`, and `version` equal to
+   `AnneAccess::VERSION`.
+7. Confirm the workflow published the package to GitHub Packages. The same
+   workflow creates the gem-specific tag and GitHub Release for that version.
+8. Update host applications with `bundle update anne_access` and run their full test suites.
+
+The workflow fails before publishing if the `version` input does not match
+`AnneAccess::VERSION`, the changelog section is missing or empty, or the remote
+gem-specific tag already exists. Tag push events are not the release entrypoint.
+
 ## License and Support
 
 AnneAccess is available under the

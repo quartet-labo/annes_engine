@@ -125,35 +125,30 @@ See the package-specific upgrade guides before updating a host application:
 If a release has no manual host-app upgrade steps, note that explicitly in the
 target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
-To publish one gem from a release tag, push a gem-specific tag that matches the
-gemspec version. The workflow fails if the tag version and gemspec version do
-not match. After the gem is published to GitHub Packages, the workflow creates a
-GitHub Release for that tag using the target gem's changelog entry.
+To publish, run the `Publish Gems` workflow manually through its
+`workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
+`anne_auth`, `anne_admin`, `anne_access`, or `anne_loyalty`, and set `version`
+to the exact gemspec version you intend to publish.
 
-```sh
-git tag anne_auth-v0.3.0
-git push origin anne_auth-v0.3.0
-```
+Use one workflow run per gem. For releases that bump multiple engines together,
+merge the version, changelog, upgrade guide, and lockfile updates together,
+then dispatch the workflow once for each target gem and version.
 
-```sh
-git tag anne_admin-v0.2.0
-git push origin anne_admin-v0.2.0
-```
+The workflow verifies that the `version` input matches the target gemspec,
+checks that the target `CHANGELOG.md` section exists and is not empty, confirms
+that the remote gem-specific tag does not already exist, builds the gem, checks
+the packaged MIT license, and publishes to GitHub Packages. After the gem
+publish succeeds, the same workflow creates the gem-specific tag and GitHub
+Release using the target gem's changelog entry.
 
-```sh
-git tag anne_access-v0.1.0
-git push origin anne_access-v0.1.0
-```
+Do not push release tags manually as the normal publishing trigger. Tag push
+events are not the publishing entrypoint.
 
-```sh
-git tag anne_loyalty-v0.1.0
-git push origin anne_loyalty-v0.1.0
-```
-
-You can also run the workflow manually and choose `anne_auth`, `anne_admin`,
-`anne_access`, `anne_loyalty`, or `all`. Manual runs publish the version currently defined by
-each gemspec, so bump and commit the version first. Manual runs are not
-tag-triggered, so they do not create GitHub Releases.
+If gem publish succeeds but tag or GitHub Release creation fails, first confirm
+the package version exists in GitHub Packages. Then create the missing
+gem-specific tag on the same commit and create the GitHub Release with notes
+from the target gem's changelog entry. Do not rerun the workflow for the same
+version until the published package, tag, and release state are reconciled.
 
 ## Sample Apps
 
