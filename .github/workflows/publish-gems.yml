@@ -29,6 +29,16 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Verify dispatch ref
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "Publish Gems must be dispatched from the main branch. Got: $GITHUB_REF"
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -40,14 +50,17 @@ jobs:
       - name: Prepare release
         id: prepare
         shell: bash
+        env:
+          RELEASE_GEM: ${{ github.event.inputs.gem }}
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
         run: |
           set -euo pipefail
 
-          notes_file="${RUNNER_TEMP}/${{ github.event.inputs.gem }}-${{ github.event.inputs.version }}-release-notes.md"
+          notes_file="${RUNNER_TEMP}/${RELEASE_GEM}-${RELEASE_VERSION}-release-notes.md"
 
           ruby script/prepare_gem_release \
-            --gem "${{ github.event.inputs.gem }}" \
-            --version "${{ github.event.inputs.version }}" \
+            --gem "$RELEASE_GEM" \
+            --version "$RELEASE_VERSION" \
             --notes-file "$notes_file" \
             --github-output "$GITHUB_OUTPUT"
 
@@ -86,7 +99,7 @@ jobs:
           version="${{ steps.prepare.outputs.version }}"
           gem build "${{ steps.prepare.outputs.gemspec }}"
 
-          gem_file="${{ github.event.inputs.gem }}-${version}.gem"
+          gem_file="${{ steps.prepare.outputs.gem }}-${version}.gem"
           test -f "$gem_file"
           echo "gem_file=$gem_file" >> "$GITHUB_OUTPUT"
 
@@ -123,6 +136,6 @@ jobs:
           tag_name="${{ steps.prepare.outputs.tag_name }}"
           gh release create "$tag_name" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "${{ github.event.inputs.gem }} ${{ steps.prepare.outputs.version }}" \
+            --title "${{ steps.prepare.outputs.gem }} ${{ steps.prepare.outputs.version }}" \
             --notes-file "${{ steps.prepare.outputs.notes_file }}" \
             --verify-tag

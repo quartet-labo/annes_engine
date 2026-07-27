@@ -35,8 +35,25 @@ class PublishGemsWorkflowTest < Minitest::Test
 
     refute_includes publish_job.keys, "strategy"
     assert_includes workflow_source, "ruby script/prepare_gem_release"
-    assert_includes workflow_source, "--gem \"${{ github.event.inputs.gem }}\""
-    assert_includes workflow_source, "--version \"${{ github.event.inputs.version }}\""
+  end
+
+  def test_dispatch_inputs_are_passed_through_quoted_environment_variables
+    prepare_step = workflow_step("Prepare release")
+    env = prepare_step.fetch("env")
+    run = prepare_step.fetch("run")
+
+    assert_equal "${{ github.event.inputs.gem }}", env.fetch("RELEASE_GEM")
+    assert_equal "${{ github.event.inputs.version }}", env.fetch("RELEASE_VERSION")
+    assert_includes run, 'notes_file="${RUNNER_TEMP}/${RELEASE_GEM}-${RELEASE_VERSION}-release-notes.md"'
+    assert_includes run, '--gem "$RELEASE_GEM"'
+    assert_includes run, '--version "$RELEASE_VERSION"'
+    refute_includes run, "github.event.inputs.gem"
+    refute_includes run, "github.event.inputs.version"
+  end
+
+  def test_publish_job_rejects_non_main_refs_before_checkout
+    assert_includes workflow_source, 'if [[ "$GITHUB_REF" != "refs/heads/main" ]]'
+    assert_operator workflow_source.index("- name: Verify dispatch ref"), :<, workflow_source.index("- name: Checkout")
   end
 
   def test_publish_job_checks_remote_tag_before_publishing
@@ -61,5 +78,11 @@ class PublishGemsWorkflowTest < Minitest::Test
 
     def workflow_source
       @workflow_source ||= WORKFLOW_PATH.read
+    end
+
+    def workflow_step(name)
+      workflow.fetch("jobs").fetch("publish").fetch("steps").find do |step|
+        step.fetch("name") == name
+      end || flunk("Missing workflow step: #{name}")
     end
 end
