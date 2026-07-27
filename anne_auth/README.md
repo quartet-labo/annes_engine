@@ -312,8 +312,8 @@ The distribution target is GitHub Packages. Use this flow for releases:
 6. Run the `Publish Gems` workflow with the `workflow_dispatch` trigger,
    selecting the `main` ref, `gem` = `anne_auth`, and `version` equal to
    `AnneAuth::VERSION`.
-7. Confirm the workflow published the package to GitHub Packages and creates
-   the gem-specific tag and GitHub Release for that version.
+7. Confirm the workflow published the package to GitHub Packages. The same
+   workflow creates the gem-specific tag and GitHub Release for that version.
 8. Update host applications with `bundle update anne_auth` and run their full test suites.
 
 The workflow fails before publishing if the `version` input does not match
