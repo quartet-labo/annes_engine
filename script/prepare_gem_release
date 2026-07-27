@@ -1,0 +1,178 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require "pathname"
+require "tmpdir"
+require "rubygems"
+
+class GemReleasePreparation
+  ROOT = Pathname(__dir__).join("..").expand_path
+  GEM_METADATA = {
+    "anne_auth" => {
+      path: "anne_auth",
+      gemspec: "anne_auth.gemspec",
+      tag_prefix: "anne_auth-v"
+    },
+    "anne_admin" => {
+      path: "anne_admin",
+      gemspec: "anne_admin.gemspec",
+      tag_prefix: "anne_admin-v"
+    },
+    "anne_access" => {
+      path: "anne_access",
+      gemspec: "anne_access.gemspec",
+      tag_prefix: "anne_access-v"
+    },
+    "anne_loyalty" => {
+      path: "anne_loyalty",
+      gemspec: "anne_loyalty.gemspec",
+      tag_prefix: "anne_loyalty-v"
+    }
+  }.freeze
+
+  def initialize(root:, gem_name:, expected_version:, notes_file:, github_output:)
+    @root = Pathname(root).expand_path
+    @gem_name = gem_name
+    @expected_version = expected_version
+    @notes_file = Pathname(notes_file || default_notes_file).expand_path
+    @github_output = github_output && Pathname(github_output).expand_path
+  end
+
+  def call
+    metadata = metadata_for_gem
+    version = load_gemspec_version(metadata)
+    validate_version!(version)
+
+    notes = extract_changelog_notes(metadata, version)
+    write_notes(notes)
+
+    outputs = {
+      "gem" => gem_name,
+      "path" => metadata.fetch(:path),
+      "gemspec" => metadata.fetch(:gemspec),
+      "version" => version,
+      "tag_name" => "#{metadata.fetch(:tag_prefix)}#{version}",
+      "notes_file" => notes_file.to_s
+    }
+
+    write_outputs(outputs)
+  end
+
+  private
+    attr_reader :root, :gem_name, :expected_version, :notes_file, :github_output
+
+    def metadata_for_gem
+      GEM_METADATA.fetch(gem_name)
+    rescue KeyError
+      raise ArgumentError, "Unknown gem: #{gem_name}"
+    end
+
+    def load_gemspec_version(metadata)
+      gemspec_path = root.join(metadata.fetch(:path), metadata.fetch(:gemspec))
+      specification = Gem::Specification.load(gemspec_path.to_s)
+      raise ArgumentError, "Could not load gemspec: #{gemspec_path}" unless specification
+
+      specification.version.to_s
+    end
+
+    def validate_version!(version)
+      return if version == expected_version
+
+      raise ArgumentError,
+        "Expected version #{expected_version} does not match #{gem_name} gemspec version #{version}"
+    end
+
+    def extract_changelog_notes(metadata, version)
+      changelog_path = root.join(metadata.fetch(:path), "CHANGELOG.md")
+      raise ArgumentError, "CHANGELOG is missing for #{gem_name}: #{changelog_path}" unless changelog_path.file?
+
+      section = changelog_section(changelog_path, version)
+      raise ArgumentError, "CHANGELOG section is missing for #{gem_name} #{version}" unless section
+
+      notes = trim_blank_lines(section)
+      raise ArgumentError, "CHANGELOG section is empty for #{gem_name} #{version}" if notes.empty?
+
+      append_run_link(notes)
+    end
+
+    def changelog_section(changelog_path, version)
+      lines = changelog_path.readlines
+      start_index = lines.index { |line| line.match?(/\A##\s+#{Regexp.escape(version)}\s*\z/) }
+      return unless start_index
+
+      section_lines = []
+      lines[(start_index + 1)..]&.each do |line|
+        break if line.match?(/\A##\s+/)
+
+        section_lines << line
+      end
+      section_lines
+    end
+
+    def trim_blank_lines(lines)
+      trimmed = lines.dup
+      trimmed.shift while trimmed.first&.strip == ""
+      trimmed.pop while trimmed.last&.strip == ""
+      return "" if trimmed.empty?
+
+      trimmed.join.end_with?("\n") ? trimmed.join : "#{trimmed.join}\n"
+    end
+
+    def append_run_link(notes)
+      server_url = ENV["GITHUB_SERVER_URL"]
+      repository = ENV["GITHUB_REPOSITORY"]
+      run_id = ENV["GITHUB_RUN_ID"]
+      return notes unless server_url && repository && run_id
+
+      "#{notes}\nPublished to GitHub Packages by [Publish Gems](#{server_url}/#{repository}/actions/runs/#{run_id}).\n"
+    end
+
+    def write_notes(notes)
+      notes_file.dirname.mkpath
+      notes_file.write(notes)
+    end
+
+    def write_outputs(outputs)
+      if github_output
+        github_output.dirname.mkpath
+        github_output.open("a") do |file|
+          outputs.each { |key, value| file.puts("#{key}=#{value}") }
+        end
+      else
+        outputs.each { |key, value| puts "#{key}=#{value}" }
+      end
+    end
+
+    def default_notes_file
+      Pathname(Dir.tmpdir).join("#{gem_name}-#{expected_version}-release-notes.md")
+    end
+end
+
+options = {
+  root: GemReleasePreparation::ROOT,
+  notes_file: nil,
+  github_output: nil
+}
+
+OptionParser.new do |parser|
+  parser.banner = "Usage: ruby script/prepare_gem_release --gem GEM --version VERSION [options]"
+
+  parser.on("--root PATH", "Repository root") { |value| options[:root] = value }
+  parser.on("--gem GEM", "Gem to release") { |value| options[:gem_name] = value }
+  parser.on("--version VERSION", "Expected gem version") { |value| options[:expected_version] = value }
+  parser.on("--notes-file PATH", "GitHub Release notes output file") { |value| options[:notes_file] = value }
+  parser.on("--github-output PATH", "GitHub Actions output file") { |value| options[:github_output] = value }
+end.parse!
+
+if options[:gem_name].nil? || options[:expected_version].nil?
+  warn "Usage: ruby script/prepare_gem_release --gem GEM --version VERSION [options]"
+  exit 1
+end
+
+begin
+  GemReleasePreparation.new(**options).call
+rescue ArgumentError, KeyError => error
+  warn error.message
+  exit 1
+end
