@@ -9,6 +9,12 @@ class PublicProjectPolicyTest < Minitest::Test
   ENGINE_READMES = %w[anne_auth anne_access anne_admin].to_h do |engine|
     [ engine, ROOT.join(engine, "README.md") ]
   end.freeze
+  RELEASE_READMES = {
+    "anne_auth" => ROOT.join("anne_auth/README.md"),
+    "anne_admin" => ROOT.join("anne_admin/README.md"),
+    "anne_access" => ROOT.join("anne_access/README.md"),
+    "anne_loyalty" => ROOT.join("anne_loyalty/README.md")
+  }.freeze
 
   def test_public_policy_files_exist
     POLICY_FILES.each do |relative_path|
@@ -46,6 +52,35 @@ class PublicProjectPolicyTest < Minitest::Test
     assert_includes readme, "examples/customer_management/Gemfile.lock"
     assert_includes readme, "examples/resavation_management/Gemfile.lock"
     assert_includes readme, "examples/restaurant_loyalty/Gemfile.lock"
+  end
+
+  def test_publishing_instructions_use_dispatch_only_workflow
+    readme = ROOT.join("README.md").read
+
+    assert_includes readme, "`workflow_dispatch`"
+    assert_includes readme, "`gem`"
+    assert_includes readme, "`version`"
+    assert_match(/main ref/i, readme)
+    assert_match(/one workflow run per gem/i, readme)
+    assert_match(/creates.*gem-specific tag.*GitHub Release/im, readme)
+    assert_match(/do not push release tags manually as the normal publishing trigger/i, readme)
+    refute_includes readme, "or `all`"
+    refute_match(/manual runs.*without creating a\s+GitHub Release/im, readme)
+  end
+
+  def test_engine_readmes_describe_dispatch_only_release_workflow
+    RELEASE_READMES.each do |engine, path|
+      readme = path.read
+
+      assert_match(/^## Release Workflow$/i, readme, engine)
+      assert_includes readme, "`Publish Gems`", engine
+      assert_includes readme, "`main`", engine
+      assert_includes readme, "`gem` = `#{engine}`", engine
+      assert_includes readme, "`version`", engine
+      assert_match(/creates.*gem-specific tag.*GitHub Release/im, readme, engine)
+      refute_match(/push a gem-specific tag/i, readme, engine)
+      refute_match(/manual runs.*without creating a\s+GitHub Release/im, readme, engine)
+    end
   end
 
   def test_support_policy_separates_community_use_from_paid_services

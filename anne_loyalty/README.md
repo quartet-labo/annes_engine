@@ -116,3 +116,24 @@ logic outside the engine.
 See [`examples/restaurant_loyalty`](../examples/restaurant_loyalty/README.md)
 for a runnable host app with customer pages, staff point workflows, AnneAdmin
 resources, RBAC seed data, and acceptance tests.
+
+## Release Workflow
+
+The distribution target is GitHub Packages. Use this flow for releases:
+
+1. Run the engine test suite from the engine repository with `bundle exec rake test`.
+2. Update `lib/anne_loyalty/version.rb` to the version you want to publish.
+3. Update `CHANGELOG.md` and `UPGRADING.md` for that version.
+4. Update the dependent example app lockfile by running `bundle update anne_loyalty`
+   from `examples/restaurant_loyalty`.
+5. Commit the release, including the changed example `Gemfile.lock` file.
+6. Run the `Publish Gems` workflow with the `workflow_dispatch` trigger,
+   selecting the `main` ref, `gem` = `anne_loyalty`, and `version` equal to
+   `AnneLoyalty::VERSION`.
+7. Confirm the workflow published the package to GitHub Packages and creates
+   the gem-specific tag and GitHub Release for that version.
+8. Update host applications with `bundle update anne_loyalty` and run their full test suites.
+
+The workflow fails before publishing if the `version` input does not match
+`AnneLoyalty::VERSION`, the changelog section is missing or empty, or the remote
+gem-specific tag already exists. Tag push events are not the release entrypoint.
