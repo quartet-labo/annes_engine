@@ -124,6 +124,60 @@ If an invitation URL may have been exposed, resend the invitation to invalidate
 the old token and review access to the affected logs. Do not rely on Rails
 parameter filtering or `Referrer-Policy` as protection for proxy/platform logs.
 
+## Initial Account Bootstrap
+
+`AnneAuth::Accounts::BootstrapInvitation.call(email:)` is for trusted setup
+code only. It creates one unverified account with a random temporary password,
+records an `anne_auth_bootstrap_claims` row for the `initial_account` purpose,
+and sends the standard invitation activation email. The person still sets their
+real password through the scanner-safe invitation flow.
+
+Operational rules:
+
+- run the bootstrap claim migration before using the service;
+- call the service from a protected job, console command, or seed task, not from
+  a public route;
+- use `after_account_bootstrapped` for host-owned role or assignment setup;
+- let hook failures roll back account creation before email delivery;
+- retry `:delivery_failed` after fixing mail delivery; the same bootstrap
+  account is reused and the previous invitation token is invalidated;
+- treat `:already_bootstrapped` as terminal unless the host intentionally resets
+  the environment.
+
+The bootstrap claim prevents duplicate initial accounts. It does not manage
+administrator status, roles, permissions, organizations, or audit storage.
+
+## Account Event Notifications
+
+AnneAuth emits `anne_auth.account_event` notifications for successful sign in,
+sign out, password reset request/completion, email verification, invitation
+sent, and invitation accepted events. Invalid login attempts, missing password
+reset emails, and invalid tokens do not emit account-specific events.
+
+Payloads exclude passwords, reset tokens, invitation tokens, verification
+codes, session cookies, and OAuth credentials. They can include account email,
+IP address, and user agent, so hosts should decide retention, access control,
+and redaction before writing them to durable storage.
+
+Subscribers run inline under Rails notification semantics. Keep them fast or
+enqueue a job. If durable audit persistence is mandatory, decide explicitly
+whether a subscriber error should fail the authentication request; do not treat
+the notification stream alone as a complete audit ledger without testing that
+failure mode.
+
+## MFA and TOTP Boundary
+
+AnneAuth 0.4.0 does not implement MFA/TOTP runtime behavior. A future minimal
+implementation should be planned separately because it affects session
+assurance, recovery, enrollment, and login UX. The expected follow-up design
+scope is:
+
+- step-up verification after primary sign in;
+- session metadata for MFA completion time and assurance level;
+- TOTP secret and recovery-code storage with rotation;
+- remember-device policy, if needed by the host;
+- account events that expose non-secret assurance metadata.
+
 ## Mail Delivery
 
 Replace the default sender and verify the host's delivery adapter:
@@ -178,7 +232,9 @@ rather than waiting for each cookie to be presented.
 - Store OAuth secrets in the deployment secret store.
 - Verify the session expiration migration is installed.
 - Verify the account invitation-token migration is installed.
+- Verify the bootstrap claim migration is installed before running bootstrap.
 - Exercise login, logout, verification, password reset, invitation activation, and disabled-account flows.
 - Confirm sensitive parameters are filtered from logs.
 - Confirm upstream request logs do not retain invitation query strings, or use minimal retention and access.
+- Confirm account event subscribers do not store secrets and handle PII according to host policy.
 - Monitor delivery failures and unusual rate-limit volume without storing secrets.

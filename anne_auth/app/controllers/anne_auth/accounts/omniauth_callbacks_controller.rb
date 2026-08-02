@@ -14,7 +14,15 @@ module AnneAuth
 
         if result.success?
           result.account.update!(last_sign_in_at: Time.current)
-          start_new_account_session_for(result.account)
+          account_session = start_new_account_session_for(result.account)
+          AnneAuth::AccountEvent.emit(
+            :sign_in,
+            account: result.account,
+            account_session:,
+            request:,
+            auth_method: :google_oauth,
+            provider: AnneAuth::Accounts::GoogleAuthentication::PROVIDER
+          )
 
           if result.profile_required?
             session[:google_profile_name] = result.profile_name if result.profile_name.present?

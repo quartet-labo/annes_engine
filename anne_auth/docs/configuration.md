@@ -25,6 +25,7 @@ end
 | `account_session_cookie_name` | `:account_session_id` | Name of the signed session cookie. |
 | `account_session_expires_in` | `2.weeks` | Duration used for both the database session expiry and signed cookie expiry. Must respond to `from_now`. |
 | `account_session_cookie_secure` | `->(request) { request.ssl? || Rails.env.production? }` | Boolean or callable receiving the request. Controls the cookie `secure` flag. |
+| `bootstrap_claim_table_name` | `"anne_auth_bootstrap_claims"` | Table used by `BootstrapInvitation` to make initial account setup one-time and retryable. Configure before `AnneAuth::BootstrapClaim` loads. |
 
 Session cookies are also `httponly: true` and `same_site: :lax`. See
 [Security and operations](security-and-operations.md) before changing their
@@ -40,6 +41,7 @@ lifetime or secure behavior.
 | `account_profile_path` | `(controller, account)` | `controller.main_app.root_path` | Destination when the host reports that an account profile is incomplete. |
 | `profile_complete` | `(account)` | `true` | Predicate used by `require_verified_account` after authentication and email verification. |
 | `after_account_created` | `(account, controller)` | no-op | Notification hook after registration creates an account. Its return value is ignored. |
+| `after_account_bootstrapped` | `(account)` | no-op | Host hook after the initial bootstrap account is created and before its invitation is delivered. Use it for host-owned role or assignment setup. |
 | `account_password_reset_url` | `(mailer, plain_token)` | `mailer.edit_account_password_reset_url(token:)` | Absolute or host-generated password-reset URL included in mail. |
 | `account_invitation_url` | `(mailer, plain_token)` | `mailer.account_invitation_url(token:)` | Absolute or host-generated invitation activation URL included in mail. |
 
@@ -48,6 +50,40 @@ host route helpers. Mailer URL generation also requires the host application's
 `default_url_options` to contain the correct production host and protocol.
 Both URL callables receive a plaintext bearer token only while rendering the
 message. Do not log their arguments or return values.
+
+`after_account_bootstrapped` runs inside the bootstrap account transaction. If
+the hook raises, AnneAuth rolls back the account and bootstrap claim and does
+not send an invitation. Keep role, permission, or organization writes in the
+host app or `anne_access`; AnneAuth does not reference those constants.
+
+## Account Event Notifications
+
+AnneAuth instruments authentication lifecycle events through
+`ActiveSupport::Notifications`:
+
+```ruby
+ActiveSupport::Notifications.subscribe("anne_auth.account_event") do |event|
+  payload = event.payload.symbolize_keys
+  # Enqueue a host job, persist an audit record, or delegate to an audit engine.
+end
+```
+
+Events currently include:
+
+- `sign_in`
+- `sign_out`
+- `password_reset_requested`
+- `password_reset_completed`
+- `email_verified`
+- `invitation_sent`
+- `invitation_accepted`
+
+Payload keys are stable: `event`, `account_id`, `account_class`,
+`account_email`, `session_id`, `auth_method`, `provider`, `ip_address`,
+`user_agent`, `status`, and `metadata`. The payload intentionally excludes
+passwords, reset tokens, invitation tokens, verification codes, session cookies,
+and OAuth credentials. Treat `account_email`, IP address, and user agent as PII
+when deciding what the subscriber stores.
 
 ## Google OAuth
 
@@ -88,6 +124,7 @@ The defaults use Engine-owned models and host-installed tables.
 | `account_verification_token_table_name` | `"account_verification_tokens"` |
 | `account_password_reset_token_table_name` | `"account_password_reset_tokens"` |
 | `account_invitation_token_table_name` | `"account_invitation_tokens"` |
+| `bootstrap_claim_table_name` | `"anne_auth_bootstrap_claims"` |
 | `account_foreign_key` | `:account_id` |
 
 These values form one mapping contract. Changing one model, table, or foreign

@@ -72,6 +72,18 @@ When the Engine is mounted at `/auth`, these paths become
 `/auth/invitation`, `/auth/invitation/edit`, and `/auth/invitation` respectively.
 Keep the configured `account_invitation_url` aligned with the actual mount path.
 
+## Initial Account Bootstrap
+
+Bootstrap does not add an Engine route. A trusted host setup path calls
+`AnneAuth::Accounts::BootstrapInvitation.call(email:)`; the service creates the
+first unverified account when no active account exists and then uses the same
+invitation activation route described above.
+
+Do not mount a public bootstrap controller that accepts arbitrary email
+addresses. If a host wants an operator-facing setup screen, keep authentication,
+authorization, CSRF protection, rate limiting, and audit behavior in the host
+app and call the service from that protected action.
+
 ## Adding Authentication to Host Controllers
 
 Include the concern in the host controller that owns protected actions:
@@ -209,3 +221,4 @@ At minimum, cover:
 - profile-incomplete accounts use the configured profile path;
 - mounted and host-owned routes resolve the expected helpers;
 - login, logout, verification, and password-reset redirects use host hooks.
+- bootstrap is exercised from trusted host code and does not expose a public route.

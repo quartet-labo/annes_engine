@@ -1,4 +1,15 @@
 ActiveRecord::Schema[8.1].define(version: 0) do
+  create_table "anne_auth_bootstrap_claims", force: :cascade do |t|
+    t.string "purpose", null: false
+    t.string "account_class_name"
+    t.bigint "account_id"
+    t.string "last_delivery_status"
+    t.datetime "completed_at"
+    t.timestamps
+    t.index [ "account_class_name", "account_id" ], name: "idx_anne_auth_bootstrap_claims_on_account"
+    t.index [ "purpose" ], unique: true, name: "idx_anne_auth_bootstrap_claims_on_purpose"
+  end
+
   create_table "customer_accounts", force: :cascade do |t|
     t.string "email", null: false
     t.string "password_digest", null: false

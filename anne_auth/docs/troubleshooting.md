@@ -78,6 +78,33 @@ schemas are equivalent.
 Use the relevant section of [UPGRADING.md](../UPGRADING.md), then inspect the
 host schema after `bin/rails db:migrate`.
 
+## Bootstrap Returns `already_bootstrapped`
+
+`AnneAuth::Accounts::BootstrapInvitation` creates only the first active account.
+If it returns `:already_bootstrapped`, check whether the host already has a row
+in the configured account table where `disabled_at` is nil, or whether
+`anne_auth_bootstrap_claims.completed_at` is set for `initial_account`.
+
+Do not delete production accounts or bootstrap claims just to rerun setup.
+Create a host-specific recovery procedure and audit it.
+
+## Bootstrap Returns `delivery_failed`
+
+The bootstrap account and claim remain available for retry. Check the mailer
+adapter, sender address, `account_invitation_url`, and production
+`default_url_options`, then call the service again with the same email. The
+retry issues a new invitation and invalidates the previous token.
+
+## Account Events Are Not Observed
+
+Confirm the subscriber is registered during application boot and is listening
+to `anne_auth.account_event`. Events are emitted only for successful account
+lifecycle events; invalid login, missing password-reset email, and invalid token
+requests intentionally do not emit account-specific events.
+
+If the subscriber writes to a database or enqueues a job, test that failure path
+explicitly. Subscribers run inline unless the host enqueues work itself.
+
 ## Custom Account Class Fails to Load
 
 Model and association mappings are read when AnneAuth model classes load.

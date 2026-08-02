@@ -1,5 +1,6 @@
 require "anne_auth/version"
 require "anne_auth/configuration"
+require "anne_auth/account_event"
 require "anne_auth/engine" if defined?(Rails::Engine)
 
 module AnneAuth

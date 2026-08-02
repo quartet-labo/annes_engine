@@ -15,6 +15,12 @@ module AnneAuth
         if account
           _password_reset_token, plain_token = password_reset_token_class.issue_for(account)
           AnneAuth.configuration.account_mailer_class.with(account:, plain_token:).password_reset.deliver_now
+          AnneAuth::AccountEvent.emit(
+            :password_reset_requested,
+            account:,
+            request:,
+            auth_method: :password_reset
+          )
         end
 
         redirect_to auth_route(:account_login_path), notice: "登録済みのメールアドレスの場合、パスワード再設定メールを送信しました。"
@@ -40,7 +46,7 @@ module AnneAuth
         @account.errors.add(:password, :blank) if password_reset_params[:password].blank?
 
         if @account.errors.none? && @account.valid?
-          clear_current_session_cookie = current_account_session&.account == @account
+          reset_account_session = current_account_session if current_account_session&.account == @account
 
           AnneAuth.configuration.account_class.transaction do
             @account.save!
@@ -48,7 +54,14 @@ module AnneAuth
             @account.account_sessions.destroy_all
           end
 
-          clear_current_account_session_cookie if clear_current_session_cookie
+          clear_current_account_session_cookie if reset_account_session
+          AnneAuth::AccountEvent.emit(
+            :password_reset_completed,
+            account: @account,
+            account_session: reset_account_session,
+            request:,
+            auth_method: :password_reset
+          )
           redirect_to auth_route(:account_login_path), notice: "パスワードを再設定しました。"
         else
           render :edit, status: :unprocessable_entity

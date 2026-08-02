@@ -17,7 +17,7 @@ class PrepareGemReleaseTest < Minitest::Test
 
       stdout, stderr, status = run_script(
         "--gem", "anne_auth",
-        "--version", "0.3.4",
+        "--version", "0.4.0",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
@@ -26,13 +26,13 @@ class PrepareGemReleaseTest < Minitest::Test
       assert_includes github_output.read, "gem=anne_auth\n"
       assert_includes github_output.read, "path=anne_auth\n"
       assert_includes github_output.read, "gemspec=anne_auth.gemspec\n"
-      assert_includes github_output.read, "version=0.3.4\n"
-      assert_includes github_output.read, "tag_name=anne_auth-v0.3.4\n"
+      assert_includes github_output.read, "version=0.4.0\n"
+      assert_includes github_output.read, "tag_name=anne_auth-v0.4.0\n"
       assert_includes github_output.read, "notes_file=#{notes_file}\n"
 
       notes = notes_file.read
-      assert_includes notes, "Prevent repeated credential login submissions"
-      refute_includes notes, "## 0.3.4"
+      assert_includes notes, "notification stream"
+      refute_includes notes, "## 0.4.0"
       refute_includes notes, "## 0.3.3"
     end
   end
@@ -41,7 +41,7 @@ class PrepareGemReleaseTest < Minitest::Test
     stdout, stderr, status = run_script("--gem", "anne_auth", "--version", "9.9.9")
 
     refute status.success?, stdout
-    assert_includes stderr, "does not match anne_auth gemspec version 0.3.4"
+    assert_includes stderr, "does not match anne_auth gemspec version 0.4.0"
   end
 
   def test_rejects_an_unknown_gem
@@ -66,11 +66,11 @@ class PrepareGemReleaseTest < Minitest::Test
       stdout, stderr, status = run_script(
         "--root", root.to_s,
         "--gem", "anne_auth",
-        "--version", "0.3.4"
+        "--version", "0.4.0"
       )
 
       refute status.success?, stdout
-      assert_includes stderr, "CHANGELOG section is missing for anne_auth 0.3.4"
+      assert_includes stderr, "CHANGELOG section is missing for anne_auth 0.4.0"
     end
   end
 
@@ -81,7 +81,7 @@ class PrepareGemReleaseTest < Minitest::Test
 
         ## Unreleased
 
-        ## 0.3.4
+        ## 0.4.0
 
         ## 0.3.3
 
@@ -91,11 +91,11 @@ class PrepareGemReleaseTest < Minitest::Test
       stdout, stderr, status = run_script(
         "--root", root.to_s,
         "--gem", "anne_auth",
-        "--version", "0.3.4"
+        "--version", "0.4.0"
       )
 
       refute status.success?, stdout
-      assert_includes stderr, "CHANGELOG section is empty for anne_auth 0.3.4"
+      assert_includes stderr, "CHANGELOG section is empty for anne_auth 0.4.0"
     end
   end
 
@@ -112,7 +112,7 @@ class PrepareGemReleaseTest < Minitest::Test
         # frozen_string_literal: true
 
         module AnneAuth
-          VERSION = "0.3.4"
+          VERSION = "0.4.0"
         end
       RUBY
       engine.join("anne_auth.gemspec").write(<<~RUBY)

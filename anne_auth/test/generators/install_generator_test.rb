@@ -22,6 +22,7 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
     assert_file "config/initializers/anne_auth.rb", /account_invitation_token_class_name/
     assert_file "config/initializers/anne_auth.rb", /account_invitation_token_table_name/
     assert_file "config/initializers/anne_auth.rb", /account_invitation_url/
+    assert_file "config/initializers/anne_auth.rb", /after_account_bootstrapped/
     assert_file "config/initializers/anne_auth.rb" do |content|
       assert_no_match(/legacy AdminUser/, content)
       assert_no_match(/admin_user_class_name/, content)
@@ -31,6 +32,7 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
     assert_migration "create_anne_auth_account_sessions.rb"
     assert_migration "create_anne_auth_account_password_reset_tokens.rb"
     assert_migration "create_anne_auth_account_invitation_tokens.rb"
+    assert_migration "create_anne_auth_bootstrap_claims.rb"
     assert_no_migration "create_anne_auth_admin_users.rb"
     assert_no_migration "create_anne_auth_admin_sessions.rb"
     assert_no_file "db/migrate/20260620000100_create_anne_auth_admin_users.rb"
@@ -56,6 +58,7 @@ class AnneAuth::InstallGeneratorTest < Rails::Generators::TestCase
     assert_equal 1, initializer.scan("AnneAuth.configure").length
     assert_includes initializer, "# host application customization"
     assert_equal 1, generated_migrations.count { |path| path.end_with?("_create_anne_auth_account_invitation_tokens.rb") }
+    assert_equal 1, generated_migrations.count { |path| path.end_with?("_create_anne_auth_bootstrap_claims.rb") }
   end
 
   private

@@ -25,4 +25,5 @@ AnneAuth.configure do |config|
   config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
   config.profile_complete = ->(_account) { true }
   config.after_account_created = ->(_account, _controller) {}
+  config.after_account_bootstrapped = ->(_account) {}
 end

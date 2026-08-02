@@ -36,6 +36,19 @@ module AnneAuth
         end
 
         def deliver_invitation(plain_token)
+          result = deliver_invitation_mail(plain_token)
+          return result unless result.success?
+
+          AnneAuth::AccountEvent.emit(
+            :invitation_sent,
+            account:,
+            auth_method: :invitation
+          )
+
+          result
+        end
+
+        def deliver_invitation_mail(plain_token)
           AnneAuth.configuration.account_mailer_class
             .with(account:, plain_token:)
             .invitation
