@@ -49,6 +49,12 @@ module AnneAuth
         if result.success?
           clear_invitation_session
           clear_current_account_session_cookie if clear_account_session_cookie
+          AnneAuth::AccountEvent.emit(
+            :invitation_accepted,
+            account: result.account,
+            request:,
+            auth_method: :invitation
+          )
           redirect_to auth_route(:account_login_path),
             status: :see_other,
             notice: "アカウント設定が完了しました。ログインしてください。"

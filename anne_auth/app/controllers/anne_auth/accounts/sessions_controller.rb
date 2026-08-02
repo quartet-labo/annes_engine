@@ -23,7 +23,14 @@ module AnneAuth
           redirect_to auth_route(:account_login_path), alert: "メールアドレスまたはパスワードが正しくありません。"
         elsif account
           account.update!(last_sign_in_at: Time.current)
-          start_new_account_session_for(account)
+          account_session = start_new_account_session_for(account)
+          AnneAuth::AccountEvent.emit(
+            :sign_in,
+            account:,
+            account_session:,
+            request:,
+            auth_method: :password
+          )
           if account.email_verified?
             redirect_to after_account_authentication_url, notice: "ログインしました。"
           else
@@ -35,6 +42,13 @@ module AnneAuth
       end
 
       def destroy
+        account_session = current_account_session
+        AnneAuth::AccountEvent.emit(
+          :sign_out,
+          account: account_session&.account,
+          account_session:,
+          request:
+        ) if account_session
         terminate_account_session
         redirect_to auth_route(:account_login_path), status: :see_other, notice: "ログアウトしました。"
       end

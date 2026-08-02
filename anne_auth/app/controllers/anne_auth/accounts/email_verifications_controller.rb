@@ -19,6 +19,13 @@ module AnneAuth
 
         if code_lookup.success?
           account = verify_account(code_lookup.verification_token)
+          AnneAuth::AccountEvent.emit(
+            :email_verified,
+            account:,
+            account_session: current_account_session,
+            request:,
+            auth_method: :email_verification
+          )
           redirect_to after_account_email_verification_url(account), status: :see_other, notice: "メール認証が完了しました。"
         else
           redirect_to auth_route(:account_email_verification_pending_path),

@@ -123,4 +123,20 @@ class AnneAuth::Accounts::InvitationDeliveryTest < ActiveSupport::TestCase
     assert_equal :used, CustomerAccountInvitationToken.lookup(plain_token).status
     assert CustomerAccountInvitationToken.lookup(retry_plain_token).success?
   end
+
+  test "does not convert account event subscriber errors into delivery failures" do
+    subscriber = ->(*) { raise "subscriber failed" }
+
+    error = assert_raises(RuntimeError) do
+      ActiveSupport::Notifications.subscribed(subscriber, AnneAuth::AccountEvent::EVENT_NAME) do
+        AnneAuth::Accounts::InvitationDelivery.call(@account)
+      end
+    end
+
+    assert_equal "subscriber failed", error.message
+    assert_equal 1, RecordingInvitationMailer.deliveries.size
+    plain_token = RecordingInvitationMailer.deliveries.first.fetch(:plain_token)
+    assert CustomerAccountInvitationToken.lookup(plain_token).success?
+    assert_empty @log_output.string
+  end
 end
