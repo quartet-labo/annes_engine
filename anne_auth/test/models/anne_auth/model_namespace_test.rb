@@ -16,9 +16,12 @@ class AnneAuth::ModelNamespaceTest < ActiveSupport::TestCase
     assert_equal "AnneAuth::AccountInvitationToken", defaults.account_invitation_token_class_name
     assert_equal "account_invitation_tokens", defaults.account_invitation_token_table_name
     assert_respond_to defaults.account_invitation_url, :call
+    assert_equal "anne_auth_bootstrap_claims", defaults.bootstrap_claim_table_name
+    assert_respond_to defaults.after_account_bootstrapped, :call
 
     assert_equal CustomerAccountInvitationToken, AnneAuth.configuration.account_invitation_token_class
     assert_equal "customer_account_invitation_tokens", AnneAuth.configuration.account_invitation_token_table_name
+    assert_equal "anne_auth_bootstrap_claims", AnneAuth::BootstrapClaim.table_name
 
     association = CustomerAccount.reflect_on_association(:account_invitation_tokens)
     assert_not_nil association

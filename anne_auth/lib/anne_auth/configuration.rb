@@ -13,6 +13,7 @@ module AnneAuth
       :account_verification_token_table_name,
       :account_password_reset_token_table_name,
       :account_invitation_token_table_name,
+      :bootstrap_claim_table_name,
       :account_foreign_key,
       :account_session_cookie_name,
       :account_session_expires_in,
@@ -31,7 +32,8 @@ module AnneAuth
       :account_password_reset_url,
       :account_invitation_url,
       :profile_complete,
-      :after_account_created
+      :after_account_created,
+      :after_account_bootstrapped
 
     def initialize
       @account_class_name = "AnneAuth::Account"
@@ -47,6 +49,7 @@ module AnneAuth
       @account_verification_token_table_name = "account_verification_tokens"
       @account_password_reset_token_table_name = "account_password_reset_tokens"
       @account_invitation_token_table_name = "account_invitation_tokens"
+      @bootstrap_claim_table_name = "anne_auth_bootstrap_claims"
       @account_foreign_key = :account_id
       @account_session_cookie_name = :account_session_id
       @account_session_expires_in = 2.weeks
@@ -66,6 +69,7 @@ module AnneAuth
       @account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
       @profile_complete = ->(_account) { true }
       @after_account_created = ->(_account, _controller) {}
+      @after_account_bootstrapped = ->(_account) {}
     end
 
     def account_class
@@ -116,6 +120,10 @@ module AnneAuth
 
     def account_created(account, controller)
       after_account_created.call(account, controller)
+    end
+
+    def account_bootstrapped(account)
+      after_account_bootstrapped.call(account)
     end
   end
 end

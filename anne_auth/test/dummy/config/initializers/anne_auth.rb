@@ -19,4 +19,5 @@ AnneAuth.configure do |config|
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_profile_completion_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_profile_path = ->(controller, _account) { controller.main_app.root_path }
+  config.after_account_bootstrapped = ->(_account) {}
 end
