@@ -137,6 +137,21 @@ class AnneAuth::Accounts::BootstrapInvitationTest < ActiveSupport::TestCase
     assert_empty RecordingBootstrapMailer.deliveries
   end
 
+  test "propagates validation failures raised by the host bootstrap hook" do
+    AnneAuth.configuration.after_account_bootstrapped = ->(account) {
+      CustomerAccountMembership.create!(customer_account: account)
+    }
+
+    error = assert_raises(ActiveRecord::RecordInvalid) do
+      AnneAuth::Accounts::BootstrapInvitation.call(email: "initial@example.com")
+    end
+
+    assert_instance_of CustomerAccountMembership, error.record
+    assert_empty CustomerAccount.all
+    assert_empty AnneAuth::BootstrapClaim.all
+    assert_empty RecordingBootstrapMailer.deliveries
+  end
+
   test "concurrent bootstrap creates only one initial account" do
     ready = Queue.new
     start = Queue.new

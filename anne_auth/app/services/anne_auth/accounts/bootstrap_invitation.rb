@@ -28,8 +28,6 @@ module AnneAuth
         record_delivery_status(claim, delivery_result.status)
 
         Result.new(delivery_result.status, account)
-      rescue ActiveRecord::RecordInvalid
-        Result.new(:invalid_account, nil)
       end
 
       private
@@ -49,16 +47,21 @@ module AnneAuth
             elsif (account = first_active_account)
               [ claim, account, :already_bootstrapped ]
             else
-              account = create_bootstrap_account!
-              claim.update!(
-                account_class_name: account.class.name,
-                account_id: account.id,
-                last_delivery_status: nil,
-                completed_at: nil
-              )
-              AnneAuth.configuration.account_bootstrapped(account)
+              account = build_bootstrap_account
+              if account.save
+                claim.update!(
+                  account_class_name: account.class.name,
+                  account_id: account.id,
+                  last_delivery_status: nil,
+                  completed_at: nil
+                )
+                AnneAuth.configuration.account_bootstrapped(account)
 
-              [ claim, account, :ready_to_deliver ]
+                [ claim, account, :ready_to_deliver ]
+              else
+                claim.destroy!
+                [ claim, nil, :invalid_account ]
+              end
             end
           end
         end
@@ -82,9 +85,9 @@ module AnneAuth
           end
         end
 
-        def create_bootstrap_account!
+        def build_bootstrap_account
           password = SecureRandom.urlsafe_base64(32)
-          account_class.create!(
+          account_class.new(
             email:,
             password:,
             password_confirmation: password
