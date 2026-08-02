@@ -20,7 +20,7 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
-## 0.3.4 -> 0.3.5
+## 0.3.4 -> 0.4.0
 
 ### Who Is Affected
 

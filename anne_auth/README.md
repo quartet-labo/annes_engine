@@ -52,7 +52,7 @@ Add the engine to the host app:
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.5"
+  gem "anne_auth", "~> 0.4.0"
 end
 ```
 
@@ -213,7 +213,7 @@ controllers.
 
 ## Initial Account Bootstrap
 
-Version 0.3.5 adds a trusted bootstrap service for the first account in a new
+Version 0.4.0 adds a trusted bootstrap service for the first account in a new
 host application. It creates one unverified account with a random temporary
 password and sends the existing invitation activation email so the person sets
 their real password through `/invitation`.
@@ -339,7 +339,7 @@ bearer-token logging controls.
 
 ## Account Events
 
-Version 0.3.5 instruments authentication lifecycle events with
+Version 0.4.0 instruments authentication lifecycle events with
 `ActiveSupport::Notifications`:
 
 ```ruby

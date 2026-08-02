@@ -167,7 +167,7 @@ failure mode.
 
 ## MFA and TOTP Boundary
 
-AnneAuth 0.3.5 does not implement MFA/TOTP runtime behavior. A future minimal
+AnneAuth 0.4.0 does not implement MFA/TOTP runtime behavior. A future minimal
 implementation should be planned separately because it affects session
 assurance, recovery, enrollment, and login UX. The expected follow-up design
 scope is:

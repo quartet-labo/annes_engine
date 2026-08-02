@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## 0.3.5
+## 0.4.0
 
 - Add an `anne_auth.account_event` notification stream for sign in, sign out,
   password reset, email verification, and invitation lifecycle events.

@@ -57,7 +57,7 @@ Add the GitHub Packages source to the host application's `Gemfile`.
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.5"
+  gem "anne_auth", "~> 0.4.0"
   gem "anne_admin", "~> 0.2.3"
   gem "anne_access", "~> 0.1.2"
   gem "anne_loyalty", "~> 0.1.0"
