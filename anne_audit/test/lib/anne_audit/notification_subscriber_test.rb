@@ -20,6 +20,14 @@ class AnneAudit::NotificationSubscriberTest < AnneAudit::TestCase
     assert_includes output.string, "AnneAudit failed to persist audit event: ActiveRecord::RecordInvalid"
   end
 
+  test "ignores nil mapper result" do
+    subscriber = AnneAudit::NotificationSubscriber.new(mapper: ->(_event) {})
+
+    assert_no_difference -> { AnneAudit::Event.count } do
+      subscriber.call(notification_event)
+    end
+  end
+
   test "raises persistence failures when configured as audit required" do
     AnneAudit.configure do |config|
       config.raise_on_persistence_error = true

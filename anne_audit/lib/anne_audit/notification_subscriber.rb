@@ -8,7 +8,7 @@ module AnneAudit
 
     def call(event)
       attributes = mapper.call(event)
-      return if attributes.blank?
+      return if empty_attributes?(attributes)
 
       recorder.record!(**attributes)
     rescue StandardError => error
@@ -20,6 +20,10 @@ module AnneAudit
 
     private
       attr_reader :mapper, :recorder, :logger
+
+      def empty_attributes?(attributes)
+        attributes.nil? || (attributes.respond_to?(:empty?) && attributes.empty?)
+      end
 
       def log_persistence_error(error)
         audit_logger&.error("AnneAudit failed to persist audit event: #{error.class.name}: #{error.message}")
