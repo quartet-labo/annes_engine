@@ -18,6 +18,7 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, invitations, bootstrap, event hooks, and Google OAuth
 - [`anne_access`](anne_access/README.md) - lightweight role-based authorization
 - [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
+- [`anne_audit`](anne_audit/README.md) - durable audit event persistence and notification mapping
 - [`anne_loyalty`](anne_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
 - [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
@@ -30,6 +31,7 @@ by Quartet Labo LLC. guide the project roadmap.
 | AnneAuth | Login, account sessions, email verification, password resets, invitations, initial account bootstrap, authentication event hooks, Google OAuth | Administrator status, roles, permissions, or audit-log storage |
 | AnneAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnneAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
+| AnneAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
 | AnneLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
 
 For applications using all three engines, adopt them in this order:
@@ -37,6 +39,7 @@ For applications using all three engines, adopt them in this order:
 1. Install AnneAuth and decide which account model represents the authenticated principal.
 2. Install AnneAccess and define roles, permissions, and assignments for that principal.
 3. Install AnneAdmin and connect its authentication and authorization hooks to AnneAuth and AnneAccess.
+4. Install AnneAudit when durable audit storage is required, and register notification mappers for the event streams the host wants to persist.
 
 Each engine can also be used independently when the host application already provides the other responsibilities.
 
@@ -60,6 +63,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "anne_auth", "~> 0.4.0"
   gem "anne_admin", "~> 0.2.3"
   gem "anne_access", "~> 0.1.2"
+  gem "anne_audit", "~> 0.1.0"
   gem "anne_loyalty", "~> 0.1.0"
 end
 ```
@@ -70,6 +74,7 @@ For local development from a host application:
 gem "anne_auth", path: "../anne_engine/anne_auth"
 gem "anne_admin", path: "../anne_engine/anne_admin"
 gem "anne_access", path: "../anne_engine/anne_access"
+gem "anne_audit", path: "../anne_engine/anne_audit"
 gem "anne_loyalty", path: "../anne_engine/anne_loyalty"
 ```
 
@@ -87,6 +92,8 @@ guide, and the dependent sample app lockfiles, then commit the release change:
   `anne_admin/UPGRADING.md`
 - `anne_access/lib/anne_access/version.rb`, `anne_access/CHANGELOG.md`, and
   `anne_access/UPGRADING.md`
+- `anne_audit/lib/anne_audit/version.rb`, `anne_audit/CHANGELOG.md`, and
+  `anne_audit/UPGRADING.md`
 - `anne_loyalty/lib/anne_loyalty/version.rb`, `anne_loyalty/CHANGELOG.md`, and
   `anne_loyalty/UPGRADING.md`
 
@@ -103,6 +110,7 @@ the release:
 - `anne_access`: `examples/customer_management/Gemfile.lock`,
   `examples/resavation_management/Gemfile.lock`, and
   `examples/restaurant_loyalty/Gemfile.lock`
+- `anne_audit`: update each example app lockfile that opts in to durable audit storage.
 - `anne_loyalty`: `examples/restaurant_loyalty/Gemfile.lock`
 
 Run `bundle update <gem_name>` from each affected example directory. For
@@ -120,6 +128,7 @@ See the package-specific upgrade guides before updating a host application:
 - [AnneAuth upgrade guide](anne_auth/UPGRADING.md)
 - [AnneAccess upgrade guide](anne_access/UPGRADING.md)
 - [AnneAdmin upgrade guide](anne_admin/UPGRADING.md)
+- [AnneAudit upgrade guide](anne_audit/UPGRADING.md)
 - [AnneLoyalty upgrade guide](anne_loyalty/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
@@ -127,8 +136,8 @@ target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`anne_auth`, `anne_admin`, `anne_access`, or `anne_loyalty`, and set `version`
-to the exact gemspec version you intend to publish.
+`anne_auth`, `anne_admin`, `anne_access`, `anne_audit`, or `anne_loyalty`, and
+set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,
 merge the version, changelog, upgrade guide, and lockfile updates together,
