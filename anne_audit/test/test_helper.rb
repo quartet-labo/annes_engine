@@ -24,12 +24,14 @@ ActiveSupport::TestCase.fixture_paths = [ File.expand_path("fixtures", __dir__) 
 module AnneAudit
   module TestConfiguration
     def before_setup
+      AnneAudit.configuration.notification_subscribers.unsubscribe_all!
       AnneAudit.reset_configuration!
       super
     end
 
     def after_teardown
       super
+      AnneAudit.configuration.notification_subscribers.unsubscribe_all!
       AnneAudit.reset_configuration!
     end
   end
