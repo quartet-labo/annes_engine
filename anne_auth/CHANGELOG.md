@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.3.5
+
+- Add an `anne_auth.account_event` notification stream for sign in, sign out,
+  password reset, email verification, and invitation lifecycle events.
+- Add `AnneAuth::Accounts::BootstrapInvitation` for trusted initial account
+  setup through the existing invitation activation flow.
+- Add `anne_auth_bootstrap_claims` to keep initial account bootstrap
+  idempotent and retryable after delivery failures.
+- Add `after_account_bootstrapped` so host apps can attach roles or assignments
+  without adding runtime dependencies from AnneAuth to AnneAccess or AnneAdmin.
+- Document bootstrap setup, event subscription, audit handoff boundaries, and
+  MFA/TOTP follow-up scope.
+
 ## 0.3.4
 
 - Prevent repeated credential login submissions with a CSP nonce-bearing,

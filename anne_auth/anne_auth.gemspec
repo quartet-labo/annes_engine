@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors = [ "Anan Mark" ]
   spec.email = [ "development@example.com" ]
   spec.summary = "Reusable authentication engine for Rails applications."
-  spec.description = "Provides account, session, verification, password reset, invitation activation, and OAuth authentication primitives."
+  spec.description = "Provides account, session, verification, password reset, invitation activation, bootstrap, event hook, and OAuth authentication primitives."
   spec.homepage = "https://github.com/quartet-labo/anne_engine/tree/main/anne_auth"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.4.0"

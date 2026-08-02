@@ -20,6 +20,79 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 0.3.4 -> 0.3.5
+
+### Who Is Affected
+
+Host apps that want initial account bootstrap or authentication lifecycle
+events should install the new migration and add the new initializer hook. Existing
+login, verification, password-reset, OAuth, and invitation flows continue to
+work without enabling bootstrap.
+
+### Required Steps
+
+1. Copy and run the bootstrap claim migration:
+
+   ```sh
+   bin/rails generate anne_auth:install
+   bin/rails db:migrate
+   ```
+
+   Confirm that the host has exactly one migration ending in
+   `create_anne_auth_bootstrap_claims.rb` and that it creates
+   `anne_auth_bootstrap_claims`.
+
+2. Review `config/initializers/anne_auth.rb`. The installer preserves existing
+   initializers, so add the hook manually when upgrading:
+
+   ```ruby
+   config.after_account_bootstrapped = ->(account) {
+     # Host-owned role or assignment setup.
+   }
+   ```
+
+   Keep role and permission writes in the host app or `anne_access`. AnneAuth
+   does not assign administrator status.
+
+3. If the host will persist authentication events, register a subscriber during
+   application boot:
+
+   ```ruby
+   ActiveSupport::Notifications.subscribe("anne_auth.account_event") do |event|
+     AuthEventJob.perform_later(
+       event_id: event.transaction_id,
+       occurred_at: Time.zone.at(event.time),
+       **event.payload.symbolize_keys
+     )
+   end
+   ```
+
+   Review retention and access control for account email, IP address, and user
+   agent. Payloads do not include passwords, reset tokens, invitation tokens,
+   verification codes, session cookies, or OAuth credentials.
+
+4. To create the first account, call bootstrap from trusted setup code only:
+
+   ```ruby
+   result = AnneAuth::Accounts::BootstrapInvitation.call(email: "owner@example.com")
+   ```
+
+   Do not expose this call as a public route. The result status is
+   `:delivered`, `:already_bootstrapped`, `:invalid_account`, or
+   `:delivery_failed`.
+
+### Verification
+
+- A new environment can create exactly one bootstrap account and deliver an
+  invitation.
+- A `:delivery_failed` result can be retried after fixing mail delivery.
+- The bootstrap hook attaches host-owned roles or assignments and rolls back if
+  it raises.
+- Account event subscribers receive the documented events without credential
+  secrets.
+- Existing login, logout, verification, password reset, OAuth, and invitation
+  tests still pass.
+
 ## 0.3.3 -> 0.3.4
 
 ### Who Is Affected

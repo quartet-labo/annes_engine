@@ -15,7 +15,7 @@ by Quartet Labo LLC. guide the project roadmap.
 
 ## Gems
 
-- [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, and Google OAuth
+- [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, invitations, bootstrap, event hooks, and Google OAuth
 - [`anne_access`](anne_access/README.md) - lightweight role-based authorization
 - [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
 - [`anne_loyalty`](anne_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
@@ -27,7 +27,7 @@ by Quartet Labo LLC. guide the project roadmap.
 
 | Engine | Owns | Does not own |
 | --- | --- | --- |
-| AnneAuth | Login, account sessions, email verification, password resets, Google OAuth | Administrator status, roles, or permissions |
+| AnneAuth | Login, account sessions, email verification, password resets, invitations, initial account bootstrap, authentication event hooks, Google OAuth | Administrator status, roles, permissions, or audit-log storage |
 | AnneAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnneAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
 | AnneLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
@@ -57,7 +57,7 @@ Add the GitHub Packages source to the host application's `Gemfile`.
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.4"
+  gem "anne_auth", "~> 0.3.5"
   gem "anne_admin", "~> 0.2.3"
   gem "anne_access", "~> 0.1.2"
   gem "anne_loyalty", "~> 0.1.0"

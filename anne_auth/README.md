@@ -3,7 +3,8 @@
 AnneAuth is a Rails Engine for reusable account authentication. It provides
 account models, registration, session handling, default authentication views,
 email verification, password resets, account invitation activation, Google OAuth
-support, controller concerns, and host hooks.
+support, initial account bootstrap, account event hooks, controller concerns,
+and host hooks.
 
 This engine is developed in the `quartet-labo/anne_engine` monorepo under
 `anne_auth`.
@@ -51,7 +52,7 @@ Add the engine to the host app:
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.3.4"
+  gem "anne_auth", "~> 0.3.5"
 end
 ```
 
@@ -126,6 +127,7 @@ AnneAuth.configure do |config|
   config.after_account_login_path = ->(controller, _account) { controller.main_app.root_path }
   config.after_account_email_verification_path = ->(controller, _account) { controller.main_app.root_path }
   config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
+  config.after_account_bootstrapped = ->(_account) {}
 end
 ```
 
@@ -149,6 +151,7 @@ AnneAuth.configure do |config|
   config.account_invitation_url = ->(mailer, token) { mailer.account_invitation_url(token:) }
   config.profile_complete = ->(_account) { true }
   config.after_account_created = ->(_account, _controller) {}
+  config.after_account_bootstrapped = ->(_account) {}
 end
 ```
 
@@ -207,6 +210,56 @@ confirming those tables are no longer used.
 The host app should keep domain models such as customers, projects, orders, or
 quotes outside this Engine and connect them through hooks or thin host
 controllers.
+
+## Initial Account Bootstrap
+
+Version 0.3.5 adds a trusted bootstrap service for the first account in a new
+host application. It creates one unverified account with a random temporary
+password and sends the existing invitation activation email so the person sets
+their real password through `/invitation`.
+
+Run the installer and migrate before using it:
+
+```sh
+bin/rails generate anne_auth:install
+bin/rails db:migrate
+```
+
+Call the service from trusted setup code, such as a one-off console command,
+deployment job, or seed task. Do not expose it as a public controller action.
+
+```ruby
+result = AnneAuth::Accounts::BootstrapInvitation.call(
+  email: "owner@example.com"
+)
+
+case result.status
+when :delivered
+  # Initial account created and invitation sent.
+when :already_bootstrapped
+  # An active account or completed bootstrap already exists.
+when :invalid_account
+  # Email or host account validation failed.
+when :delivery_failed
+  # Retry the same call after fixing mail delivery.
+end
+```
+
+Use `after_account_bootstrapped` for host-owned role or assignment setup. The
+hook runs before invitation delivery; if it raises, the account and bootstrap
+claim roll back and no invitation is sent.
+
+```ruby
+AnneAuth.configure do |config|
+  config.after_account_bootstrapped = ->(account) {
+    # Example: assign an AnneAccess role in the host app.
+  }
+end
+```
+
+AnneAuth does not decide whether the account is an administrator. Keep role
+creation, permission assignment, and organization membership in the host app,
+`anne_access`, or another engine.
 
 ## Account Invitations
 
@@ -283,6 +336,32 @@ mapping. See the [upgrade guide](UPGRADING.md) for a custom migration example,
 the [configuration reference](docs/configuration.md) for the full mapping
 contract, and [Security and operations](docs/security-and-operations.md) for
 bearer-token logging controls.
+
+## Account Events
+
+Version 0.3.5 instruments authentication lifecycle events with
+`ActiveSupport::Notifications`:
+
+```ruby
+ActiveSupport::Notifications.subscribe("anne_auth.account_event") do |event|
+  AuthEventJob.perform_later(
+    event_id: event.transaction_id,
+    occurred_at: Time.zone.at(event.time),
+    **event.payload.symbolize_keys
+  )
+end
+```
+
+Current event names are `sign_in`, `sign_out`, `password_reset_requested`,
+`password_reset_completed`, `email_verified`, `invitation_sent`, and
+`invitation_accepted`. Payloads include account id/class/email, database
+session id when available, auth method, provider, request IP/user agent, status,
+and non-secret metadata. They do not include passwords, reset tokens,
+invitation tokens, verification codes, session cookies, or OAuth credentials.
+
+Use subscribers to enqueue jobs, persist audit entries, or delegate to a future
+audit engine. Keep subscribers fast and decide in the host app whether a
+subscriber failure should fail the authentication request.
 
 ## Package Boundary
 
