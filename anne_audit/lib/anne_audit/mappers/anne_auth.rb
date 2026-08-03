@@ -6,7 +6,6 @@ module AnneAudit
           payload = event.payload.symbolize_keys
 
           {
-            event_id: event.transaction_id,
             source: "anne_auth",
             action: payload[:event],
             result: payload[:status] || "success",

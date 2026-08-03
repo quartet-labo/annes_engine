@@ -19,7 +19,7 @@ class AnneAudit::Mappers::AnneAuthTest < AnneAudit::TestCase
 
     attributes = AnneAudit::Mappers::AnneAuth.call(event)
 
-    assert_equal event.transaction_id, attributes.fetch(:event_id)
+    refute_includes attributes, :event_id
     assert_equal "anne_auth", attributes.fetch(:source)
     assert_equal "sign_in", attributes.fetch(:action)
     assert_equal "success", attributes.fetch(:result)

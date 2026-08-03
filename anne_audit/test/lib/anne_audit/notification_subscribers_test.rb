@@ -3,7 +3,6 @@ require_relative "../../test_helper"
 class AnneAudit::NotificationSubscribersTest < AnneAudit::TestCase
   Mapper = ->(event) {
     {
-      event_id: event.transaction_id,
       source: "test",
       action: event.payload.fetch(:action)
     }

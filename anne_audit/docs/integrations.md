@@ -15,7 +15,6 @@ class HostAuditMapper
     payload = event.payload.symbolize_keys
 
     {
-      event_id: event.transaction_id,
       source: "host",
       action: payload.fetch(:action),
       result: payload[:status] || "success",
@@ -72,6 +71,10 @@ The mapper stores:
 - target type from `resource`
 - target ID from `record_id`
 - remaining non-reference fields in metadata
+
+The mapper lets `AnneAudit::Event` generate `event_id`. Do not use
+`event.transaction_id` as an audit event identifier; Rails reuses that value for
+notifications emitted by the same instrumenter.
 
 If a host needs richer actor or target labels, extend the emitted payload with
 backward-compatible keys such as `actor_type`, `actor_label`, `target_type`, or

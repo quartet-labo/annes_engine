@@ -12,6 +12,7 @@ on:
           - anne_auth
           - anne_admin
           - anne_access
+          - anne_audit
           - anne_loyalty
       version:
         description: Expected gem version to publish

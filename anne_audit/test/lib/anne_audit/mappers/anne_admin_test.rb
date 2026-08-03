@@ -13,7 +13,7 @@ class AnneAudit::Mappers::AnneAdminTest < AnneAudit::TestCase
 
     attributes = AnneAudit::Mappers::AnneAdmin.call(event)
 
-    assert_equal event.transaction_id, attributes.fetch(:event_id)
+    refute_includes attributes, :event_id
     assert_equal "anne_admin", attributes.fetch(:source)
     assert_equal "update", attributes.fetch(:action)
     assert_equal "success", attributes.fetch(:result)
