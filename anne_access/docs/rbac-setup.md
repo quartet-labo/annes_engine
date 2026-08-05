@@ -3,6 +3,11 @@
 AnneAccess stores a normalized, host-defined permission matrix. Authentication
 must already provide a persisted principal such as an account or user.
 
+For reusable starting points across semi-order base apps, see
+[Role and permission templates](role-and-permission-templates.md). Keep those
+templates host-adjusted; AnneAccess does not enforce special behavior for role
+names such as `manager`, `operator`, `customer`, or `member`.
+
 ## Data Model
 
 ```text
@@ -48,23 +53,37 @@ AnneAccess::Permission.find_or_create_by!(
 
 ## Idempotent Seed
 
-The install generator creates `db/seeds/anne_access.rb`. Adapt it to the host's
-resource list and keep it safe to run more than once:
+The install generator creates `db/seeds/anne_access.rb`. Adapt its
+`role_permissions` matrix to the host's resource list and keep it safe to run
+more than once:
 
 ```ruby
-roles = {
-  "admin" => { name: "Admin", actions: %w[manage] },
-  "viewer" => { name: "Viewer", actions: %w[read] }
+role_permissions = {
+  "admin" => {
+    name: "Admin",
+    resources: {
+      "customers" => %w[manage],
+      "projects" => %w[manage]
+    }
+  },
+  "viewer" => {
+    name: "Viewer",
+    resources: {
+      "customers" => %w[read],
+      "projects" => %w[read]
+    }
+  }
 }
-resources = %w[customers projects]
 
-roles.each do |role_key, definition|
+role_permissions.each do |role_key, definition|
   role = AnneAccess::Role.find_or_initialize_by(key: role_key)
   role.update!(name: definition.fetch(:name), system: true)
 
-  resources.product(definition.fetch(:actions)).each do |resource, action|
-    permission = AnneAccess::Permission.find_or_create_by!(resource:, action:)
-    AnneAccess::RolePermission.find_or_create_by!(role:, permission:)
+  definition.fetch(:resources).each do |resource, actions|
+    actions.each do |action|
+      permission = AnneAccess::Permission.find_or_create_by!(resource:, action:)
+      AnneAccess::RolePermission.find_or_create_by!(role:, permission:)
+    end
   end
 end
 ```

@@ -15,6 +15,7 @@ scopes, or complex business workflow authorization.
 ## Documentation
 
 - [RBAC setup](docs/rbac-setup.md)
+- [Role and permission templates](docs/role-and-permission-templates.md)
 - [Configuration and API reference](docs/configuration-and-api.md)
 - [Record scoping](docs/record-scoping.md)
 - [AnneAdmin integration](docs/anne-admin-integration.md)
@@ -65,8 +66,11 @@ load Rails.root.join("db/seeds/anne_access.rb")
 bin/rails db:seed
 ```
 
-The example creates `admin` and `viewer` roles for `customers` and `projects`.
-Adapt those names before using it in a real host.
+The example creates a small `role_permissions` matrix with `admin` and `viewer`
+roles for `customers` and `projects`. Adapt those role names, resource keys, and
+actions before using it in a real host. See
+[Role and permission templates](docs/role-and-permission-templates.md) for
+semi-order base-app examples.
 
 Finally, assign a role to a persisted authentication principal:
 
@@ -197,7 +201,9 @@ end
 ```
 
 Keep business-specific record ownership, tenant scoping, and workflow rules in
-the host application through `custom_rule` or host controllers.
+the host application through `custom_rule` or host controllers. AnneAccess
+should remain the coarse RBAC layer, not the source of host-specific record
+visibility rules.
 
 ## Release Workflow
 

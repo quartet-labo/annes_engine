@@ -4,6 +4,10 @@ AnneAccess answers whether a principal has an action for a resource. It does not
 build an Active Record relation for ownership, tenant membership, customer
 visibility, or workflow state.
 
+Use [Role and permission templates](role-and-permission-templates.md) for the
+coarse permission matrix, then apply host-owned scopes in the app code that
+loads records.
+
 ## Collection Actions
 
 For an index action there is normally no record. Apply host-owned scopes before
@@ -83,4 +87,6 @@ Apply the host scope consistently to:
 
 Test two tenants or owners, not just an authorized and unauthorized role. A
 useful matrix includes same-tenant allowed, same-tenant denied action,
-cross-tenant denied, missing assignment, and nil principal.
+cross-tenant denied, missing assignment, and nil principal. See
+[Role and permission templates](role-and-permission-templates.md) for tenant,
+owner, assignee, and membership relation patterns.
