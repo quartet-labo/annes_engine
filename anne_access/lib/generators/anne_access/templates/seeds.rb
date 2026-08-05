@@ -1,18 +1,33 @@
 # Example AnneAccess seed data. Adjust resources and assignments for the host app.
-admin = AnneAccess::Role.find_or_create_by!(key: "admin") do |role|
-  role.name = "Admin"
-  role.system = true
-end
+#
+# Keep tenant, ownership, and membership scopes in host app controllers, query
+# objects, model scopes, or services. This seed only creates the coarse RBAC
+# matrix that those host-owned scopes can build on.
+role_permissions = {
+  "admin" => {
+    name: "Admin",
+    resources: {
+      "customers" => %w[manage],
+      "projects" => %w[manage]
+    }
+  },
+  "viewer" => {
+    name: "Viewer",
+    resources: {
+      "customers" => %w[read],
+      "projects" => %w[read]
+    }
+  }
+}
 
-viewer = AnneAccess::Role.find_or_create_by!(key: "viewer") do |role|
-  role.name = "Viewer"
-  role.system = true
-end
+role_permissions.each do |role_key, definition|
+  role = AnneAccess::Role.find_or_initialize_by(key: role_key)
+  role.update!(name: definition.fetch(:name), system: true)
 
-%w[customers projects].each do |resource|
-  manage = AnneAccess::Permission.find_or_create_by!(resource:, action: "manage")
-  read = AnneAccess::Permission.find_or_create_by!(resource:, action: "read")
-
-  AnneAccess::RolePermission.find_or_create_by!(role: admin, permission: manage)
-  AnneAccess::RolePermission.find_or_create_by!(role: viewer, permission: read)
+  definition.fetch(:resources).each do |resource, actions|
+    actions.each do |action|
+      permission = AnneAccess::Permission.find_or_create_by!(resource:, action:)
+      AnneAccess::RolePermission.find_or_create_by!(role:, permission:)
+    end
+  end
 end
