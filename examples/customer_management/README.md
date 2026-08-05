@@ -33,6 +33,18 @@ Seed users:
 
 - Admin: `admin@example.com` / `password-1234`
 
+## Authorization Matrix
+
+This sample uses AnneAccess as a coarse RBAC layer for AnneAdmin resources. The
+seed creates `admin` manage permissions and `viewer` read permissions for
+`customers`, `persons`, `organizations`, `customer_contacts`, and `projects`.
+Only the admin sample account is assigned by default.
+
+Use the AnneAccess
+[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)
+as the starting point when adding read-only users, tenant scopes, owner scopes,
+or membership-based visibility in a host app.
+
 ## Screens
 
 - Admin login: <http://localhost:3000/admin/login>

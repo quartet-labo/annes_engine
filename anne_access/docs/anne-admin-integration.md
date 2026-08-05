@@ -4,6 +4,9 @@ AnneAdmin owns screens and emits an authorization context. AnneAccess can
 evaluate that context while the host continues to own authentication and record
 visibility.
 
+For role naming and base-app permission matrix examples, see
+[Role and permission templates](role-and-permission-templates.md).
+
 ## Basic Hook
 
 ```ruby
@@ -105,7 +108,9 @@ end
 ```
 
 Use a matching `custom_rule` or scoped member lookup when member visibility
-requires a final check. See [Record scoping](record-scoping.md).
+requires a final check. See [Record scoping](record-scoping.md). The
+authorization hook should answer the coarse permission question; it should not
+be the only place a tenant-aware app filters records.
 
 ## Integration Tests
 

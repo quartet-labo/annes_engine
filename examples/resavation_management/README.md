@@ -73,6 +73,14 @@ seedは再実行可能です。実行日のTokyo時刻を基準に、active / in
 bin/rails db:seed
 ```
 
+## Authorization Matrix
+
+このexampleのAnneAccess matrixは、社内向け予約管理の実装例です。`admin`は顧客・予約対象・予約を管理し、`operator`は顧客作成/更新と予約作成/更新、`confirm` / `cancel` / `complete` / `no_show` のような予約状態操作を許可されます。`viewer`は閲覧のみです。
+
+`manage`は標準CRUD actionだけをまとめるため、予約状態操作は明示的なcustom action permissionとしてseedしています。tenant、担当者、予約対象ごとの参照範囲が必要なhost appでは、AnneAccess runtimeではなくcontroller、query、model scope、serviceで絞り込んでください。
+
+共通の考え方はAnneAccessの[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)を参照してください。
+
 ## Main Screens
 
 | URL | 用途 |

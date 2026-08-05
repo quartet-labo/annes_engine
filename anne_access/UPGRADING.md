@@ -20,6 +20,21 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## Unreleased
+
+This release changes documentation and the generated seed example. No database
+migrations or runtime behavior changes are required for existing host apps.
+
+Host apps that rerun `bin/rails generate anne_access:install` should review the
+generated `db/seeds/anne_access.rb`. The template now uses a `role_permissions`
+matrix shape so role names, resources, and actions can be adjusted in one
+place. Existing seed files do not need to be rewritten unless the host app wants
+to adopt that shape.
+
+Tenant, owner, assignee, customer, and membership record scopes remain host-app
+responsibilities. Keep those rules in controller lookups, query objects, model
+scopes, or services rather than moving them into AnneAccess runtime code.
+
 ## 0.1.1 -> 0.1.2
 
 This release expands documentation only. No host-app code or database changes

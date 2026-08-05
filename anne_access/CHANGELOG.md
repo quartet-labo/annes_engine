@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a role and permission template guide for host-scoped RBAC matrix design.
+- Restructure the generated seed example around a `role_permissions` matrix and
+  clarify that tenant, owner, and membership record scopes remain host-app
+  responsibilities.
+
 ## 0.1.2
 
 - Add RBAC setup, configuration/API, record-scoping, AnneAdmin integration, and

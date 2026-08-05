@@ -70,6 +70,14 @@ Seed customer:
 - `C-DEMO-001` / access code `123456`: 初期25 pt、coffee交換可能
 - `C-DEMO-002` / access code `123456`: 初期0 pt
 
+## Authorization Matrix
+
+このexampleのAnneAccess matrixは、店舗スタッフ向けのRBAC例です。`admin`はprogram、location、rewardを管理し、会員閲覧、ポイント付与/調整、特典利用確定を実行できます。`manager`はprogram確認/更新とlocation/reward管理、`staff`は会員閲覧、ポイント付与、特典利用確定、`viewer`は会員閲覧のみです。
+
+顧客向け画面はAnneAccess roleではなく、顧客sessionとhost app側のloyalty member relationで表示対象を決めます。店舗、会員、顧客ごとのscopeを増やす場合もAnneAccess runtimeへ移さず、controller、query、model scope、serviceで調整してください。
+
+共通の考え方はAnneAccessの[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)を参照してください。
+
 ## Main Screens
 
 | URL | 用途 |

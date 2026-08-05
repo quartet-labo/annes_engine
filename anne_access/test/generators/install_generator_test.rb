@@ -19,6 +19,10 @@ class AnneAccess::InstallGeneratorTest < Rails::Generators::TestCase
 
     assert_file "config/initializers/anne_access.rb", /AnneAccess.configure/
     assert_file "db/seeds/anne_access.rb", /AnneAccess::Role/
+    assert_file "db/seeds/anne_access.rb", /role_permissions = \{/
+    assert_file "db/seeds/anne_access.rb", /"admin" => \{/
+    assert_file "db/seeds/anne_access.rb", /"viewer" => \{/
+    assert_file "db/seeds/anne_access.rb", /AnneAccess::RolePermission.find_or_create_by!/
     assert_migration "create_anne_access_roles.rb"
     assert_migration "create_anne_access_permissions.rb"
     assert_migration "create_anne_access_role_permissions.rb"
