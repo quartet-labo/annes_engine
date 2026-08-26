@@ -37,7 +37,7 @@ end
 For local development from this monorepo, use a path source:
 
 ```ruby
-gem "annes_loyalty", path: "../anne_engine/annes_loyalty"
+gem "annes_loyalty", path: "../annes_engine/annes_loyalty"
 ```
 
 Install the engine migrations and migrate the host database:

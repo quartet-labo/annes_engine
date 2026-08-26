@@ -159,7 +159,7 @@ AnnesAccess::Permission.create!(
 ```
 
 See the
-[AnnesAccess integration guide](https://github.com/quartet-labo/anne_engine/blob/main/annes_access/docs/annes-admin-integration.md)
+[AnnesAccess integration guide](https://github.com/quartet-labo/annes_engine/blob/main/annes_access/docs/annes-admin-integration.md)
 for principal resolution and record-scope examples. The absolute repository
 link remains valid when this guide is read from an installed AnnesAdmin gem.
 

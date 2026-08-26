@@ -2,7 +2,7 @@
 
 ## Community Use
 
-Anne Engine is open-source software provided under the MIT License. Downloading,
+Annes Engine is open-source software provided under the MIT License. Downloading,
 installing, evaluating, or using the software does not create a support
 obligation for Quartet Labo LLC.
 
@@ -14,7 +14,7 @@ contracted projects and customers with active support agreements.
 ## Paid Services
 
 Quartet Labo LLC. separately offers paid services for applications built with
-Anne Engine, including:
+Annes Engine, including:
 
 - requirements analysis and application design;
 - installation, configuration, and deployment;

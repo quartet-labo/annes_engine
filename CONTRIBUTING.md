@@ -1,6 +1,6 @@
 # Contributing
 
-Anne Engine is maintained primarily as the shared foundation for Quartet Labo
+Annes Engine is maintained primarily as the shared foundation for Quartet Labo
 LLC.'s semi-custom web application development services. We are not currently
 accepting external pull requests or code contributions.
 

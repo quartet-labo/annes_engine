@@ -118,8 +118,8 @@ class PublicProjectPolicyTest < Minitest::Test
     ENGINE_READMES.each do |engine, path|
       readme = path.read
 
-      assert_includes readme, "https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE", engine
-      assert_includes readme, "https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md", engine
+      assert_includes readme, "https://github.com/quartet-labo/annes_engine/blob/main/MIT-LICENSE", engine
+      assert_includes readme, "https://github.com/quartet-labo/annes_engine/blob/main/SUPPORT.md", engine
     end
   end
 end

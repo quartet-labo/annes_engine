@@ -40,7 +40,7 @@ bundle config https://rubygems.pkg.github.com/quartet-labo GITHUB_USERNAME:GITHU
 For local development from a host application, use a path source:
 
 ```ruby
-gem "annes_admin", path: "../anne_engine/annes_admin"
+gem "annes_admin", path: "../annes_engine/annes_admin"
 ```
 
 Run the installer:
@@ -386,8 +386,8 @@ RBAC actions such as `read`, `create`, and `update`.
 ## License and Support
 
 AnnesAdmin is available under the
-[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+[MIT License](https://github.com/quartet-labo/annes_engine/blob/main/MIT-LICENSE).
 Open-source use does not include support, maintenance, fixes, compatibility
 guarantees, or release commitments. See the shared
-[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+[support policy](https://github.com/quartet-labo/annes_engine/blob/main/SUPPORT.md)
 for community-use boundaries and separately available paid services.

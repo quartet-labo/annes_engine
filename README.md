@@ -1,10 +1,10 @@
-# Anne Engine
+# Annes Engine
 
-Anne Engine is a monorepo for reusable Rails engines.
+Annes Engine is a monorepo for reusable Rails engines.
 
 ## Project Scope
 
-Anne Engine is the shared foundation used by Quartet Labo LLC. for its
+Annes Engine is the shared foundation used by Quartet Labo LLC. for its
 semi-custom web application development services. Development and maintenance of
 the project prioritize contracted projects and customers with active support agreements.
 
@@ -45,7 +45,7 @@ Each engine can also be used independently when the host application already pro
 
 ## Installation
 
-Anne Engine gems are distributed through GitHub Packages.
+Annes Engine gems are distributed through GitHub Packages.
 
 Configure Bundler credentials in each host application environment. Use a token
 with `read:packages` access for installs.
@@ -71,11 +71,11 @@ end
 For local development from a host application:
 
 ```ruby
-gem "annes_auth", path: "../anne_engine/annes_auth"
-gem "annes_admin", path: "../anne_engine/annes_admin"
-gem "annes_access", path: "../anne_engine/annes_access"
-gem "annes_audit", path: "../anne_engine/annes_audit"
-gem "annes_loyalty", path: "../anne_engine/annes_loyalty"
+gem "annes_auth", path: "../annes_engine/annes_auth"
+gem "annes_admin", path: "../annes_engine/annes_admin"
+gem "annes_access", path: "../annes_engine/annes_access"
+gem "annes_audit", path: "../annes_engine/annes_audit"
+gem "annes_loyalty", path: "../annes_engine/annes_loyalty"
 ```
 
 ## Publishing
@@ -232,7 +232,7 @@ the demo workflow, MVP boundaries, and future items.
 
 ## License
 
-Anne Engine is available under the [MIT License](MIT-LICENSE). The license
+Annes Engine is available under the [MIT License](MIT-LICENSE). The license
 permits commercial and non-commercial use, modification, distribution,
 sublicensing, and sale, subject to preservation of the copyright and permission
 notices.

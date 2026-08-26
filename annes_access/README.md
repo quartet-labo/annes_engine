@@ -40,7 +40,7 @@ Configure Bundler with a GitHub token that has `read:packages` access:
 bundle config https://rubygems.pkg.github.com/quartet-labo GITHUB_USERNAME:GITHUB_PACKAGES_TOKEN
 ```
 
-For local development, use `gem "annes_access", path: "../anne_engine/annes_access"`.
+For local development, use `gem "annes_access", path: "../annes_engine/annes_access"`.
 
 Run the installer.
 
@@ -231,8 +231,8 @@ gem-specific tag already exists. Tag push events are not the release entrypoint.
 ## License and Support
 
 AnnesAccess is available under the
-[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+[MIT License](https://github.com/quartet-labo/annes_engine/blob/main/MIT-LICENSE).
 Open-source use does not include support, maintenance, fixes, compatibility
 guarantees, or release commitments. See the shared
-[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+[support policy](https://github.com/quartet-labo/annes_engine/blob/main/SUPPORT.md)
 for community-use boundaries and separately available paid services.

@@ -7,7 +7,7 @@
 
 ## 目的
 
-`annes_access` は、`anne_engine` 標準の軽量 RBAC engine として、認証済みユーザーが「どの resource に対して、どの action を実行できるか」を共通化する。
+`annes_access` は、`annes_engine` 標準の軽量 RBAC engine として、認証済みユーザーが「どの resource に対して、どの action を実行できるか」を共通化する。
 
 `annes_auth` はログインとセッションを扱い、`annes_admin` は管理画面 CRUD を扱う。`annes_access` はその間にある認可判定を担当し、host app ごとに `user.role == "admin"` のような判定が散らばる状態を避ける。
 

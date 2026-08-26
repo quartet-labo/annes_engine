@@ -20,7 +20,7 @@ AnnesAudit owns:
 - metadata filtering;
 - `AnnesAudit.record!` and `AnnesAudit.record`;
 - generic notification mapper registration;
-- built-in mappers for known Anne Engine notification contracts.
+- built-in mappers for known Annes Engine notification contracts.
 
 AnnesAudit does not own authentication, authorization, admin CRUD screens, SIEM
 forwarding, tamper-proof storage, or analytics dashboards.

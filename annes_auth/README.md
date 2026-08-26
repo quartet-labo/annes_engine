@@ -6,7 +6,7 @@ email verification, password resets, account invitation activation, Google OAuth
 support, initial account bootstrap, account event hooks, controller concerns,
 and host hooks.
 
-This engine is developed in the `quartet-labo/anne_engine` monorepo under
+This engine is developed in the `quartet-labo/annes_engine` monorepo under
 `annes_auth`.
 
 ## Requirements
@@ -66,7 +66,7 @@ bundle config https://rubygems.pkg.github.com/quartet-labo GITHUB_USERNAME:GITHU
 For local development from a host application, use a path source:
 
 ```ruby
-gem "annes_auth", path: "../anne_engine/annes_auth"
+gem "annes_auth", path: "../annes_engine/annes_auth"
 ```
 
 Run the installer:
@@ -431,8 +431,8 @@ an account.
 ## License and Support
 
 AnnesAuth is available under the
-[MIT License](https://github.com/quartet-labo/anne_engine/blob/main/MIT-LICENSE).
+[MIT License](https://github.com/quartet-labo/annes_engine/blob/main/MIT-LICENSE).
 Open-source use does not include support, maintenance, fixes, compatibility
 guarantees, or release commitments. See the shared
-[support policy](https://github.com/quartet-labo/anne_engine/blob/main/SUPPORT.md)
+[support policy](https://github.com/quartet-labo/annes_engine/blob/main/SUPPORT.md)
 for community-use boundaries and separately available paid services.
