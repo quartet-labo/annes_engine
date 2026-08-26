@@ -18,7 +18,7 @@ scopes, or complex business workflow authorization.
 - [Role and permission templates](docs/role-and-permission-templates.md)
 - [Configuration and API reference](docs/configuration-and-api.md)
 - [Record scoping](docs/record-scoping.md)
-- [AnneAdmin integration](docs/anne-admin-integration.md)
+- [AnnesAdmin integration](docs/annes-admin-integration.md)
 - [Security checklist](docs/security-checklist.md)
 - [Upgrade guide](UPGRADING.md)
 
@@ -186,10 +186,10 @@ end
 When `principal_resolver` is configured, its return value is used directly. A
 `nil` return value keeps the default deny behavior.
 
-## AnneAdmin
+## AnnesAdmin
 
 ```ruby
-AnneAdmin.configure do |config|
+AnnesAdmin.configure do |config|
   config.authorize_with do |context|
     AnnesAccess.can?(
       context[:user],

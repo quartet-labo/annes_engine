@@ -116,7 +116,7 @@ an in-repository path gem.
 
 New installs use `accounts` and `account_sessions`. AnnesAuth does not generate
 or manage an admin-specific authentication principal. Keep admin access
-decisions in `anne_admin` or host authorization code.
+decisions in `annes_admin` or host authorization code.
 
 Review the generated initializer before starting the host application. At a
 minimum, set a real sender address and application-specific redirect paths:

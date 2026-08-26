@@ -29,7 +29,7 @@ that need a reusable role / permission matrix.
 
 ## Permission Matrix Shape
 
-Keep permission resources plural and stable, matching controller or AnneAdmin
+Keep permission resources plural and stable, matching controller or AnnesAdmin
 resource keys:
 
 ```ruby
@@ -169,5 +169,5 @@ For every host matrix, test more than role allow/deny:
 - scoped member lookup does not reveal whether an out-of-scope record exists;
 - seeds are idempotent and do not delete removed permissions implicitly.
 
-When using AnneAdmin, test both link visibility and server-side rejection for
+When using AnnesAdmin, test both link visibility and server-side rejection for
 direct requests. Display-only hiding is not an authorization boundary.

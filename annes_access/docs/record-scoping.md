@@ -83,7 +83,7 @@ Apply the host scope consistently to:
 - association selectors and autocomplete;
 - dashboard counts and summaries;
 - background jobs and service objects;
-- custom AnneAdmin actions.
+- custom AnnesAdmin actions.
 
 Test two tenants or owners, not just an authorized and unauthorized role. A
 useful matrix includes same-tenant allowed, same-tenant denied action,

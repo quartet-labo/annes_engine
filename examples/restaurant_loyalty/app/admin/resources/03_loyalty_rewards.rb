@@ -1,4 +1,4 @@
-AnneAdmin.resource :loyalty_rewards, model: "AnneLoyalty::LoyaltyReward" do
+AnnesAdmin.resource :loyalty_rewards, model: "AnneLoyalty::LoyaltyReward" do
   label "特典"
   actions :index, :show, :new, :create, :edit, :update
 

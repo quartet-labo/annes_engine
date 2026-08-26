@@ -15,7 +15,7 @@
 - redemption tokenの発行、HMAC digest保存、期限・状態・location検証、一度きり利用
 - 飲食店demo appの顧客画面、スタッフ会員検索、ポイント付与、特典利用確定
 - 顧客画面のsession認証。表示対象はログイン済み顧客のみで、`customer_id` queryでは切り替えない
-- AnneAdminでのprogram、location、reward管理
+- AnnesAdminでのprogram、location、reward管理
 - admin / manager / staff / viewerのseed権限、demo seed、受け入れtest、CI selector
 
 未実装の将来項目: campaign evaluator、point expiration batch、rank / tier、集計report、POS import adapter、camera QR scan、PWA、offline対応、push/メール通知。
@@ -70,7 +70,7 @@ flowchart LR
 
     Host --> Auth["annes_auth\nAccount / Session"]
     Host --> Access["annes_access\nRole / Permission"]
-    Host --> AdminEngine["anne_admin\n管理 CRUD"]
+    Host --> AdminEngine["annes_admin\n管理 CRUD"]
     Host --> Loyalty["anne_loyalty\nPoint / Reward / Campaign"]
 
     Host --> Domain["飲食店ドメイン\nCustomer / Visit / Receipt / POS"]
@@ -90,7 +90,7 @@ flowchart LR
 | --- | --- | --- |
 | ログイン、session | `annes_auth` | 既存 engine の責務 |
 | staff role、permission | `annes_access` | 既存 engine の責務 |
-| プログラム・店舗・特典・キャンペーン管理 | `anne_admin` + `anne_loyalty` model | 標準 CRUD で管理可能 |
+| プログラム・店舗・特典・キャンペーン管理 | `annes_admin` + `anne_loyalty` model | 標準 CRUD で管理可能 |
 | ポイント残高、ledger、失効 | `anne_loyalty` | 再利用と整合性が重要 |
 | redemption token の発行・検証 | `anne_loyalty` | 二重利用防止と監査性が重要 |
 | QR 提示・読み取り UI | host app | 業態ごとに体験が変わる |
@@ -566,7 +566,7 @@ host app が持つ責務:
 5. reward / redemption と token 検証を実装する。
 6. `examples/restaurant_loyalty` を作成し、顧客・会計・来店の最小モデルを置く。店舗は `LoyaltyLocation` を使う。
 7. 顧客画面とスタッフ画面から engine service を呼ぶ。
-8. `anne_admin` で program、location、reward の管理画面を接続する。
+8. `annes_admin` で program、location、reward の管理画面を接続する。
 9. campaign evaluator を追加し、ランチ 2 倍などの demo data を入れる。（次フェーズ）
 10. README、設計書、upgrade guide を整える。
 

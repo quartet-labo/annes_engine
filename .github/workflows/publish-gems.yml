@@ -10,7 +10,7 @@ on:
         default: annes_auth
         options:
           - annes_auth
-          - anne_admin
+          - annes_admin
           - annes_access
           - anne_audit
           - anne_loyalty

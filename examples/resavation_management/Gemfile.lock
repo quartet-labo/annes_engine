@@ -5,9 +5,9 @@ PATH
       rails (>= 8.1.0, < 8.2)
 
 PATH
-  remote: ../../anne_admin
+  remote: ../../annes_admin
   specs:
-    anne_admin (0.2.3)
+    annes_admin (1.0.0)
       rails (>= 8.1.0, < 8.2)
 
 PATH
@@ -307,7 +307,7 @@ PLATFORMS
 DEPENDENCIES
   aasm (~> 5.5.2)
   annes_access!
-  anne_admin!
+  annes_admin!
   annes_auth!
   pg (~> 1.1)
   propshaft

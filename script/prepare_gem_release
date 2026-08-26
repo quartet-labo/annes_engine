@@ -14,10 +14,10 @@ class GemReleasePreparation
       gemspec: "annes_auth.gemspec",
       tag_prefix: "annes_auth-v"
     },
-    "anne_admin" => {
-      path: "anne_admin",
-      gemspec: "anne_admin.gemspec",
-      tag_prefix: "anne_admin-v"
+    "annes_admin" => {
+      path: "annes_admin",
+      gemspec: "annes_admin.gemspec",
+      tag_prefix: "annes_admin-v"
     },
     "annes_access" => {
       path: "annes_access",

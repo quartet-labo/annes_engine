@@ -9,13 +9,13 @@
 
 `annes_access` は、`anne_engine` 標準の軽量 RBAC engine として、認証済みユーザーが「どの resource に対して、どの action を実行できるか」を共通化する。
 
-`annes_auth` はログインとセッションを扱い、`anne_admin` は管理画面 CRUD を扱う。`annes_access` はその間にある認可判定を担当し、host app ごとに `user.role == "admin"` のような判定が散らばる状態を避ける。
+`annes_auth` はログインとセッションを扱い、`annes_admin` は管理画面 CRUD を扱う。`annes_access` はその間にある認可判定を担当し、host app ごとに `user.role == "admin"` のような判定が散らばる状態を避ける。
 
 ## 基本方針
 
 - CanCanCan 風の Ability 中心 API に寄せる。
 - 最初は DB-backed な軽量 RBAC に絞る。
-- `anne_admin` から呼びやすい resource key / action ベースの判定を主 API にする。
+- `annes_admin` から呼びやすい resource key / action ベースの判定を主 API にする。
 - 業務固有の複雑な条件は host app 側の hook / rule class に逃がせるようにする。
 - record-level ownership / tenant scope / customer-specific visibility は host app が担当する。
 - index / list のように `record: nil` で判定する処理では、`annes_access` は一覧 scope を自動生成しない。
@@ -32,7 +32,7 @@ MVP で扱うもの:
 - principal への role 付与
 - `can?` / `authorize!` 判定 API
 - controller concern
-- `anne_admin` の `authorize_with` 連携例
+- `annes_admin` の `authorize_with` 連携例
 - install generator
 - migrations
 - README
@@ -150,7 +150,7 @@ MVP の標準 action:
 
 `manage` は同一 resource の全操作許可として扱う。
 
-`anne_admin` の action との対応:
+`annes_admin` の action との対応:
 
 - `index` -> `read`
 - `show` -> `read`
@@ -193,12 +193,12 @@ ability.can?(:destroy, :customers, record: customer)
 
 `AnnesAccess.can?` は内部的に `ability_for(principal).can?` へ委譲する。
 
-## `anne_admin` 連携
+## `annes_admin` 連携
 
-host app の `config/initializers/anne_admin.rb` では、次の形で接続できることを目標にする。
+host app の `config/initializers/annes_admin.rb` では、次の形で接続できることを目標にする。
 
 ```ruby
-AnneAdmin.configure do |config|
+AnnesAdmin.configure do |config|
   config.authorize_with do |context|
     AnnesAccess.can?(
       context[:user],
@@ -364,7 +364,7 @@ end
 
 `annes_access` runtime は、host app の `Customer`, `Project`, `Quotation` などを直接参照しない。
 
-resource は string / symbol key として受け取り、host app 側で `anne_admin` resource name や controller 名から渡す。
+resource は string / symbol key として受け取り、host app 側で `annes_admin` resource name や controller 名から渡す。
 
 ## セキュリティ要件
 
@@ -388,7 +388,7 @@ resource は string / symbol key として受け取り、host app 側で `anne_a
 - nil principal は false
 - unknown action / resource は false
 - `authorize!` が unauthorized で例外を raise
-- `anne_admin` context からの action mapping
+- `annes_admin` context からの action mapping
 - controller concern
 - generator
 - package boundary
@@ -408,7 +408,7 @@ resource は string / symbol key として受け取り、host app 側で `anne_a
 5. action mapping を追加する。
 6. controller concern を追加する。
 7. install generator を追加する。
-8. `anne_admin` 連携ドキュメントを追加する。
+8. `annes_admin` 連携ドキュメントを追加する。
 9. `examples/customer_management` を `annes_access` 経由の認可へ移行する。
 10. README / CHANGELOG / version を整える。
 
@@ -428,6 +428,6 @@ resource は string / symbol key として受け取り、host app 側で `anne_a
 
 - `default_role_key` を自動適用するか、明示 assignment 必須にするか。
 - `manage` を custom action にも効かせるか。
-- `anne_admin` custom action の permission key を `resource.action` にするか、`resource.custom_action` にするか。
-- 権限管理 UI を `annes_access` に持たせるか、`anne_admin` resource として設定例だけ用意するか。
+- `annes_admin` custom action の permission key を `resource.action` にするか、`resource.custom_action` にするか。
+- 権限管理 UI を `annes_access` に持たせるか、`annes_admin` resource として設定例だけ用意するか。
 - host app が既存 role column を持つ場合の移行導線。

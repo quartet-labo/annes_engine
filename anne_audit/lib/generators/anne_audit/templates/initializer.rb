@@ -12,8 +12,8 @@ AnneAudit.configure do |config|
   # AnneAudit core stays generic; each mapper owns one notification contract.
   #
   # config.notification_subscribers.register(
-  #   "anne_admin.audit",
-  #   mapper: AnneAudit::Mappers::AnneAdmin
+  #   "annes_admin.audit",
+  #   mapper: AnneAudit::Mappers::AnnesAdmin
   # )
   #
   # config.notification_subscribers.register(

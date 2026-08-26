@@ -7,14 +7,14 @@ new protected resource.
 
 - [ ] The principal is authenticated before authorization runs.
 - [ ] The principal is persisted and has a stable ID.
-- [ ] AnneAdmin, host controllers, jobs, and services resolve the same principal type.
+- [ ] AnnesAdmin, host controllers, jobs, and services resolve the same principal type.
 - [ ] A configured `principal_resolver` returns nil rather than falling back when no authorization principal exists.
 - [ ] Class renames include a migration for polymorphic `principal_type` values.
 
 ## Roles and Permissions
 
 - [ ] Nil principals and principals without assignments are denied.
-- [ ] Resource/action names match controller and AnneAdmin names after normalization.
+- [ ] Resource/action names match controller and AnnesAdmin names after normalization.
 - [ ] `manage` is used only for the standard action set.
 - [ ] Every custom action has an explicit permission.
 - [ ] `default_role_key` contains only permissions safe for every authenticated principal.

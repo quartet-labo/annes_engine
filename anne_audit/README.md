@@ -7,7 +7,7 @@ context, and filtered metadata. It can be used directly through
 `AnneAudit.record!` or connected to notification streams with mapper
 registration.
 
-AnneAudit does not require AnneAdmin or AnnesAuth. Host applications can register
+AnneAudit does not require AnnesAdmin or AnnesAuth. Host applications can register
 notification mappers when they want to persist events emitted by other engines.
 
 ## Responsibilities
@@ -105,8 +105,8 @@ mapper object that responds to `call(event)` and returns attributes for
 ```ruby
 AnneAudit.configure do |config|
   config.notification_subscribers.register(
-    "anne_admin.audit",
-    mapper: AnneAudit::Mappers::AnneAdmin
+    "annes_admin.audit",
+    mapper: AnneAudit::Mappers::AnnesAdmin
   )
 
   config.notification_subscribers.register(
@@ -128,13 +128,13 @@ end
 Set `raise_on_persistence_error` to `true` when a host needs audit persistence
 failures to fail the originating request.
 
-## AnneAdmin Read-only Resource Example
+## AnnesAdmin Read-only Resource Example
 
-AnneAudit does not require AnneAdmin, and it does not ship admin screens. Hosts
-that already use AnneAdmin can register a read-only resource:
+AnneAudit does not require AnnesAdmin, and it does not ship admin screens. Hosts
+that already use AnnesAdmin can register a read-only resource:
 
 ```ruby
-AnneAdmin.resource :audit_events, model: "AnneAudit::Event", actions: %i[index show] do
+AnnesAdmin.resource :audit_events, model: "AnneAudit::Event", actions: %i[index show] do
   fields :occurred_at, :source, :action, :result, :actor_label, :target_label
   searchable_by :source, :action, :result, :actor_label, :target_label
   sortable_by :occurred_at, :source, :action, :result

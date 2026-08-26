@@ -4,7 +4,7 @@
 
 - `annes_auth`: スタッフ認証とセッション
 - `annes_access`: admin / operator / viewerのロール別認可
-- `anne_admin`: 顧客・予約対象の標準CRUD
+- `annes_admin`: 顧客・予約対象の標準CRUD
 - host app: 日別スケジュール、予約CRUD、状態遷移、競合制御
 
 詳細は[要件定義](docs/requirements.md)と[基本設計](docs/design.md)を参照してください。
@@ -14,7 +14,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`annes_auth`、`annes_access`、`anne_admin`
+- repository内の`annes_auth`、`annes_access`、`annes_admin`
 
 ## Setup
 
@@ -129,7 +129,7 @@ PostgreSQLのexclusion constraintと別connectionの同時予約テストを含�
 
 ## Authorization UI
 
-AnneAdminの顧客・予約対象画面では、現在のroleに許可されていない新規登録・編集リンクを表示しません。画面上の表示制御とは別にserver-side認可も実行し、権限のないURLへの直接アクセスはHTTP 403になります。
+AnnesAdminの顧客・予約対象画面では、現在のroleに許可されていない新規登録・編集リンクを表示しません。画面上の表示制御とは別にserver-side認可も実行し、権限のないURLへの直接アクセスはHTTP 403になります。
 
 ## Repository Path
 

@@ -13,7 +13,7 @@ class MitLicenseComplianceTest < Minitest::Test
   ENGINE_GEMSPECS = {
     "annes_auth" => "annes_auth.gemspec",
     "annes_access" => "annes_access.gemspec",
-    "anne_admin" => "anne_admin.gemspec"
+    "annes_admin" => "annes_admin.gemspec"
   }.freeze
   EXPECTED_LICENSE = <<~LICENSE
     Copyright (c) 2026 Quartet Labo LLC.

@@ -1,4 +1,4 @@
-AnneAdmin.resource :customers, model: "Customer", destroyable: true do
+AnnesAdmin.resource :customers, model: "Customer", destroyable: true do
   label "顧客"
   includes :person, :organization
   field :customer_number, label: "顧客番号", searchable: true, sortable: true

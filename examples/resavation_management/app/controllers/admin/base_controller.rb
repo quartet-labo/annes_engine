@@ -1,5 +1,5 @@
 module Admin
-  class BaseController < AnneAdmin::ApplicationController
+  class BaseController < AnnesAdmin::ApplicationController
     include AnnesAccess::Authorization
 
     helper_method :can_access?

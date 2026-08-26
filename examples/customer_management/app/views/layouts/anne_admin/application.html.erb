@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || anne_admin_site_name %></title>
+    <title><%= content_for(:title) || annes_admin_site_name %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "anne_admin/application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "annes_admin/application", "data-turbo-track": "reload" %>
   </head>
 
   <body>
     <header>
       <div class="container topbar">
-        <%= link_to anne_admin_site_name, anne_admin_dashboard_path, class: "brand" %>
+        <%= link_to annes_admin_site_name, annes_admin_dashboard_path, class: "brand" %>
         <nav class="nav" aria-label="管理メニュー">
-          <%= link_to "Dashboard", anne_admin_dashboard_path %>
-          <% anne_admin_resources.each do |resource| %>
-            <%= link_to resource.label, anne_admin_resource_index_path(resource) %>
+          <%= link_to "Dashboard", annes_admin_dashboard_path %>
+          <% annes_admin_resources.each do |resource| %>
+            <%= link_to resource.label, annes_admin_resource_index_path(resource) %>
           <% end %>
-          <% if anne_admin_current_user %>
+          <% if annes_admin_current_user %>
             <%= button_to "ログアウト", main_app.admin_logout_path, method: :delete, class: "button secondary" %>
           <% end %>
         </nav>

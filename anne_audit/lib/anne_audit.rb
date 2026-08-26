@@ -7,7 +7,7 @@ require "anne_audit/metadata_filter"
 require "anne_audit/reference"
 require "anne_audit/context"
 require "anne_audit/recorder"
-require "anne_audit/mappers/anne_admin"
+require "anne_audit/mappers/annes_admin"
 require "anne_audit/mappers/annes_auth"
 require "anne_audit/engine" if defined?(Rails::Engine)
 

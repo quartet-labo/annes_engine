@@ -6,12 +6,12 @@ require "pathname"
 class PublicProjectPolicyTest < Minitest::Test
   ROOT = Pathname(__dir__).join("..").expand_path
   POLICY_FILES = %w[MIT-LICENSE SUPPORT.md CONTRIBUTING.md SECURITY.md].freeze
-  ENGINE_READMES = %w[annes_auth annes_access anne_admin].to_h do |engine|
+  ENGINE_READMES = %w[annes_auth annes_access annes_admin].to_h do |engine|
     [ engine, ROOT.join(engine, "README.md") ]
   end.freeze
   RELEASE_READMES = {
     "annes_auth" => ROOT.join("annes_auth/README.md"),
-    "anne_admin" => ROOT.join("anne_admin/README.md"),
+    "annes_admin" => ROOT.join("annes_admin/README.md"),
     "annes_access" => ROOT.join("annes_access/README.md"),
     "anne_loyalty" => ROOT.join("anne_loyalty/README.md")
   }.freeze
@@ -46,7 +46,7 @@ class PublicProjectPolicyTest < Minitest::Test
     assert_match(/dependent sample app lockfiles/i, readme)
     assert_includes readme, "bundle update <gem_name>"
     assert_includes readme, "`annes_auth`"
-    assert_includes readme, "`anne_admin`"
+    assert_includes readme, "`annes_admin`"
     assert_includes readme, "`annes_access`"
     assert_includes readme, "`anne_loyalty`"
     assert_includes readme, "examples/customer_management/Gemfile.lock"

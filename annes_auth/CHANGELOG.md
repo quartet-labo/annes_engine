@@ -21,7 +21,7 @@
 - Add `anne_auth_bootstrap_claims` to keep initial account bootstrap
   idempotent and retryable after delivery failures.
 - Add `after_account_bootstrapped` so host apps can attach roles or assignments
-  without adding runtime dependencies from AnneAuth to AnnesAccess or AnneAdmin.
+  without adding runtime dependencies from AnneAuth to AnnesAccess or AnnesAdmin.
 - Document bootstrap setup, event subscription, audit handoff boundaries, and
   MFA/TOTP follow-up scope.
 
@@ -72,7 +72,7 @@
 - Remove `--legacy-admin` from the install generator and stop shipping
   `admin_users` / `sessions.admin_user_id` migrations.
 - Keep AnneAuth focused on `Account` / `AccountSession`; admin access decisions
-  should live in `anne_admin` or host authorization code.
+  should live in `annes_admin` or host authorization code.
 - Existing host databases should drop old `admin_users` / `sessions` tables only
   after confirming they are no longer used by the host app.
 
@@ -92,8 +92,8 @@
 
 - Keep `Account` / `AccountSession` as the single default authentication principal.
 - Default new installs to `accounts` and `account_sessions`; legacy `AdminUser` / `admin_user_id` migrations are available with `--legacy-admin`.
-- Keep legacy admin helpers available while host apps migrate admin access checks to host or `anne_admin` authorization.
-- Deprecate treating `AdminUser` as the default AnneAuth principal. Admin access should be decided by `anne_admin` or host authorization.
+- Keep legacy admin helpers available while host apps migrate admin access checks to host or `annes_admin` authorization.
+- Deprecate treating `AdminUser` as the default AnneAuth principal. Admin access should be decided by `annes_admin` or host authorization.
 
 ## 0.1.0
 

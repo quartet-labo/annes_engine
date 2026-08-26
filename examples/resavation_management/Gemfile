@@ -9,5 +9,5 @@ gem "propshaft"
 gem "aasm", "~> 5.5.2"
 
 gem "annes_auth", path: "../../annes_auth"
-gem "anne_admin", path: "../../anne_admin"
+gem "annes_admin", path: "../../annes_admin"
 gem "annes_access", path: "../../annes_access"

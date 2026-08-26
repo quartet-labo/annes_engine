@@ -3,14 +3,14 @@ require_relative "../test_helper"
 class AnneAudit::NotificationPersistenceTest < AnneAudit::TestCase
   test "persists registered notification through mapper" do
     AnneAudit.configuration.notification_subscribers.register(
-      "anne_admin.audit",
-      mapper: AnneAudit::Mappers::AnneAdmin
+      "annes_admin.audit",
+      mapper: AnneAudit::Mappers::AnnesAdmin
     )
     AnneAudit.configuration.notification_subscribers.subscribe_all!
 
     assert_difference -> { AnneAudit::Event.count }, 1 do
       ActiveSupport::Notifications.instrument(
-        "anne_admin.audit",
+        "annes_admin.audit",
         resource: "customers",
         action: "update",
         record_id: "123",
@@ -20,7 +20,7 @@ class AnneAudit::NotificationPersistenceTest < AnneAudit::TestCase
     end
 
     event = AnneAudit::Event.order(:created_at).last
-    assert_equal "anne_admin", event.source
+    assert_equal "annes_admin", event.source
     assert_equal "update", event.action
     assert_equal "success", event.result
     assert_equal "42", event.actor_id
@@ -30,15 +30,15 @@ class AnneAudit::NotificationPersistenceTest < AnneAudit::TestCase
 
   test "persists multiple notifications from the same instrumenter with unique event ids" do
     AnneAudit.configuration.notification_subscribers.register(
-      "anne_admin.audit",
-      mapper: AnneAudit::Mappers::AnneAdmin
+      "annes_admin.audit",
+      mapper: AnneAudit::Mappers::AnnesAdmin
     )
     AnneAudit.configuration.notification_subscribers.subscribe_all!
 
     assert_difference -> { AnneAudit::Event.count }, 2 do
       2.times do |index|
         ActiveSupport::Notifications.instrument(
-          "anne_admin.audit",
+          "annes_admin.audit",
           resource: "customers",
           action: "update",
           record_id: index.to_s,

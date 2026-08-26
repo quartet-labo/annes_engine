@@ -114,7 +114,7 @@ logic outside the engine.
 ## Demo App
 
 See [`examples/restaurant_loyalty`](../examples/restaurant_loyalty/README.md)
-for a runnable host app with customer pages, staff point workflows, AnneAdmin
+for a runnable host app with customer pages, staff point workflows, AnnesAdmin
 resources, RBAC seed data, and acceptance tests.
 
 ## Release Workflow

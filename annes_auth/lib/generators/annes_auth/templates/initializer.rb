@@ -8,7 +8,7 @@ AnnesAuth.configure do |config|
   config.google_oauth_enabled = config.google_oauth_client_id.present? && config.google_oauth_client_secret.present?
 
   # AnnesAuth authenticates Account by default. Admin access should be decided by
-  # the host app or anne_admin authorization.
+  # the host app or annes_admin authorization.
   # config.account_class_name = "AnnesAuth::Account"
   # config.account_session_class_name = "AnnesAuth::AccountSession"
   # config.account_invitation_token_class_name = "AnnesAuth::AccountInvitationToken"

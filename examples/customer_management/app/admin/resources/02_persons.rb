@@ -1,4 +1,4 @@
-AnneAdmin.resource :persons, model: "Person", destroyable: true do
+AnnesAdmin.resource :persons, model: "Person", destroyable: true do
   label "個人"
   field :name, label: "氏名", searchable: true, sortable: true
   field :name_kana, label: "氏名カナ", searchable: true, sortable: true

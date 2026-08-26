@@ -1,4 +1,4 @@
-AnneAdmin.resource :loyalty_locations, model: "AnneLoyalty::LoyaltyLocation" do
+AnnesAdmin.resource :loyalty_locations, model: "AnneLoyalty::LoyaltyLocation" do
   label "店舗"
   actions :index, :show, :new, :create, :edit, :update
 

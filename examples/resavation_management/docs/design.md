@@ -13,7 +13,7 @@ flowchart LR
     Browser["スタッフのブラウザ"] --> Host["Reservation Management host app"]
     Host --> Auth["annes_auth\nAccount / Session"]
     Host --> Access["annes_access\nRole / Permission"]
-    Host --> Admin["anne_admin\n標準 CRUD / Layout"]
+    Host --> Admin["annes_admin\n標準 CRUD / Layout"]
     Host --> Domain["予約ドメイン\nController / Query / Service / Model"]
     Auth --> DB[(PostgreSQL)]
     Access --> DB
@@ -27,13 +27,13 @@ flowchart LR
 | --- | --- |
 | Account、session、login helper | `annes_auth` |
 | role、permission、assignment | `annes_access` |
-| 顧客・予約対象の標準 CRUD | `anne_admin` |
+| 顧客・予約対象の標準 CRUD | `annes_admin` |
 | 予約モデルと業務ルール | host app |
 | 日別スケジュールと複合 filter | host app |
 | 状態遷移と重複エラー処理 | host app service |
 | FK、check、重複排他 | PostgreSQL |
 
-予約画面は日時入力、複合 filter、状態遷移、競合応答が必要なため、AnneAdmin 標準 CRUD ではなく host controller/view で実装する。
+予約画面は日時入力、複合 filter、状態遷移、競合応答が必要なため、AnnesAdmin 標準 CRUD ではなく host controller/view で実装する。
 
 ## 2. 技術構成
 
@@ -43,7 +43,7 @@ flowchart LR
 - Minitest
 - ERB と host stylesheet
 - AASM 5.5.2
-- monorepo 内 path gem の `annes_auth`、`annes_access`、`anne_admin`
+- monorepo 内 path gem の `annes_auth`、`annes_access`、`annes_admin`
 
 application time zone は Tokyo、Active Record の保存基準は UTC とする。
 
@@ -230,7 +230,7 @@ stateDiagram-v2
 
 ### Controller
 
-`Admin::BaseController < AnneAdmin::ApplicationController` とし、`AnnesAccess::Authorization` を include する。AnneAdmin の認証 hook、CSRF、layout を利用し、予約 action は `authorize_access!` で直接認可する。
+`Admin::BaseController < AnnesAdmin::ApplicationController` とし、`AnnesAccess::Authorization` を include する。AnnesAdmin の認証 hook、CSRF、layout を利用し、予約 action は `authorize_access!` で直接認可する。
 
 ### Query
 
@@ -263,7 +263,7 @@ DB の exclusion violation は constraint 名を確認して `Reservations::Conf
 
 ## 7. Routes
 
-host route を AnneAdmin mount より前に定義する。
+host route を AnnesAdmin mount より前に定義する。
 
 ```ruby
 Rails.application.routes.draw do
@@ -290,7 +290,7 @@ Rails.application.routes.draw do
     end
   end
 
-  mount AnneAdmin::Engine => "/admin", as: :anne_admin
+  mount AnnesAdmin::Engine => "/admin", as: :annes_admin
 end
 ```
 
@@ -307,7 +307,7 @@ end
 
 ### 予約 form
 
-AnneAdmin の現在の datetime field は時刻入力を提供しないため、host 専用 form を使う。
+AnnesAdmin の現在の datetime field は時刻入力を提供しないため、host 専用 form を使う。
 
 - active customer select
 - active reservation resource select
@@ -325,7 +325,7 @@ AnneAdmin の現在の datetime field は時刻入力を提供しないため、
 
 ### 顧客・予約対象
 
-AnneAdmin resource DSL を使い、index/show/new/create/edit/update だけを公開する。destroy は公開しない。
+AnnesAdmin resource DSL を使い、index/show/new/create/edit/update だけを公開する。destroy は公開しない。
 
 ## 9. Authorization
 
@@ -458,7 +458,7 @@ examples/resavation_management/
 
 ## 15. Design Decisions
 
-- 予約は AnneAdmin 標準 CRUD ではなく host workflow とする。
+- 予約は AnnesAdmin 標準 CRUD ではなく host workflow とする。
 - model validation だけでなく DB exclusion constraint を使う。
 - 座席在庫型を MVP に含めない。
 - 顧客 party model は複製せず、簡易 Customer とする。

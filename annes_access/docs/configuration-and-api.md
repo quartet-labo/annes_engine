@@ -95,7 +95,7 @@ The defaults are:
 
 Other action names remain unchanged. Resource names are also stripped and
 lowercased. Keep the configured permission matrix in the same plural naming
-convention used by controllers and AnneAdmin resources.
+convention used by controllers and AnnesAdmin resources.
 
 `manage` participates only when the normalized action is one of `read`,
 `create`, `update`, `destroy`, or `manage`. It does not grant a custom action:

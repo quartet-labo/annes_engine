@@ -11,7 +11,7 @@ class CiTargetSelectorTest < Minitest::Test
   def test_selects_each_changed_engine_and_the_dependent_sample_application
     {
       "annes_auth/app/models/annes_auth/account.rb" => %w[annes_auth customer_management reservation_management restaurant_loyalty],
-      "anne_admin/lib/anne_admin.rb" => %w[anne_admin customer_management reservation_management restaurant_loyalty],
+      "annes_admin/lib/annes_admin.rb" => %w[annes_admin customer_management reservation_management restaurant_loyalty],
       "annes_access/test/annes_access_test.rb" => %w[annes_access customer_management reservation_management restaurant_loyalty],
       "anne_audit/lib/anne_audit.rb" => %w[anne_audit],
       "anne_loyalty/lib/anne_loyalty.rb" => %w[anne_loyalty restaurant_loyalty]
@@ -25,11 +25,11 @@ class CiTargetSelectorTest < Minitest::Test
 
   def test_selects_multiple_changed_components
     selection = select(
-      "anne_admin/lib/anne_admin.rb",
+      "annes_admin/lib/annes_admin.rb",
       "annes_access/test/annes_access_test.rb"
     )
 
-    assert_equal %w[anne_admin annes_access customer_management reservation_management restaurant_loyalty], names(selection)
+    assert_equal %w[annes_admin annes_access customer_management reservation_management restaurant_loyalty], names(selection)
   end
 
   def test_selects_only_the_changed_sample_application
@@ -55,7 +55,7 @@ class CiTargetSelectorTest < Minitest::Test
       "README.md",
       "annes_auth/README.md",
       "anne_loyalty/README.md",
-      "anne_admin/docs/resource-dsl.md",
+      "annes_admin/docs/resource-dsl.md",
       "script/documentation_checker.rb",
       "test/documentation_checker_test.rb",
       "test/public_project_policy_test.rb"
@@ -150,7 +150,7 @@ class CiTargetSelectorTest < Minitest::Test
     summary = select("annes_access/lib/annes_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
 
     assert_includes summary, "- Selected: annes_access, customer_management, reservation_management, restaurant_loyalty"
-    assert_includes summary, "- Skipped: annes_auth, anne_admin, anne_audit, anne_loyalty"
+    assert_includes summary, "- Skipped: annes_auth, annes_admin, anne_audit, anne_loyalty"
     assert_includes summary, "- `annes_access/lib/annes_access.rb`"
   end
 

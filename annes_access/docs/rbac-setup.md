@@ -28,7 +28,7 @@ The four Engine migrations create `annes_access_roles`,
 ## Choose Resource and Action Names
 
 Use stable plural resource keys that match the name passed by controllers and
-AnneAdmin, for example `customers`, `projects`, and `invoices`.
+AnnesAdmin, for example `customers`, `projects`, and `invoices`.
 
 Standard actions are:
 
@@ -143,7 +143,7 @@ When a host already has `accounts.role` or ad hoc role checks:
 4. Seed roles, permissions, and role-permission links.
 5. Backfill assignments with a migration or one-off rake task.
 6. Compare old and new allow/deny behavior in tests.
-7. Switch controller and AnneAdmin checks.
+7. Switch controller and AnnesAdmin checks.
 8. Remove the legacy role column only in a later, separately verified migration.
 
 Do not rely on `db:seed` to backfill existing production principals. Seeds are

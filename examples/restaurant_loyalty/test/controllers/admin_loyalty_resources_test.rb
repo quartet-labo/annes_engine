@@ -26,11 +26,11 @@ class AdminLoyaltyResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "loyalty admin resources are registered" do
-    assert_includes AnneAdmin.configuration.resources.map(&:name), "loyalty_programs"
-    assert_includes AnneAdmin.configuration.resources.map(&:name), "loyalty_locations"
-    assert_includes AnneAdmin.configuration.resources.map(&:name), "loyalty_rewards"
+    assert_includes AnnesAdmin.configuration.resources.map(&:name), "loyalty_programs"
+    assert_includes AnnesAdmin.configuration.resources.map(&:name), "loyalty_locations"
+    assert_includes AnnesAdmin.configuration.resources.map(&:name), "loyalty_rewards"
 
-    rewards = AnneAdmin.configuration.resources.fetch(:loyalty_rewards)
+    rewards = AnnesAdmin.configuration.resources.fetch(:loyalty_rewards)
     assert_equal "特典", rewards.label
     assert_equal %i[loyalty_program_id code name required_points valid_minutes active created_at], rewards.fields.map(&:name)
     assert_equal %i[loyalty_program_id code name required_points valid_minutes active], rewards.permitted_attributes

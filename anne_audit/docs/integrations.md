@@ -38,9 +38,9 @@ AnneAudit.configure do |config|
 end
 ```
 
-## AnneAdmin
+## AnnesAdmin
 
-AnneAdmin emits `anne_admin.audit` notifications for standard create, update,
+AnnesAdmin emits `annes_admin.audit` notifications for standard create, update,
 destroy, and custom action success or failure paths.
 
 Register the built-in mapper:
@@ -48,13 +48,13 @@ Register the built-in mapper:
 ```ruby
 AnneAudit.configure do |config|
   config.notification_subscribers.register(
-    "anne_admin.audit",
-    mapper: AnneAudit::Mappers::AnneAdmin
+    "annes_admin.audit",
+    mapper: AnneAudit::Mappers::AnnesAdmin
   )
 end
 ```
 
-Current AnneAdmin payload fields are:
+Current AnnesAdmin payload fields are:
 
 - `resource`
 - `action`
@@ -64,7 +64,7 @@ Current AnneAdmin payload fields are:
 
 The mapper stores:
 
-- `source`: `anne_admin`
+- `source`: `annes_admin`
 - `action`: payload action
 - `result`: payload status
 - actor ID/label from `user_id`

@@ -313,7 +313,7 @@ Host apps that still depend on legacy admin authentication classes or tables:
 
 ### Required Steps
 
-1. Move admin access decisions to `anne_admin` or host authorization code.
+1. Move admin access decisions to `annes_admin` or host authorization code.
 2. Use `Account` / `AccountSession` as the AnneAuth authentication principal.
 3. Remove references to legacy admin helpers from controllers, views, tests, and
    initializers.
@@ -324,6 +324,6 @@ Host apps that still depend on legacy admin authentication classes or tables:
 ### Verification
 
 - Account login and logout still work.
-- Admin pages are protected by `anne_admin` or host authorization.
+- Admin pages are protected by `annes_admin` or host authorization.
 - No runtime code references `AdminUser`, `current_admin_user`, or
   `admin_session_id`.

@@ -1,4 +1,4 @@
-AnneAdmin.resource :projects, model: "Project", destroyable: true do
+AnnesAdmin.resource :projects, model: "Project", destroyable: true do
   label "案件"
   includes :customer
   field :customer_id,

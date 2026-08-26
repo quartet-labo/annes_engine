@@ -15,9 +15,9 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "master resources define fields, search, sorting, permitted attributes, and actions" do
-    assert_equal %w[customers reservation_resources], AnneAdmin.configuration.resources.map(&:name)
+    assert_equal %w[customers reservation_resources], AnnesAdmin.configuration.resources.map(&:name)
 
-    customers = AnneAdmin.configuration.resources.fetch(:customers)
+    customers = AnnesAdmin.configuration.resources.fetch(:customers)
     assert_equal "顧客", customers.label
     assert_equal %i[customer_number name name_kana email phone active memo created_at], customers.fields.map(&:name)
     assert_equal %i[name name_kana email phone active memo], customers.permitted_attributes
@@ -25,7 +25,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
     assert_equal %i[customer_number name name_kana email active created_at], customers.sortable_attributes.to_a
     assert_master_actions(customers)
 
-    resources = AnneAdmin.configuration.resources.fetch(:reservation_resources)
+    resources = AnnesAdmin.configuration.resources.fetch(:reservation_resources)
     assert_equal "予約対象", resources.label
     assert_equal %i[name kind capacity active memo created_at], resources.fields.map(&:name)
     assert_equal %i[name kind capacity active memo], resources.permitted_attributes
@@ -37,7 +37,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   test "admin manages customer and reservation resource records" do
     sign_in_as_role(:admin)
     assert_action_link_visibility("customers", @customer, create: true, update: true)
-    assert_select "link[rel='stylesheet'][href*='anne_admin/application']"
+    assert_select "link[rel='stylesheet'][href*='annes_admin/application']"
     assert_action_link_visibility("reservation_resources", @resource, create: true, update: true)
 
     get "/admin/customers", params: { q: "Zulu" }

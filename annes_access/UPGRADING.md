@@ -124,10 +124,10 @@ Host apps moving admin or business authorization from ad hoc checks such as
    task that maps existing values to AnneAccess roles. Do not rely only on seeds
    for existing databases.
 
-6. Wire AnneAdmin authorization:
+6. Wire AnnesAdmin authorization:
 
    ```ruby
-   AnneAdmin.configure do |config|
+   AnnesAdmin.configure do |config|
      config.authorize_with do |context|
        AnneAccess.can?(
          context[:user],
