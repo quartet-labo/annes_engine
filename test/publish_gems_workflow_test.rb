@@ -56,6 +56,10 @@ class PublishGemsWorkflowTest < Minitest::Test
     assert_operator workflow_source.index("- name: Verify dispatch ref"), :<, workflow_source.index("- name: Checkout")
   end
 
+  def test_checkout_uses_node_24_compatible_action
+    assert_equal "actions/checkout@v7", workflow_step("Checkout").fetch("uses")
+  end
+
   def test_publish_job_checks_remote_tag_before_publishing
     assert_includes workflow_source, "git ls-remote --tags origin \"$tag_name\""
     assert_operator(
