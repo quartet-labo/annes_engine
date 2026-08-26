@@ -37,28 +37,28 @@ class PrepareGemReleaseTest < Minitest::Test
     end
   end
 
-  def test_prepares_release_outputs_for_anne_audit
+  def test_prepares_release_outputs_for_annes_audit
     Dir.mktmpdir do |directory|
       notes_file = Pathname(directory).join("notes.md")
       github_output = Pathname(directory).join("github-output.txt")
 
       stdout, stderr, status = run_script(
-        "--gem", "anne_audit",
-        "--version", "0.1.0",
+        "--gem", "annes_audit",
+        "--version", "1.0.0",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
 
       assert status.success?, "#{stdout}\n#{stderr}"
-      assert_includes github_output.read, "gem=anne_audit\n"
-      assert_includes github_output.read, "path=anne_audit\n"
-      assert_includes github_output.read, "gemspec=anne_audit.gemspec\n"
-      assert_includes github_output.read, "version=0.1.0\n"
-      assert_includes github_output.read, "tag_name=anne_audit-v0.1.0\n"
+      assert_includes github_output.read, "gem=annes_audit\n"
+      assert_includes github_output.read, "path=annes_audit\n"
+      assert_includes github_output.read, "gemspec=annes_audit.gemspec\n"
+      assert_includes github_output.read, "version=1.0.0\n"
+      assert_includes github_output.read, "tag_name=annes_audit-v1.0.0\n"
 
       notes = notes_file.read
-      assert_includes notes, "append-only audit event persistence"
-      refute_includes notes, "## 0.1.0"
+      assert_includes notes, "Rename the published gem"
+      refute_includes notes, "## 1.0.0"
     end
   end
 

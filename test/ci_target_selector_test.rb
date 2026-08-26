@@ -13,7 +13,7 @@ class CiTargetSelectorTest < Minitest::Test
       "annes_auth/app/models/annes_auth/account.rb" => %w[annes_auth customer_management reservation_management restaurant_loyalty],
       "annes_admin/lib/annes_admin.rb" => %w[annes_admin customer_management reservation_management restaurant_loyalty],
       "annes_access/test/annes_access_test.rb" => %w[annes_access customer_management reservation_management restaurant_loyalty],
-      "anne_audit/lib/anne_audit.rb" => %w[anne_audit],
+      "annes_audit/lib/annes_audit.rb" => %w[annes_audit],
       "anne_loyalty/lib/anne_loyalty.rb" => %w[anne_loyalty restaurant_loyalty]
     }.each do |path, expected_names|
       selection = select(path)
@@ -150,7 +150,7 @@ class CiTargetSelectorTest < Minitest::Test
     summary = select("annes_access/lib/annes_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
 
     assert_includes summary, "- Selected: annes_access, customer_management, reservation_management, restaurant_loyalty"
-    assert_includes summary, "- Skipped: annes_auth, annes_admin, anne_audit, anne_loyalty"
+    assert_includes summary, "- Skipped: annes_auth, annes_admin, annes_audit, anne_loyalty"
     assert_includes summary, "- `annes_access/lib/annes_access.rb`"
   end
 

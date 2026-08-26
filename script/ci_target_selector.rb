@@ -67,7 +67,7 @@ class CiTargetSelector
     Target.new("annes_auth", "annes_auth", "annes_auth_test", "bundle exec rake test", []),
     Target.new("annes_admin", "annes_admin", "annes_admin_test", "bundle exec rake test", []),
     Target.new("annes_access", "annes_access", "annes_access_test", "bundle exec rake test", []),
-    Target.new("anne_audit", "anne_audit", "anne_audit_test", "bundle exec rake test", []),
+    Target.new("annes_audit", "annes_audit", "annes_audit_test", "bundle exec rake test", []),
     Target.new("anne_loyalty", "anne_loyalty", "anne_loyalty_test", "bundle exec rake test", []),
     Target.new(
       "customer_management",

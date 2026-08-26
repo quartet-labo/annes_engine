@@ -18,7 +18,7 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`annes_auth`](annes_auth/README.md) - account authentication, sessions, verification, password resets, invitations, bootstrap, event hooks, and Google OAuth
 - [`annes_access`](annes_access/README.md) - lightweight role-based authorization
 - [`annes_admin`](annes_admin/README.md) - configurable administration screens for host models
-- [`anne_audit`](anne_audit/README.md) - durable audit event persistence and notification mapping
+- [`annes_audit`](annes_audit/README.md) - durable audit event persistence and notification mapping
 - [`anne_loyalty`](anne_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
 - [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
@@ -31,7 +31,7 @@ by Quartet Labo LLC. guide the project roadmap.
 | AnnesAuth | Login, account sessions, email verification, password resets, invitations, initial account bootstrap, authentication event hooks, Google OAuth | Administrator status, roles, permissions, or audit-log storage |
 | AnnesAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnnesAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
-| AnneAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
+| AnnesAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
 | AnneLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
 
 For applications using all three engines, adopt them in this order:
@@ -39,7 +39,7 @@ For applications using all three engines, adopt them in this order:
 1. Install AnnesAuth and decide which account model represents the authenticated principal.
 2. Install AnnesAccess and define roles, permissions, and assignments for that principal.
 3. Install AnnesAdmin and connect its authentication and authorization hooks to AnnesAuth and AnnesAccess.
-4. Install AnneAudit when durable audit storage is required, and register notification mappers for the event streams the host wants to persist.
+4. Install AnnesAudit when durable audit storage is required, and register notification mappers for the event streams the host wants to persist.
 
 Each engine can also be used independently when the host application already provides the other responsibilities.
 
@@ -63,7 +63,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "annes_auth", "~> 1.0"
   gem "annes_admin", "~> 1.0"
   gem "annes_access", "~> 1.0"
-  gem "anne_audit", "~> 0.1.0"
+  gem "annes_audit", "~> 1.0"
   gem "anne_loyalty", "~> 0.1.0"
 end
 ```
@@ -74,7 +74,7 @@ For local development from a host application:
 gem "annes_auth", path: "../anne_engine/annes_auth"
 gem "annes_admin", path: "../anne_engine/annes_admin"
 gem "annes_access", path: "../anne_engine/annes_access"
-gem "anne_audit", path: "../anne_engine/anne_audit"
+gem "annes_audit", path: "../anne_engine/annes_audit"
 gem "anne_loyalty", path: "../anne_engine/anne_loyalty"
 ```
 
@@ -92,8 +92,8 @@ guide, and the dependent sample app lockfiles, then commit the release change:
   `annes_admin/UPGRADING.md`
 - `annes_access/lib/annes_access/version.rb`, `annes_access/CHANGELOG.md`, and
   `annes_access/UPGRADING.md`
-- `anne_audit/lib/anne_audit/version.rb`, `anne_audit/CHANGELOG.md`, and
-  `anne_audit/UPGRADING.md`
+- `annes_audit/lib/annes_audit/version.rb`, `annes_audit/CHANGELOG.md`, and
+  `annes_audit/UPGRADING.md`
 - `anne_loyalty/lib/anne_loyalty/version.rb`, `anne_loyalty/CHANGELOG.md`, and
   `anne_loyalty/UPGRADING.md`
 
@@ -110,7 +110,7 @@ the release:
 - `annes_access`: `examples/customer_management/Gemfile.lock`,
   `examples/resavation_management/Gemfile.lock`, and
   `examples/restaurant_loyalty/Gemfile.lock`
-- `anne_audit`: update each example app lockfile that opts in to durable audit storage.
+- `annes_audit`: update each example app lockfile that opts in to durable audit storage.
 - `anne_loyalty`: `examples/restaurant_loyalty/Gemfile.lock`
 
 Run `bundle update <gem_name>` from each affected example directory. For
@@ -128,7 +128,7 @@ See the package-specific upgrade guides before updating a host application:
 - [AnnesAuth upgrade guide](annes_auth/UPGRADING.md)
 - [AnnesAccess upgrade guide](annes_access/UPGRADING.md)
 - [AnnesAdmin upgrade guide](annes_admin/UPGRADING.md)
-- [AnneAudit upgrade guide](anne_audit/UPGRADING.md)
+- [AnnesAudit upgrade guide](annes_audit/UPGRADING.md)
 - [AnneLoyalty upgrade guide](anne_loyalty/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
@@ -136,7 +136,7 @@ target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`annes_auth`, `annes_admin`, `annes_access`, `anne_audit`, or `anne_loyalty`, and
+`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, or `anne_loyalty`, and
 set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,
