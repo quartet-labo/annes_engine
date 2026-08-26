@@ -3,7 +3,7 @@
 This is a small internal Rails host application that integrates all three engines in this repository.
 
 - `annes_auth` handles staff admin login.
-- `anne_access` provides role-based authorization for the authenticated account.
+- `annes_access` provides role-based authorization for the authenticated account.
 - `anne_admin` provides the admin CRUD screens for customers, persons, organizations, customer contacts, and projects.
 
 ## Customer Model
@@ -35,13 +35,13 @@ Seed users:
 
 ## Authorization Matrix
 
-This sample uses AnneAccess as a coarse RBAC layer for AnneAdmin resources. The
+This sample uses AnnesAccess as a coarse RBAC layer for AnneAdmin resources. The
 seed creates `admin` manage permissions and `viewer` read permissions for
 `customers`, `persons`, `organizations`, `customer_contacts`, and `projects`.
 Only the admin sample account is assigned by default.
 
-Use the AnneAccess
-[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)
+Use the AnnesAccess
+[role and permission templates](../../annes_access/docs/role-and-permission-templates.md)
 as the starting point when adding read-only users, tenant scopes, owner scopes,
 or membership-based visibility in a host app.
 

@@ -54,7 +54,7 @@ message. Do not log their arguments or return values.
 `after_account_bootstrapped` runs inside the bootstrap account transaction. If
 the hook raises, AnnesAuth rolls back the account and bootstrap claim and does
 not send an invitation. Keep role, permission, or organization writes in the
-host app or `anne_access`; AnnesAuth does not reference those constants.
+host app or `annes_access`; AnnesAuth does not reference those constants.
 
 ## Account Event Notifications
 

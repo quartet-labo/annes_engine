@@ -3,7 +3,7 @@
 スタッフが顧客、予約対象、予約を管理する社内向け予約管理アプリのexampleです。
 
 - `annes_auth`: スタッフ認証とセッション
-- `anne_access`: admin / operator / viewerのロール別認可
+- `annes_access`: admin / operator / viewerのロール別認可
 - `anne_admin`: 顧客・予約対象の標準CRUD
 - host app: 日別スケジュール、予約CRUD、状態遷移、競合制御
 
@@ -14,7 +14,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`annes_auth`、`anne_access`、`anne_admin`
+- repository内の`annes_auth`、`annes_access`、`anne_admin`
 
 ## Setup
 
@@ -75,11 +75,11 @@ bin/rails db:seed
 
 ## Authorization Matrix
 
-このexampleのAnneAccess matrixは、社内向け予約管理の実装例です。`admin`は顧客・予約対象・予約を管理し、`operator`は顧客作成/更新と予約作成/更新、`confirm` / `cancel` / `complete` / `no_show` のような予約状態操作を許可されます。`viewer`は閲覧のみです。
+このexampleのAnnesAccess matrixは、社内向け予約管理の実装例です。`admin`は顧客・予約対象・予約を管理し、`operator`は顧客作成/更新と予約作成/更新、`confirm` / `cancel` / `complete` / `no_show` のような予約状態操作を許可されます。`viewer`は閲覧のみです。
 
-`manage`は標準CRUD actionだけをまとめるため、予約状態操作は明示的なcustom action permissionとしてseedしています。tenant、担当者、予約対象ごとの参照範囲が必要なhost appでは、AnneAccess runtimeではなくcontroller、query、model scope、serviceで絞り込んでください。
+`manage`は標準CRUD actionだけをまとめるため、予約状態操作は明示的なcustom action permissionとしてseedしています。tenant、担当者、予約対象ごとの参照範囲が必要なhost appでは、AnnesAccess runtimeではなくcontroller、query、model scope、serviceで絞り込んでください。
 
-共通の考え方はAnneAccessの[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)を参照してください。
+共通の考え方はAnnesAccessの[role and permission templates](../../annes_access/docs/role-and-permission-templates.md)を参照してください。
 
 ## Main Screens
 

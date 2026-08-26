@@ -11,7 +11,7 @@ on:
         options:
           - annes_auth
           - anne_admin
-          - anne_access
+          - annes_access
           - anne_audit
           - anne_loyalty
       version:

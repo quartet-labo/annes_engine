@@ -19,7 +19,7 @@ AnneAdmin.configure do |config|
   end
 
   config.authorize_with do |context|
-    AnneAccess.can?(
+    AnnesAccess.can?(
       context[:user],
       context[:action],
       context[:resource].name,

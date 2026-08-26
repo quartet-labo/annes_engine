@@ -129,12 +129,12 @@ If the host uses its own admin login controller, the authentication hook can
 check that session and redirect to a host route instead. AnneAdmin does not
 require AnnesAuth.
 
-## AnneAccess Integration
+## AnnesAccess Integration
 
 ```ruby
 AnneAdmin.configure do |config|
   config.authorize_with do |context|
-    AnneAccess.can?(
+    AnnesAccess.can?(
       context[:user],
       context[:action],
       context[:resource].name,
@@ -144,22 +144,22 @@ AnneAdmin.configure do |config|
 end
 ```
 
-AnneAccess maps `index/show` to `read`, `new` to `create`, and `edit` to
+AnnesAccess maps `index/show` to `read`, `new` to `create`, and `edit` to
 `update`; the other standard names already match. A `manage` permission covers
 the standard actions for the resource.
 
-Custom action names require explicit AnneAccess permissions. `manage` does not
+Custom action names require explicit AnnesAccess permissions. `manage` does not
 cover them:
 
 ```ruby
-AnneAccess::Permission.create!(
+AnnesAccess::Permission.create!(
   resource: "invoices",
   action: "mark_paid"
 )
 ```
 
 See the
-[AnneAccess integration guide](https://github.com/quartet-labo/anne_engine/blob/main/anne_access/docs/anne-admin-integration.md)
+[AnnesAccess integration guide](https://github.com/quartet-labo/anne_engine/blob/main/annes_access/docs/anne-admin-integration.md)
 for principal resolution and record-scope examples. The absolute repository
 link remains valid when this guide is read from an installed AnneAdmin gem.
 

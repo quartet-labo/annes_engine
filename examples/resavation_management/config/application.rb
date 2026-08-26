@@ -12,7 +12,7 @@ Bundler.require(*Rails.groups)
 
 require "annes_auth"
 require "anne_admin"
-require "anne_access"
+require "annes_access"
 
 module ReservationManagement
   class Application < Rails::Application

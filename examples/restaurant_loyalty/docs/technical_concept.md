@@ -69,7 +69,7 @@ flowchart LR
     Admin["管理者ブラウザ"] --> Host
 
     Host --> Auth["annes_auth\nAccount / Session"]
-    Host --> Access["anne_access\nRole / Permission"]
+    Host --> Access["annes_access\nRole / Permission"]
     Host --> AdminEngine["anne_admin\n管理 CRUD"]
     Host --> Loyalty["anne_loyalty\nPoint / Reward / Campaign"]
 
@@ -89,7 +89,7 @@ flowchart LR
 | 領域 | 実装先 | 理由 |
 | --- | --- | --- |
 | ログイン、session | `annes_auth` | 既存 engine の責務 |
-| staff role、permission | `anne_access` | 既存 engine の責務 |
+| staff role、permission | `annes_access` | 既存 engine の責務 |
 | プログラム・店舗・特典・キャンペーン管理 | `anne_admin` + `anne_loyalty` model | 標準 CRUD で管理可能 |
 | ポイント残高、ledger、失効 | `anne_loyalty` | 再利用と整合性が重要 |
 | redemption token の発行・検証 | `anne_loyalty` | 二重利用防止と監査性が重要 |
@@ -461,7 +461,7 @@ Plan 1 MVPで実装済みの管理画面はProgram settings、Location、Rewards
 
 ## 9. 権限案
 
-`anne_access` に以下の permission を定義する。
+`annes_access` に以下の permission を定義する。
 
 | Permission | 用途 |
 | --- | --- |
@@ -480,7 +480,7 @@ Plan 1 MVPで実装済みの管理画面はProgram settings、Location、Rewards
 - Staff: 会員閲覧、付与、特典利用
 - Viewer: 集計閲覧のみ
 
-Plan 1 MVPの実装では、AnneAccessのresource/actionとして`loyalty_programs`、`loyalty_locations`、`loyalty_rewards`、`loyalty_members`、`loyalty_points`、`loyalty_redemptions`を使う。Viewerは会員閲覧のみで、集計reportは未実装。
+Plan 1 MVPの実装では、AnnesAccessのresource/actionとして`loyalty_programs`、`loyalty_locations`、`loyalty_rewards`、`loyalty_members`、`loyalty_points`、`loyalty_redemptions`を使う。Viewerは会員閲覧のみで、集計reportは未実装。
 
 ## 10. 整合性とセキュリティ
 
@@ -514,7 +514,7 @@ host app が持つ責務:
 - `AnneLoyalty.confirm_redemption!` を呼ぶ
 - 成功、期限切れ、使用済み、権限不足などの結果を画面表示する
 
-スタッフ権限の判定は controller 側で `anne_access` を使って行う。`anne_loyalty` service は actor を受け取り、監査用 metadata に残す。service 側でも invalid token、expired token、already redeemed、location mismatch は必ず拒否する。
+スタッフ権限の判定は controller 側で `annes_access` を使って行う。`anne_loyalty` service は actor を受け取り、監査用 metadata に残す。service 側でも invalid token、expired token、already redeemed、location mismatch は必ず拒否する。
 
 ## 11. 初期実装スコープ
 

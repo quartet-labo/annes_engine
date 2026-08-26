@@ -3,13 +3,13 @@ module Staff
     before_action :require_account_authentication
     helper_method :current_location
 
-    rescue_from AnneAccess::NotAuthorizedError do
+    rescue_from AnnesAccess::NotAuthorizedError do
       render plain: "Forbidden", status: :forbidden
     end
 
     private
       def authorize_loyalty!(action, resource)
-        AnneAccess.authorize!(current_account, action, resource)
+        AnnesAccess.authorize!(current_account, action, resource)
       end
 
       def current_location

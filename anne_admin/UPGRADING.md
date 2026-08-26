@@ -175,11 +175,11 @@ generator.
 4. Ensure each resource key is defined only once. Duplicate keys raise
    `AnneAdmin::ConfigurationError`.
 
-5. If using `anne_access`, wire authorization through `authorize_with`:
+5. If using `annes_access`, wire authorization through `authorize_with`:
 
    ```ruby
    config.authorize_with do |context|
-     AnneAccess.can?(
+     AnnesAccess.can?(
        context[:user],
        context[:action],
        context[:resource].name,

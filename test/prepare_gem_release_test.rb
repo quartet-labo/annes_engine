@@ -62,6 +62,27 @@ class PrepareGemReleaseTest < Minitest::Test
     end
   end
 
+  def test_prepares_release_outputs_for_annes_access
+    Dir.mktmpdir do |directory|
+      notes_file = Pathname(directory).join("notes.md")
+      github_output = Pathname(directory).join("github-output.txt")
+
+      stdout, stderr, status = run_script(
+        "--gem", "annes_access",
+        "--version", "1.0.0",
+        "--notes-file", notes_file.to_s,
+        "--github-output", github_output.to_s
+      )
+
+      assert status.success?, "#{stdout}\n#{stderr}"
+      assert_includes github_output.read, "gem=annes_access\n"
+      assert_includes github_output.read, "path=annes_access\n"
+      assert_includes github_output.read, "gemspec=annes_access.gemspec\n"
+      assert_includes github_output.read, "tag_name=annes_access-v1.0.0\n"
+      assert_includes notes_file.read, "Rename the gem"
+    end
+  end
+
   def test_rejects_a_version_that_does_not_match_the_gemspec
     stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 

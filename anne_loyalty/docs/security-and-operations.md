@@ -26,7 +26,7 @@ Use this checklist before enabling AnneLoyalty in a production host app.
 ## Authorization Boundary
 
 - Authenticate staff in the host app before calling staff-facing services.
-- Authorize host controller actions with `anne_access` or equivalent host
+- Authorize host controller actions with `annes_access` or equivalent host
   policy before allowing earning, redemption confirmation, or admin changes.
 - Pass `actor` and request metadata to service calls so ledger and redemption
   records retain an audit trail.

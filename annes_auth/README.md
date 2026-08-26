@@ -252,14 +252,14 @@ claim roll back and no invitation is sent.
 ```ruby
 AnnesAuth.configure do |config|
   config.after_account_bootstrapped = ->(account) {
-    # Example: assign an AnneAccess role in the host app.
+    # Example: assign an AnnesAccess role in the host app.
   }
 end
 ```
 
 AnnesAuth does not decide whether the account is an administrator. Keep role
 creation, permission assignment, and organization membership in the host app,
-`anne_access`, or another engine.
+`annes_access`, or another engine.
 
 ## Account Invitations
 

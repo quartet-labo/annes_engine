@@ -12,7 +12,7 @@ class MitLicenseComplianceTest < Minitest::Test
   CHECKER = ROOT.join("script/check_gem_license")
   ENGINE_GEMSPECS = {
     "annes_auth" => "annes_auth.gemspec",
-    "anne_access" => "anne_access.gemspec",
+    "annes_access" => "annes_access.gemspec",
     "anne_admin" => "anne_admin.gemspec"
   }.freeze
   EXPECTED_LICENSE = <<~LICENSE

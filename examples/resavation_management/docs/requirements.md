@@ -13,7 +13,7 @@
 同時に、Anne Engine の3エンジンを組み合わせる example として、次の責務分担を示す。
 
 - `annes_auth`: スタッフ認証とセッション
-- `anne_access`: role と permission による認可
+- `annes_access`: role と permission による認可
 - `anne_admin`: 顧客・予約対象の標準 CRUD
 - ホストアプリ: 予約固有の画面、状態遷移、重複防止
 

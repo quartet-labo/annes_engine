@@ -7,25 +7,25 @@ admin.assign_attributes(
 )
 admin.save!
 
-admin_role = AnneAccess::Role.find_or_create_by!(key: "admin") do |role|
+admin_role = AnnesAccess::Role.find_or_create_by!(key: "admin") do |role|
   role.name = "Admin"
   role.system = true
 end
 
-viewer_role = AnneAccess::Role.find_or_create_by!(key: "viewer") do |role|
+viewer_role = AnnesAccess::Role.find_or_create_by!(key: "viewer") do |role|
   role.name = "Viewer"
   role.system = true
 end
 
 %w[customers persons organizations customer_contacts projects].each do |resource|
-  manage_permission = AnneAccess::Permission.find_or_create_by!(resource:, action: "manage")
-  read_permission = AnneAccess::Permission.find_or_create_by!(resource:, action: "read")
+  manage_permission = AnnesAccess::Permission.find_or_create_by!(resource:, action: "manage")
+  read_permission = AnnesAccess::Permission.find_or_create_by!(resource:, action: "read")
 
-  AnneAccess::RolePermission.find_or_create_by!(role: admin_role, permission: manage_permission)
-  AnneAccess::RolePermission.find_or_create_by!(role: viewer_role, permission: read_permission)
+  AnnesAccess::RolePermission.find_or_create_by!(role: admin_role, permission: manage_permission)
+  AnnesAccess::RolePermission.find_or_create_by!(role: viewer_role, permission: read_permission)
 end
 
-AnneAccess::Assignment.find_or_create_by!(principal: admin, role: admin_role)
+AnnesAccess::Assignment.find_or_create_by!(principal: admin, role: admin_role)
 
 organization = Organization.find_or_create_by!(name: "サンプル株式会社") do |record|
   record.name_kana = "サンプルカブシキガイシャ"

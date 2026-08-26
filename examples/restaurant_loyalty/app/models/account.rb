@@ -1,9 +1,9 @@
 class Account < AnnesAuth::Account
-  has_many :anne_access_assignments,
+  has_many :annes_access_assignments,
     as: :principal,
-    class_name: "AnneAccess::Assignment",
+    class_name: "AnnesAccess::Assignment",
     dependent: :destroy
-  has_many :anne_access_roles,
-    through: :anne_access_assignments,
+  has_many :annes_access_roles,
+    through: :annes_access_assignments,
     source: :role
 end

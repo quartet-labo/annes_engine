@@ -180,7 +180,7 @@ response, AnneAdmin redirects to the member show or collection index page.
 
 Prefer delegation to a host service for transactions, external calls, and
 business workflows. AnneAdmin authorizes by custom action name; when using
-AnneAccess, create a matching explicit permission because `manage` covers only
+AnnesAccess, create a matching explicit permission because `manage` covers only
 standard actions.
 
 ## Additional Resource Paths

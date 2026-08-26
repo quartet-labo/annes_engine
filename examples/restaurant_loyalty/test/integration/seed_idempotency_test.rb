@@ -6,8 +6,8 @@ class SeedIdempotencyTest < ActiveSupport::TestCase
 
     counts = {
       accounts: Account.count,
-      roles: AnneAccess::Role.count,
-      permissions: AnneAccess::Permission.count,
+      roles: AnnesAccess::Role.count,
+      permissions: AnnesAccess::Permission.count,
       programs: AnneLoyalty::LoyaltyProgram.count,
       locations: AnneLoyalty::LoyaltyLocation.count,
       rewards: AnneLoyalty::LoyaltyReward.count,
@@ -21,8 +21,8 @@ class SeedIdempotencyTest < ActiveSupport::TestCase
     Rails.application.load_seed
 
     assert_equal counts.fetch(:accounts), Account.count
-    assert_equal counts.fetch(:roles), AnneAccess::Role.count
-    assert_equal counts.fetch(:permissions), AnneAccess::Permission.count
+    assert_equal counts.fetch(:roles), AnnesAccess::Role.count
+    assert_equal counts.fetch(:permissions), AnnesAccess::Permission.count
     assert_equal counts.fetch(:programs), AnneLoyalty::LoyaltyProgram.count
     assert_equal counts.fetch(:locations), AnneLoyalty::LoyaltyLocation.count
     assert_equal counts.fetch(:rewards), AnneLoyalty::LoyaltyReward.count

@@ -21,7 +21,7 @@
 - Add `anne_auth_bootstrap_claims` to keep initial account bootstrap
   idempotent and retryable after delivery failures.
 - Add `after_account_bootstrapped` so host apps can attach roles or assignments
-  without adding runtime dependencies from AnneAuth to AnneAccess or AnneAdmin.
+  without adding runtime dependencies from AnneAuth to AnnesAccess or AnneAdmin.
 - Document bootstrap setup, event subscription, audit handoff boundaries, and
   MFA/TOTP follow-up scope.
 

@@ -12,7 +12,7 @@ class CiTargetSelectorTest < Minitest::Test
     {
       "annes_auth/app/models/annes_auth/account.rb" => %w[annes_auth customer_management reservation_management restaurant_loyalty],
       "anne_admin/lib/anne_admin.rb" => %w[anne_admin customer_management reservation_management restaurant_loyalty],
-      "anne_access/test/anne_access_test.rb" => %w[anne_access customer_management reservation_management restaurant_loyalty],
+      "annes_access/test/annes_access_test.rb" => %w[annes_access customer_management reservation_management restaurant_loyalty],
       "anne_audit/lib/anne_audit.rb" => %w[anne_audit],
       "anne_loyalty/lib/anne_loyalty.rb" => %w[anne_loyalty restaurant_loyalty]
     }.each do |path, expected_names|
@@ -26,10 +26,10 @@ class CiTargetSelectorTest < Minitest::Test
   def test_selects_multiple_changed_components
     selection = select(
       "anne_admin/lib/anne_admin.rb",
-      "anne_access/test/anne_access_test.rb"
+      "annes_access/test/annes_access_test.rb"
     )
 
-    assert_equal %w[anne_admin anne_access customer_management reservation_management restaurant_loyalty], names(selection)
+    assert_equal %w[anne_admin annes_access customer_management reservation_management restaurant_loyalty], names(selection)
   end
 
   def test_selects_only_the_changed_sample_application
@@ -147,11 +147,11 @@ class CiTargetSelectorTest < Minitest::Test
   end
 
   def test_summary_lists_selected_and_skipped_targets
-    summary = select("anne_access/lib/anne_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
+    summary = select("annes_access/lib/annes_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
 
-    assert_includes summary, "- Selected: anne_access, customer_management, reservation_management, restaurant_loyalty"
+    assert_includes summary, "- Selected: annes_access, customer_management, reservation_management, restaurant_loyalty"
     assert_includes summary, "- Skipped: annes_auth, anne_admin, anne_audit, anne_loyalty"
-    assert_includes summary, "- `anne_access/lib/anne_access.rb`"
+    assert_includes summary, "- `annes_access/lib/annes_access.rb`"
   end
 
   private

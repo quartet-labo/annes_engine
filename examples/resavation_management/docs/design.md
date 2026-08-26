@@ -12,7 +12,7 @@
 flowchart LR
     Browser["スタッフのブラウザ"] --> Host["Reservation Management host app"]
     Host --> Auth["annes_auth\nAccount / Session"]
-    Host --> Access["anne_access\nRole / Permission"]
+    Host --> Access["annes_access\nRole / Permission"]
     Host --> Admin["anne_admin\n標準 CRUD / Layout"]
     Host --> Domain["予約ドメイン\nController / Query / Service / Model"]
     Auth --> DB[(PostgreSQL)]
@@ -26,7 +26,7 @@ flowchart LR
 | 領域 | 実装先 |
 | --- | --- |
 | Account、session、login helper | `annes_auth` |
-| role、permission、assignment | `anne_access` |
+| role、permission、assignment | `annes_access` |
 | 顧客・予約対象の標準 CRUD | `anne_admin` |
 | 予約モデルと業務ルール | host app |
 | 日別スケジュールと複合 filter | host app |
@@ -43,7 +43,7 @@ flowchart LR
 - Minitest
 - ERB と host stylesheet
 - AASM 5.5.2
-- monorepo 内 path gem の `annes_auth`、`anne_access`、`anne_admin`
+- monorepo 内 path gem の `annes_auth`、`annes_access`、`anne_admin`
 
 application time zone は Tokyo、Active Record の保存基準は UTC とする。
 
@@ -59,8 +59,8 @@ erDiagram
     CUSTOMER ||--o{ RESERVATION : books
     RESERVATION_RESOURCE ||--o{ RESERVATION : is_reserved
     ACCOUNT ||--o{ RESERVATION : cancels
-    ACCOUNT ||--o{ ANNE_ACCESS_ASSIGNMENT : receives
-    ANNE_ACCESS_ROLE ||--o{ ANNE_ACCESS_ASSIGNMENT : grants
+    ACCOUNT ||--o{ ANNES_ACCESS_ASSIGNMENT : receives
+    ANNES_ACCESS_ROLE ||--o{ ANNES_ACCESS_ASSIGNMENT : grants
 
     CUSTOMER {
       bigint id PK
@@ -230,7 +230,7 @@ stateDiagram-v2
 
 ### Controller
 
-`Admin::BaseController < AnneAdmin::ApplicationController` とし、`AnneAccess::Authorization` を include する。AnneAdmin の認証 hook、CSRF、layout を利用し、予約 action は `authorize_access!` で直接認可する。
+`Admin::BaseController < AnneAdmin::ApplicationController` とし、`AnnesAccess::Authorization` を include する。AnneAdmin の認証 hook、CSRF、layout を利用し、予約 action は `authorize_access!` で直接認可する。
 
 ### Query
 
@@ -344,7 +344,7 @@ AnneAdmin resource DSL を使い、index/show/new/create/edit/update だけを�
 | reservations.complete | ✓ | ✓ |  |
 | reservations.no_show | ✓ | ✓ |  |
 
-AnneAccess の manage は標準 action だけに展開されるため、状態操作 permission は個別に seed する。
+AnnesAccess の manage は標準 action だけに展開されるため、状態操作 permission は個別に seed する。
 
 ## 10. Concurrency and Errors
 

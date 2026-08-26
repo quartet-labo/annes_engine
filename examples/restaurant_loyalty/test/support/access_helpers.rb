@@ -34,21 +34,21 @@ module AccessHelpers
       password: "password-1234",
       password_confirmation: "password-1234"
     )
-    role = AnneAccess::Role.find_or_create_by!(key: role_key.to_s) do |record|
+    role = AnnesAccess::Role.find_or_create_by!(key: role_key.to_s) do |record|
       record.name = role_key.to_s.humanize
       record.system = true
     end
 
     ROLE_PERMISSIONS.fetch(role_key.to_sym).each do |resource, actions|
       actions.each do |action|
-        permission = AnneAccess::Permission.find_or_create_by!(resource:, action:) do |record|
+        permission = AnnesAccess::Permission.find_or_create_by!(resource:, action:) do |record|
           record.key = "#{resource}.#{action}"
         end
-        AnneAccess::RolePermission.find_or_create_by!(role:, permission:)
+        AnnesAccess::RolePermission.find_or_create_by!(role:, permission:)
       end
     end
 
-    AnneAccess::Assignment.find_or_create_by!(principal: account, role:)
+    AnnesAccess::Assignment.find_or_create_by!(principal: account, role:)
     account
   end
 

@@ -1,7 +1,7 @@
 PATH
-  remote: ../../anne_access
+  remote: ../../annes_access
   specs:
-    anne_access (0.1.2)
+    annes_access (1.0.0)
       rails (>= 8.1.0, < 8.2)
 
 PATH
@@ -306,7 +306,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm (~> 5.5.2)
-  anne_access!
+  annes_access!
   anne_admin!
   annes_auth!
   pg (~> 1.1)

@@ -9,4 +9,4 @@ gem "propshaft"
 
 gem "annes_auth", path: "../../annes_auth"
 gem "anne_admin", path: "../../anne_admin"
-gem "anne_access", path: "../../anne_access"
+gem "annes_access", path: "../../annes_access"

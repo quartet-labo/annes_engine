@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,48 +79,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
     t.index ["disabled_at"], name: "index_accounts_on_disabled_at"
     t.index ["email"], name: "index_accounts_on_email", unique: true
     t.index ["email_verified_at"], name: "index_accounts_on_email_verified_at"
-  end
-
-  create_table "anne_access_assignments", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "principal_id", null: false
-    t.string "principal_type", null: false
-    t.bigint "role_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["principal_type", "principal_id", "role_id"], name: "index_anne_access_assignments_on_principal_and_role", unique: true
-    t.index ["principal_type", "principal_id"], name: "index_anne_access_assignments_on_principal"
-    t.index ["role_id"], name: "index_anne_access_assignments_on_role_id"
-  end
-
-  create_table "anne_access_permissions", force: :cascade do |t|
-    t.string "action", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "key", null: false
-    t.string "resource", null: false
-    t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_anne_access_permissions_on_key", unique: true
-    t.index ["resource", "action"], name: "index_anne_access_permissions_on_resource_and_action", unique: true
-  end
-
-  create_table "anne_access_role_permissions", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "permission_id", null: false
-    t.bigint "role_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["permission_id"], name: "index_anne_access_role_permissions_on_permission_id"
-    t.index ["role_id", "permission_id"], name: "idx_on_role_id_permission_id_12eec61da5", unique: true
-    t.index ["role_id"], name: "index_anne_access_role_permissions_on_role_id"
-  end
-
-  create_table "anne_access_roles", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "key", null: false
-    t.string "name", null: false
-    t.boolean "system", default: false, null: false
-    t.datetime "updated_at", null: false
-    t.index ["key"], name: "index_anne_access_roles_on_key", unique: true
   end
 
   create_table "anne_loyalty_loyalty_ledger_entries", force: :cascade do |t|
@@ -234,6 +192,48 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
     t.check_constraint "required_points > 0 AND valid_minutes > 0", name: "anne_loyalty_rewards_positive_settings"
   end
 
+  create_table "annes_access_assignments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "principal_id", null: false
+    t.string "principal_type", null: false
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["principal_type", "principal_id", "role_id"], name: "index_annes_access_assignments_on_principal_and_role", unique: true
+    t.index ["principal_type", "principal_id"], name: "index_annes_access_assignments_on_principal"
+    t.index ["role_id"], name: "index_annes_access_assignments_on_role_id"
+  end
+
+  create_table "annes_access_permissions", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "key", null: false
+    t.string "resource", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_annes_access_permissions_on_key", unique: true
+    t.index ["resource", "action"], name: "index_annes_access_permissions_on_resource_and_action", unique: true
+  end
+
+  create_table "annes_access_role_permissions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "permission_id", null: false
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["permission_id"], name: "index_annes_access_role_permissions_on_permission_id"
+    t.index ["role_id", "permission_id"], name: "idx_on_role_id_permission_id_1a952b7d25", unique: true
+    t.index ["role_id"], name: "index_annes_access_role_permissions_on_role_id"
+  end
+
+  create_table "annes_access_roles", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "key", null: false
+    t.string "name", null: false
+    t.boolean "system", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_annes_access_roles_on_key", unique: true
+  end
+
   create_table "annes_auth_bootstrap_claims", force: :cascade do |t|
     t.string "account_class_name"
     t.bigint "account_id"
@@ -296,9 +296,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
   add_foreign_key "account_password_reset_tokens", "accounts"
   add_foreign_key "account_sessions", "accounts"
   add_foreign_key "account_verification_tokens", "accounts"
-  add_foreign_key "anne_access_assignments", "anne_access_roles", column: "role_id"
-  add_foreign_key "anne_access_role_permissions", "anne_access_permissions", column: "permission_id"
-  add_foreign_key "anne_access_role_permissions", "anne_access_roles", column: "role_id"
   add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
   add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
   add_foreign_key "anne_loyalty_loyalty_locations", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
@@ -308,6 +305,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
   add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
   add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_rewards", column: "loyalty_reward_id"
   add_foreign_key "anne_loyalty_loyalty_rewards", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
+  add_foreign_key "annes_access_assignments", "annes_access_roles", column: "role_id"
+  add_foreign_key "annes_access_role_permissions", "annes_access_permissions", column: "permission_id"
+  add_foreign_key "annes_access_role_permissions", "annes_access_roles", column: "role_id"
   add_foreign_key "receipts", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
   add_foreign_key "receipts", "customers"
   add_foreign_key "visits", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"

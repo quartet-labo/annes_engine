@@ -78,7 +78,7 @@ work without enabling bootstrap.
    }
    ```
 
-   Keep role and permission writes in the host app or `anne_access`. AnneAuth
+   Keep role and permission writes in the host app or `annes_access`. AnneAuth
    does not assign administrator status.
 
 3. If the host will persist authentication events, register a subscriber during

@@ -30,7 +30,7 @@
 - [ ] The HTTP method matches the operation's side effects.
 - [ ] Destructive actions use confirmation where appropriate.
 - [ ] Business logic delegates to a tested host service with clear transactions and error handling.
-- [ ] AnneAccess integrations create explicit custom-action permissions.
+- [ ] AnnesAccess integrations create explicit custom-action permissions.
 - [ ] Collection actions do not operate on an unscoped model relation.
 - [ ] CSRF protection remains enabled for browser actions.
 

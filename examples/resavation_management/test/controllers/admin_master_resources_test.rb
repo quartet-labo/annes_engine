@@ -141,20 +141,20 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
     operator = account_with_role(:operator)
     viewer = account_with_role(:viewer)
 
-    assert AnneAccess.can?(admin, :manage, :customers)
-    assert AnneAccess.can?(admin, :manage, :reservation_resources)
+    assert AnnesAccess.can?(admin, :manage, :customers)
+    assert AnnesAccess.can?(admin, :manage, :reservation_resources)
 
-    assert AnneAccess.can?(operator, :index, :customers)
-    assert AnneAccess.can?(operator, :new, :customers)
-    assert AnneAccess.can?(operator, :edit, :customers)
-    assert AnneAccess.can?(operator, :index, :reservation_resources)
-    assert_not AnneAccess.can?(operator, :new, :reservation_resources)
-    assert_not AnneAccess.can?(operator, :edit, :reservation_resources)
+    assert AnnesAccess.can?(operator, :index, :customers)
+    assert AnnesAccess.can?(operator, :new, :customers)
+    assert AnnesAccess.can?(operator, :edit, :customers)
+    assert AnnesAccess.can?(operator, :index, :reservation_resources)
+    assert_not AnnesAccess.can?(operator, :new, :reservation_resources)
+    assert_not AnnesAccess.can?(operator, :edit, :reservation_resources)
 
-    assert AnneAccess.can?(viewer, :index, :customers)
-    assert AnneAccess.can?(viewer, :index, :reservation_resources)
-    assert_not AnneAccess.can?(viewer, :new, :customers)
-    assert_not AnneAccess.can?(viewer, :edit, :reservation_resources)
+    assert AnnesAccess.can?(viewer, :index, :customers)
+    assert AnnesAccess.can?(viewer, :index, :reservation_resources)
+    assert_not AnnesAccess.can?(viewer, :new, :customers)
+    assert_not AnnesAccess.can?(viewer, :edit, :reservation_resources)
   end
 
   test "destroy is unavailable for every master resource" do

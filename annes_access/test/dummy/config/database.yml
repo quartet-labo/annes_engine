@@ -1,0 +1,11 @@
+<% database_url = ENV["ANNES_ACCESS_DATABASE_URL"].to_s.empty? ? ENV["DATABASE_URL"].to_s : ENV["ANNES_ACCESS_DATABASE_URL"].to_s %>
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+<% if database_url.empty? %>
+  database: annes_access_dummy_test
+<% else %>
+  url: <%= database_url %>
+<% end %>
