@@ -10,7 +10,7 @@ class CiTargetSelectorTest < Minitest::Test
 
   def test_selects_each_changed_engine_and_the_dependent_sample_application
     {
-      "anne_auth/app/models/anne_auth/account.rb" => %w[anne_auth customer_management reservation_management restaurant_loyalty],
+      "annes_auth/app/models/annes_auth/account.rb" => %w[annes_auth customer_management reservation_management restaurant_loyalty],
       "anne_admin/lib/anne_admin.rb" => %w[anne_admin customer_management reservation_management restaurant_loyalty],
       "anne_access/test/anne_access_test.rb" => %w[anne_access customer_management reservation_management restaurant_loyalty],
       "anne_audit/lib/anne_audit.rb" => %w[anne_audit],
@@ -53,7 +53,7 @@ class CiTargetSelectorTest < Minitest::Test
   def test_does_not_select_component_tests_for_documentation_only_changes
     selection = select(
       "README.md",
-      "anne_auth/README.md",
+      "annes_auth/README.md",
       "anne_loyalty/README.md",
       "anne_admin/docs/resource-dsl.md",
       "script/documentation_checker.rb",
@@ -150,7 +150,7 @@ class CiTargetSelectorTest < Minitest::Test
     summary = select("anne_access/lib/anne_access.rb").summary(all_targets: CiTargetSelector::TARGETS)
 
     assert_includes summary, "- Selected: anne_access, customer_management, reservation_management, restaurant_loyalty"
-    assert_includes summary, "- Skipped: anne_auth, anne_admin, anne_audit, anne_loyalty"
+    assert_includes summary, "- Skipped: annes_auth, anne_admin, anne_audit, anne_loyalty"
     assert_includes summary, "- `anne_access/lib/anne_access.rb`"
   end
 

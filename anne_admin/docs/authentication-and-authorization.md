@@ -99,14 +99,14 @@ role, override the dashboard/layout in the host and filter links with the same
 policy. Do not treat hidden navigation as authorization—the resource action
 must remain protected.
 
-## AnneAuth Integration
+## AnnesAuth Integration
 
-Include the AnneAuth concern whenever Rails reloads application code:
+Include the AnnesAuth concern whenever Rails reloads application code:
 
 ```ruby
 # config/initializers/anne_admin.rb
 Rails.application.config.to_prepare do
-  AnneAdmin::ApplicationController.include AnneAuth::AccountAuthentication
+  AnneAdmin::ApplicationController.include AnnesAuth::AccountAuthentication
 end
 
 AnneAdmin.configure do |config|
@@ -127,7 +127,7 @@ form.
 
 If the host uses its own admin login controller, the authentication hook can
 check that session and redirect to a host route instead. AnneAdmin does not
-require AnneAuth.
+require AnnesAuth.
 
 ## AnneAccess Integration
 

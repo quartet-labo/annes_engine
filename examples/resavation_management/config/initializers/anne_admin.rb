@@ -1,5 +1,5 @@
 Rails.application.config.to_prepare do
-  AnneAdmin::ApplicationController.include AnneAuth::AccountAuthentication
+  AnneAdmin::ApplicationController.include AnnesAuth::AccountAuthentication
 end
 
 AnneAdmin.configure do |config|

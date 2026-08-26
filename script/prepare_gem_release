@@ -9,10 +9,10 @@ require "rubygems"
 class GemReleasePreparation
   ROOT = Pathname(__dir__).join("..").expand_path
   GEM_METADATA = {
-    "anne_auth" => {
-      path: "anne_auth",
-      gemspec: "anne_auth.gemspec",
-      tag_prefix: "anne_auth-v"
+    "annes_auth" => {
+      path: "annes_auth",
+      gemspec: "annes_auth.gemspec",
+      tag_prefix: "annes_auth-v"
     },
     "anne_admin" => {
       path: "anne_admin",

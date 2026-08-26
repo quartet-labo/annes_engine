@@ -9,7 +9,7 @@
 
 `anne_access` は、`anne_engine` 標準の軽量 RBAC engine として、認証済みユーザーが「どの resource に対して、どの action を実行できるか」を共通化する。
 
-`anne_auth` はログインとセッションを扱い、`anne_admin` は管理画面 CRUD を扱う。`anne_access` はその間にある認可判定を担当し、host app ごとに `user.role == "admin"` のような判定が散らばる状態を避ける。
+`annes_auth` はログインとセッションを扱い、`anne_admin` は管理画面 CRUD を扱う。`anne_access` はその間にある認可判定を担当し、host app ごとに `user.role == "admin"` のような判定が散らばる状態を避ける。
 
 ## 基本方針
 
@@ -19,7 +19,7 @@
 - 業務固有の複雑な条件は host app 側の hook / rule class に逃がせるようにする。
 - record-level ownership / tenant scope / customer-specific visibility は host app が担当する。
 - index / list のように `record: nil` で判定する処理では、`anne_access` は一覧 scope を自動生成しない。
-- `anne_auth` には認可の知識を持ち込まない。
+- `annes_auth` には認可の知識を持ち込まない。
 - engine runtime から host app の domain model 定数を直接参照しない。
 
 ## スコープ

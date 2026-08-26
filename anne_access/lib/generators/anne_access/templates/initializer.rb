@@ -5,7 +5,7 @@ AnneAccess.configure do |config|
   config.principal_class_names = ["Account"]
 
   # Override controller principal lookup when authentication and authorization
-  # principals differ, such as AnneAuth::Account sessions with host app User
+  # principals differ, such as AnnesAuth::Account sessions with host app User
   # permissions.
   # config.principal_resolver = ->(controller) { controller.send(:current_user) }
 

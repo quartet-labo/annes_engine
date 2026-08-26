@@ -7,9 +7,9 @@ on:
         description: Gem to publish
         required: true
         type: choice
-        default: anne_auth
+        default: annes_auth
         options:
-          - anne_auth
+          - annes_auth
           - anne_admin
           - anne_access
           - anne_audit

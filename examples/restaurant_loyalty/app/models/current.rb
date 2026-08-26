@@ -1,1 +1,1 @@
-Current = AnneAuth::Current
+Current = AnnesAuth::Current

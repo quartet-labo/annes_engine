@@ -103,7 +103,7 @@ apply the same context and decision as controller authorization. Direct
 requests are always authorized separately and still return `403 Forbidden`
 when rejected.
 
-When using `anne_auth`, include its authentication concern into the controller
+When using `annes_auth`, include its authentication concern into the controller
 that AnneAdmin uses before configuring these hooks.
 
 After adapting the sample resource, open `/admin`. The navigation should show

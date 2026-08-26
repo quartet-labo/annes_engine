@@ -7,7 +7,7 @@ context, and filtered metadata. It can be used directly through
 `AnneAudit.record!` or connected to notification streams with mapper
 registration.
 
-AnneAudit does not require AnneAdmin or AnneAuth. Host applications can register
+AnneAudit does not require AnneAdmin or AnnesAuth. Host applications can register
 notification mappers when they want to persist events emitted by other engines.
 
 ## Responsibilities
@@ -110,8 +110,8 @@ AnneAudit.configure do |config|
   )
 
   config.notification_subscribers.register(
-    "anne_auth.account_event",
-    mapper: AnneAudit::Mappers::AnneAuth
+    "annes_auth.account_event",
+    mapper: AnneAudit::Mappers::AnnesAuth
   )
 end
 ```

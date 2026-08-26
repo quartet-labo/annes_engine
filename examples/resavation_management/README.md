@@ -2,7 +2,7 @@
 
 スタッフが顧客、予約対象、予約を管理する社内向け予約管理アプリのexampleです。
 
-- `anne_auth`: スタッフ認証とセッション
+- `annes_auth`: スタッフ認証とセッション
 - `anne_access`: admin / operator / viewerのロール別認可
 - `anne_admin`: 顧客・予約対象の標準CRUD
 - host app: 日別スケジュール、予約CRUD、状態遷移、競合制御
@@ -14,7 +14,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`anne_auth`、`anne_access`、`anne_admin`
+- repository内の`annes_auth`、`anne_access`、`anne_admin`
 
 ## Setup
 

@@ -11,7 +11,7 @@
 ```mermaid
 flowchart LR
     Browser["スタッフのブラウザ"] --> Host["Reservation Management host app"]
-    Host --> Auth["anne_auth\nAccount / Session"]
+    Host --> Auth["annes_auth\nAccount / Session"]
     Host --> Access["anne_access\nRole / Permission"]
     Host --> Admin["anne_admin\n標準 CRUD / Layout"]
     Host --> Domain["予約ドメイン\nController / Query / Service / Model"]
@@ -25,7 +25,7 @@ flowchart LR
 
 | 領域 | 実装先 |
 | --- | --- |
-| Account、session、login helper | `anne_auth` |
+| Account、session、login helper | `annes_auth` |
 | role、permission、assignment | `anne_access` |
 | 顧客・予約対象の標準 CRUD | `anne_admin` |
 | 予約モデルと業務ルール | host app |
@@ -43,7 +43,7 @@ flowchart LR
 - Minitest
 - ERB と host stylesheet
 - AASM 5.5.2
-- monorepo 内 path gem の `anne_auth`、`anne_access`、`anne_admin`
+- monorepo 内 path gem の `annes_auth`、`anne_access`、`anne_admin`
 
 application time zone は Tokyo、Active Record の保存基準は UTC とする。
 

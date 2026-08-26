@@ -11,9 +11,9 @@ PATH
       rails (>= 8.1.0, < 8.2)
 
 PATH
-  remote: ../../anne_auth
+  remote: ../../annes_auth
   specs:
-    anne_auth (0.4.0)
+    annes_auth (1.0.0)
       bcrypt (~> 3.1.7)
       omniauth (~> 2.1)
       omniauth-google-oauth2 (~> 1.2)
@@ -280,7 +280,7 @@ PLATFORMS
 DEPENDENCIES
   anne_access!
   anne_admin!
-  anne_auth!
+  annes_auth!
   pg (~> 1.1)
   propshaft
   puma (>= 6.0)

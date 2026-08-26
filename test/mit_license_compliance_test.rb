@@ -11,7 +11,7 @@ class MitLicenseComplianceTest < Minitest::Test
   ROOT = Pathname(__dir__).join("..").expand_path
   CHECKER = ROOT.join("script/check_gem_license")
   ENGINE_GEMSPECS = {
-    "anne_auth" => "anne_auth.gemspec",
+    "annes_auth" => "annes_auth.gemspec",
     "anne_access" => "anne_access.gemspec",
     "anne_admin" => "anne_admin.gemspec"
   }.freeze

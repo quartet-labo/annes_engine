@@ -80,9 +80,9 @@ If a host needs richer actor or target labels, extend the emitted payload with
 backward-compatible keys such as `actor_type`, `actor_label`, `target_type`, or
 `target_label`.
 
-## AnneAuth
+## AnnesAuth
 
-AnneAuth emits `anne_auth.account_event` notifications for account lifecycle and
+AnnesAuth emits `annes_auth.account_event` notifications for account lifecycle and
 authentication events.
 
 Register the built-in mapper:
@@ -90,22 +90,22 @@ Register the built-in mapper:
 ```ruby
 AnneAudit.configure do |config|
   config.notification_subscribers.register(
-    "anne_auth.account_event",
-    mapper: AnneAudit::Mappers::AnneAuth
+    "annes_auth.account_event",
+    mapper: AnneAudit::Mappers::AnnesAuth
   )
 end
 ```
 
 The mapper stores:
 
-- `source`: `anne_auth`
+- `source`: `annes_auth`
 - `action`: payload event
 - `result`: payload status
 - actor and target from account class, account ID, and account email
 - IP address and user agent from payload
 - session/auth/provider context in metadata
 
-AnneAuth already filters credential-like metadata before emitting account
+AnnesAuth already filters credential-like metadata before emitting account
 events. AnneAudit still applies its own metadata filter before storage.
 
 ## Host Domain Events

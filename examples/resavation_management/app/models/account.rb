@@ -1,4 +1,4 @@
-class Account < AnneAuth::Account
+class Account < AnnesAuth::Account
   has_many :anne_access_assignments,
     as: :principal,
     class_name: "AnneAccess::Assignment",

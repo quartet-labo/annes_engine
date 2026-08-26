@@ -173,7 +173,7 @@ The default principal lookup tries `current_account`, then `current_user`. Host
 controllers can override `current_access_principal`.
 
 If authentication and authorization use different principals, configure a
-resolver instead. For example, an app can keep `AnneAuth::Account` as the login
+resolver instead. For example, an app can keep `AnnesAuth::Account` as the login
 and session principal while authorizing against the host app's `User` model.
 
 ```ruby

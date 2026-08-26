@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -137,7 +137,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
     t.index ["loyalty_location_id", "occurred_at"], name: "index_loyalty_ledger_entries_on_location_and_time"
     t.index ["loyalty_member_id", "occurred_at"], name: "index_loyalty_ledger_entries_on_member_and_time"
     t.index ["loyalty_member_id", "source_type", "source_key"], name: "index_loyalty_ledger_entries_on_idempotency_key", unique: true, where: "((source_type IS NOT NULL) AND (source_key IS NOT NULL))"
-    t.check_constraint "entry_type::text = ANY (ARRAY['earn'::character varying, 'redeem'::character varying, 'expire'::character varying, 'adjust'::character varying, 'reverse'::character varying]::text[])", name: "anne_loyalty_ledger_entries_known_type"
+    t.check_constraint "entry_type::text = ANY (ARRAY['earn'::character varying::text, 'redeem'::character varying::text, 'expire'::character varying::text, 'adjust'::character varying::text, 'reverse'::character varying::text])", name: "anne_loyalty_ledger_entries_known_type"
     t.check_constraint "points_delta <> 0", name: "anne_loyalty_ledger_entries_non_zero_delta"
     t.check_constraint "source_type IS NULL AND source_key IS NULL OR source_type IS NOT NULL AND source_key IS NOT NULL", name: "anne_loyalty_ledger_entries_source_pair"
   end
@@ -183,7 +183,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
     t.index ["loyalty_member_id", "expires_on"], name: "index_loyalty_point_lots_on_member_and_expiry"
     t.index ["loyalty_member_id", "status"], name: "index_loyalty_point_lots_on_member_and_status"
     t.check_constraint "original_points > 0 AND remaining_points >= 0 AND remaining_points <= original_points", name: "anne_loyalty_point_lots_remaining_range"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'consumed'::character varying, 'expired'::character varying, 'voided'::character varying]::text[])", name: "anne_loyalty_point_lots_known_status"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'consumed'::character varying::text, 'expired'::character varying::text, 'voided'::character varying::text])", name: "anne_loyalty_point_lots_known_status"
   end
 
   create_table "anne_loyalty_loyalty_programs", force: :cascade do |t|
@@ -217,7 +217,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
     t.index ["token_digest"], name: "index_loyalty_redemptions_on_token_digest", unique: true
     t.check_constraint "expires_at > issued_at", name: "anne_loyalty_redemptions_expiry_after_issue"
     t.check_constraint "redeemed_at IS NULL OR redeemed_at >= issued_at", name: "anne_loyalty_redemptions_redeemed_after_issue"
-    t.check_constraint "status::text = ANY (ARRAY['issued'::character varying, 'redeemed'::character varying, 'expired'::character varying, 'canceled'::character varying]::text[])", name: "anne_loyalty_redemptions_known_status"
+    t.check_constraint "status::text = ANY (ARRAY['issued'::character varying::text, 'redeemed'::character varying::text, 'expired'::character varying::text, 'canceled'::character varying::text])", name: "anne_loyalty_redemptions_known_status"
   end
 
   create_table "anne_loyalty_loyalty_rewards", force: :cascade do |t|
@@ -232,6 +232,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_020114) do
     t.index ["active"], name: "index_anne_loyalty_loyalty_rewards_on_active"
     t.index ["loyalty_program_id", "code"], name: "index_loyalty_rewards_on_program_and_code", unique: true
     t.check_constraint "required_points > 0 AND valid_minutes > 0", name: "anne_loyalty_rewards_positive_settings"
+  end
+
+  create_table "annes_auth_bootstrap_claims", force: :cascade do |t|
+    t.string "account_class_name"
+    t.bigint "account_id"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.string "last_delivery_status"
+    t.string "purpose", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_class_name", "account_id"], name: "idx_annes_auth_bootstrap_claims_on_account"
+    t.index ["purpose"], name: "idx_annes_auth_bootstrap_claims_on_purpose", unique: true
   end
 
   create_table "customers", force: :cascade do |t|

@@ -85,8 +85,8 @@ class SeedDefaultAnneAccessPermissions < ActiveRecord::Migration[8.1]
     end
 
     def account_principal_type
-      if defined?(AnneAuth)
-        AnneAuth.configuration.account_class.polymorphic_name
+      if defined?(AnnesAuth)
+        AnnesAuth.configuration.account_class.polymorphic_name
       else
         "Account"
       end

@@ -15,9 +15,9 @@ class AnneAudit::PackageBoundaryTest < AnneAudit::TestCase
 
   ENGINE_COUPLING_REFERENCES = [
     /require\s+["']anne_admin/,
-    /require\s+["']anne_auth/,
+    /require\s+["']annes_auth/,
     /\bAnneAdmin::/,
-    /\bAnneAuth::/
+    /\bAnnesAuth::/
   ].freeze
 
   test "runtime files do not reference host application domain constants" do
@@ -36,7 +36,7 @@ class AnneAudit::PackageBoundaryTest < AnneAudit::TestCase
     assert_empty violations, "Host application constants leaked into runtime files: #{violations.join(", ")}"
   end
 
-  test "core runtime files do not require anne_admin or anne_auth" do
+  test "core runtime files do not require anne_admin or annes_auth" do
     runtime_files = Dir[
       AnneAudit::Engine.root.join("app/**/*.rb"),
       AnneAudit::Engine.root.join("lib/anne_audit/**/*.rb")

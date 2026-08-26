@@ -17,7 +17,7 @@ AnneAudit.configure do |config|
   # )
   #
   # config.notification_subscribers.register(
-  #   "anne_auth.account_event",
-  #   mapper: AnneAudit::Mappers::AnneAuth
+  #   "annes_auth.account_event",
+  #   mapper: AnneAudit::Mappers::AnnesAuth
   # )
 end

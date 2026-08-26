@@ -1,0 +1,3 @@
+module AnnesAuth
+  VERSION = "1.0.0"
+end

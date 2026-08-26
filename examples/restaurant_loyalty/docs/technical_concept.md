@@ -68,7 +68,7 @@ flowchart LR
     Staff["スタッフブラウザ"] --> Host
     Admin["管理者ブラウザ"] --> Host
 
-    Host --> Auth["anne_auth\nAccount / Session"]
+    Host --> Auth["annes_auth\nAccount / Session"]
     Host --> Access["anne_access\nRole / Permission"]
     Host --> AdminEngine["anne_admin\n管理 CRUD"]
     Host --> Loyalty["anne_loyalty\nPoint / Reward / Campaign"]
@@ -88,7 +88,7 @@ flowchart LR
 
 | 領域 | 実装先 | 理由 |
 | --- | --- | --- |
-| ログイン、session | `anne_auth` | 既存 engine の責務 |
+| ログイン、session | `annes_auth` | 既存 engine の責務 |
 | staff role、permission | `anne_access` | 既存 engine の責務 |
 | プログラム・店舗・特典・キャンペーン管理 | `anne_admin` + `anne_loyalty` model | 標準 CRUD で管理可能 |
 | ポイント残高、ledger、失効 | `anne_loyalty` | 再利用と整合性が重要 |

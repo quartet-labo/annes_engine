@@ -3,7 +3,7 @@
 飲食店の紙のポイントカードを置き換えるdemo appです。
 
 - `anne_loyalty`: ポイント制度、会員、ledger、point lot、特典、redemption token
-- `anne_auth`: スタッフ・管理者ログイン
+- `annes_auth`: スタッフ・管理者ログイン
 - `anne_access`: admin / manager / staff / viewer のRBAC
 - `anne_admin`: ポイントプログラム、店舗、特典の管理CRUD
 - host app: 顧客、receipt、顧客画面、スタッフ付与・特典利用画面
@@ -15,7 +15,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`anne_auth`、`anne_access`、`anne_admin`、`anne_loyalty`
+- repository内の`annes_auth`、`anne_access`、`anne_admin`、`anne_loyalty`
 
 ## Setup
 

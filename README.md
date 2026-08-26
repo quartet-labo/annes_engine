@@ -15,7 +15,7 @@ by Quartet Labo LLC. guide the project roadmap.
 
 ## Gems
 
-- [`anne_auth`](anne_auth/README.md) - account authentication, sessions, verification, password resets, invitations, bootstrap, event hooks, and Google OAuth
+- [`annes_auth`](annes_auth/README.md) - account authentication, sessions, verification, password resets, invitations, bootstrap, event hooks, and Google OAuth
 - [`anne_access`](anne_access/README.md) - lightweight role-based authorization
 - [`anne_admin`](anne_admin/README.md) - configurable administration screens for host models
 - [`anne_audit`](anne_audit/README.md) - durable audit event persistence and notification mapping
@@ -28,7 +28,7 @@ by Quartet Labo LLC. guide the project roadmap.
 
 | Engine | Owns | Does not own |
 | --- | --- | --- |
-| AnneAuth | Login, account sessions, email verification, password resets, invitations, initial account bootstrap, authentication event hooks, Google OAuth | Administrator status, roles, permissions, or audit-log storage |
+| AnnesAuth | Login, account sessions, email verification, password resets, invitations, initial account bootstrap, authentication event hooks, Google OAuth | Administrator status, roles, permissions, or audit-log storage |
 | AnneAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnneAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
 | AnneAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
@@ -36,9 +36,9 @@ by Quartet Labo LLC. guide the project roadmap.
 
 For applications using all three engines, adopt them in this order:
 
-1. Install AnneAuth and decide which account model represents the authenticated principal.
+1. Install AnnesAuth and decide which account model represents the authenticated principal.
 2. Install AnneAccess and define roles, permissions, and assignments for that principal.
-3. Install AnneAdmin and connect its authentication and authorization hooks to AnneAuth and AnneAccess.
+3. Install AnneAdmin and connect its authentication and authorization hooks to AnnesAuth and AnneAccess.
 4. Install AnneAudit when durable audit storage is required, and register notification mappers for the event streams the host wants to persist.
 
 Each engine can also be used independently when the host application already provides the other responsibilities.
@@ -60,7 +60,7 @@ Add the GitHub Packages source to the host application's `Gemfile`.
 source "https://rubygems.org"
 
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "anne_auth", "~> 0.4.0"
+  gem "annes_auth", "~> 1.0"
   gem "anne_admin", "~> 0.2.3"
   gem "anne_access", "~> 0.1.2"
   gem "anne_audit", "~> 0.1.0"
@@ -71,7 +71,7 @@ end
 For local development from a host application:
 
 ```ruby
-gem "anne_auth", path: "../anne_engine/anne_auth"
+gem "annes_auth", path: "../anne_engine/annes_auth"
 gem "anne_admin", path: "../anne_engine/anne_admin"
 gem "anne_access", path: "../anne_engine/anne_access"
 gem "anne_audit", path: "../anne_engine/anne_audit"
@@ -86,8 +86,8 @@ workflow uses the repository `GITHUB_TOKEN` with `packages: write` permission.
 Before publishing, update the target gem's version file, changelog, upgrade
 guide, and the dependent sample app lockfiles, then commit the release change:
 
-- `anne_auth/lib/anne_auth/version.rb`, `anne_auth/CHANGELOG.md`, and
-  `anne_auth/UPGRADING.md`
+- `annes_auth/lib/annes_auth/version.rb`, `annes_auth/CHANGELOG.md`, and
+  `annes_auth/UPGRADING.md`
 - `anne_admin/lib/anne_admin/version.rb`, `anne_admin/CHANGELOG.md`, and
   `anne_admin/UPGRADING.md`
 - `anne_access/lib/anne_access/version.rb`, `anne_access/CHANGELOG.md`, and
@@ -101,7 +101,7 @@ After changing a target gem version, refresh every example app `Gemfile.lock`
 that depends on that gem so the path-sourced gemspec version is committed with
 the release:
 
-- `anne_auth`: `examples/customer_management/Gemfile.lock`,
+- `annes_auth`: `examples/customer_management/Gemfile.lock`,
   `examples/resavation_management/Gemfile.lock`, and
   `examples/restaurant_loyalty/Gemfile.lock`
 - `anne_admin`: `examples/customer_management/Gemfile.lock`,
@@ -115,17 +115,17 @@ the release:
 
 Run `bundle update <gem_name>` from each affected example directory. For
 releases that bump multiple engines together, pass all affected gem names in
-the same command for each example app. For example, an AnneAuth release needs:
+the same command for each example app. For example, an AnnesAuth release needs:
 
 ```sh
-(cd examples/customer_management && bundle update anne_auth)
-(cd examples/resavation_management && bundle update anne_auth)
-(cd examples/restaurant_loyalty && bundle update anne_auth)
+(cd examples/customer_management && bundle update annes_auth)
+(cd examples/resavation_management && bundle update annes_auth)
+(cd examples/restaurant_loyalty && bundle update annes_auth)
 ```
 
 See the package-specific upgrade guides before updating a host application:
 
-- [AnneAuth upgrade guide](anne_auth/UPGRADING.md)
+- [AnnesAuth upgrade guide](annes_auth/UPGRADING.md)
 - [AnneAccess upgrade guide](anne_access/UPGRADING.md)
 - [AnneAdmin upgrade guide](anne_admin/UPGRADING.md)
 - [AnneAudit upgrade guide](anne_audit/UPGRADING.md)
@@ -136,7 +136,7 @@ target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`anne_auth`, `anne_admin`, `anne_access`, `anne_audit`, or `anne_loyalty`, and
+`annes_auth`, `anne_admin`, `anne_access`, `anne_audit`, or `anne_loyalty`, and
 set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,
@@ -164,7 +164,7 @@ version until the published package, tag, and release state are reconciled.
 ### Customer Management
 
 [`examples/customer_management`](examples/customer_management/README.md) is an
-internal customer management app. It uses `anne_auth` for staff login,
+internal customer management app. It uses `annes_auth` for staff login,
 `anne_access` for RBAC, and `anne_admin` for customer party, person,
 organization, customer contact, and project CRUD.
 
@@ -208,7 +208,7 @@ authorization matrix, database constraints, and implementation boundaries.
 
 [`examples/restaurant_loyalty`](examples/restaurant_loyalty/README.md) is a
 restaurant point card demo. It uses `anne_loyalty` for the point ledger, reward
-exchange, and redemption tokens; `anne_auth` for staff login; `anne_access` for
+exchange, and redemption tokens; `annes_auth` for staff login; `anne_access` for
 RBAC; and `anne_admin` for program, location, and reward CRUD.
 
 ```sh

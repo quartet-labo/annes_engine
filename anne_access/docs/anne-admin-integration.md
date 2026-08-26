@@ -68,7 +68,7 @@ scoping inside the action block or delegated service.
 
 ## Different Authentication and Authorization Principals
 
-An app can authenticate an `AnneAuth::Account` while assigning permissions to a
+An app can authenticate an `AnnesAuth::Account` while assigning permissions to a
 host `User`. Resolve the host user consistently in AnneAdmin and AnneAccess:
 
 ```ruby

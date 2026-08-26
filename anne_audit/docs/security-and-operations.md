@@ -67,7 +67,7 @@ config.raise_on_persistence_error = false
 ```
 
 In default mode, AnneAudit logs persistence failures and allows the originating
-request or operation to continue. This keeps `anne_admin`, `anne_auth`, and host
+request or operation to continue. This keeps `anne_admin`, `annes_auth`, and host
 domain code loosely coupled to audit storage.
 
 Audit-required behavior:

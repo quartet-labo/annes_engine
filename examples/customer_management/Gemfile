@@ -7,6 +7,6 @@ gem "pg", "~> 1.1"
 gem "puma", ">= 6.0"
 gem "propshaft"
 
-gem "anne_auth", path: "../../anne_auth"
+gem "annes_auth", path: "../../annes_auth"
 gem "anne_admin", path: "../../anne_admin"
 gem "anne_access", path: "../../anne_access"

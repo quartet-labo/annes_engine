@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: AnneAuth.configuration.mailer_from
+  default from: AnnesAuth.configuration.mailer_from
   layout "mailer"
 end

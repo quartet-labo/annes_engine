@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_13_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gist"
   enable_extension "pg_catalog.plpgsql"
@@ -122,6 +122,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_020000) do
     t.boolean "system", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["key"], name: "index_anne_access_roles_on_key", unique: true
+  end
+
+  create_table "annes_auth_bootstrap_claims", force: :cascade do |t|
+    t.string "account_class_name"
+    t.bigint "account_id"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.string "last_delivery_status"
+    t.string "purpose", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_class_name", "account_id"], name: "idx_annes_auth_bootstrap_claims_on_account"
+    t.index ["purpose"], name: "idx_annes_auth_bootstrap_claims_on_purpose", unique: true
   end
 
   create_table "customers", force: :cascade do |t|
