@@ -1,0 +1,32 @@
+<% content_for :title, "#{annes_admin_record_title(@record)} - #{@resource.label}" %>
+
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-slate-500"><%= @resource.label %></p>
+      <h1 class="text-2xl font-semibold tracking-normal text-slate-950"><%= annes_admin_record_title(@record) %></h1>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <%= link_to "一覧", annes_admin_resource_index_path(@resource), class: "annes-admin-action annes-admin-action--secondary rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100" %>
+      <% if @resource.action?(:edit) && annes_admin_authorized?(:edit, record: @record) %>
+        <%= link_to "編集", annes_admin_edit_resource_record_path(@resource, @record), class: "annes-admin-action annes-admin-action--primary rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700" %>
+      <% end %>
+      <% @resource.member_custom_actions.each do |action| %>
+        <% if annes_admin_authorized?(action.name, record: @record) %>
+          <%= button_to action.label, annes_admin_resource_member_action_path(@resource, @record, action), method: action.method, class: "annes-admin-action annes-admin-action--secondary rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100", form: { data: { turbo_confirm: action.confirm } } %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <dl class="divide-y divide-slate-100">
+      <% @resource.display_fields.each do |field| %>
+        <div class="grid gap-2 px-4 py-4 sm:grid-cols-3">
+          <dt class="text-sm font-medium text-slate-500"><%= field.label_text %></dt>
+          <dd class="text-sm text-slate-900 sm:col-span-2"><%= annes_admin_resource_value(@record, field) %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+</section>

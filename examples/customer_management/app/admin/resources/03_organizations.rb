@@ -1,4 +1,4 @@
-AnneAdmin.resource :organizations, model: "Organization", destroyable: true do
+AnnesAdmin.resource :organizations, model: "Organization", destroyable: true do
   label "組織"
   field :name, label: "組織名", searchable: true, sortable: true
   field :name_kana, label: "組織名カナ", searchable: true, sortable: true

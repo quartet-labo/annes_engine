@@ -11,7 +11,7 @@ module Admin
     end
 
     def create
-      account = AnneAuth.configuration.account_class.authenticate_by(session_params)
+      account = AnnesAuth.configuration.account_class.authenticate_by(session_params)
 
       if account&.disabled?
         redirect_to main_app.admin_login_path, alert: "メールアドレスまたはパスワードが正しくありません。"

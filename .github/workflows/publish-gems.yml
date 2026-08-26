@@ -7,13 +7,13 @@ on:
         description: Gem to publish
         required: true
         type: choice
-        default: anne_auth
+        default: annes_auth
         options:
-          - anne_auth
-          - anne_admin
-          - anne_access
-          - anne_audit
-          - anne_loyalty
+          - annes_auth
+          - annes_admin
+          - annes_access
+          - annes_audit
+          - annes_loyalty
       version:
         description: Expected gem version to publish
         required: true

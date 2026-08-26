@@ -15,9 +15,9 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "master resources define fields, search, sorting, permitted attributes, and actions" do
-    assert_equal %w[customers reservation_resources], AnneAdmin.configuration.resources.map(&:name)
+    assert_equal %w[customers reservation_resources], AnnesAdmin.configuration.resources.map(&:name)
 
-    customers = AnneAdmin.configuration.resources.fetch(:customers)
+    customers = AnnesAdmin.configuration.resources.fetch(:customers)
     assert_equal "顧客", customers.label
     assert_equal %i[customer_number name name_kana email phone active memo created_at], customers.fields.map(&:name)
     assert_equal %i[name name_kana email phone active memo], customers.permitted_attributes
@@ -25,7 +25,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
     assert_equal %i[customer_number name name_kana email active created_at], customers.sortable_attributes.to_a
     assert_master_actions(customers)
 
-    resources = AnneAdmin.configuration.resources.fetch(:reservation_resources)
+    resources = AnnesAdmin.configuration.resources.fetch(:reservation_resources)
     assert_equal "予約対象", resources.label
     assert_equal %i[name kind capacity active memo created_at], resources.fields.map(&:name)
     assert_equal %i[name kind capacity active memo], resources.permitted_attributes
@@ -37,7 +37,7 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
   test "admin manages customer and reservation resource records" do
     sign_in_as_role(:admin)
     assert_action_link_visibility("customers", @customer, create: true, update: true)
-    assert_select "link[rel='stylesheet'][href*='anne_admin/application']"
+    assert_select "link[rel='stylesheet'][href*='annes_admin/application']"
     assert_action_link_visibility("reservation_resources", @resource, create: true, update: true)
 
     get "/admin/customers", params: { q: "Zulu" }
@@ -141,20 +141,20 @@ class AdminMasterResourcesTest < ActionDispatch::IntegrationTest
     operator = account_with_role(:operator)
     viewer = account_with_role(:viewer)
 
-    assert AnneAccess.can?(admin, :manage, :customers)
-    assert AnneAccess.can?(admin, :manage, :reservation_resources)
+    assert AnnesAccess.can?(admin, :manage, :customers)
+    assert AnnesAccess.can?(admin, :manage, :reservation_resources)
 
-    assert AnneAccess.can?(operator, :index, :customers)
-    assert AnneAccess.can?(operator, :new, :customers)
-    assert AnneAccess.can?(operator, :edit, :customers)
-    assert AnneAccess.can?(operator, :index, :reservation_resources)
-    assert_not AnneAccess.can?(operator, :new, :reservation_resources)
-    assert_not AnneAccess.can?(operator, :edit, :reservation_resources)
+    assert AnnesAccess.can?(operator, :index, :customers)
+    assert AnnesAccess.can?(operator, :new, :customers)
+    assert AnnesAccess.can?(operator, :edit, :customers)
+    assert AnnesAccess.can?(operator, :index, :reservation_resources)
+    assert_not AnnesAccess.can?(operator, :new, :reservation_resources)
+    assert_not AnnesAccess.can?(operator, :edit, :reservation_resources)
 
-    assert AnneAccess.can?(viewer, :index, :customers)
-    assert AnneAccess.can?(viewer, :index, :reservation_resources)
-    assert_not AnneAccess.can?(viewer, :new, :customers)
-    assert_not AnneAccess.can?(viewer, :edit, :reservation_resources)
+    assert AnnesAccess.can?(viewer, :index, :customers)
+    assert AnnesAccess.can?(viewer, :index, :reservation_resources)
+    assert_not AnnesAccess.can?(viewer, :new, :customers)
+    assert_not AnnesAccess.can?(viewer, :edit, :reservation_resources)
   end
 
   test "destroy is unavailable for every master resource" do

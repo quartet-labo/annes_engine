@@ -3,7 +3,7 @@ require "securerandom"
 class Receipt < ApplicationRecord
   belongs_to :customer
   belongs_to :loyalty_location,
-    class_name: "AnneLoyalty::LoyaltyLocation",
+    class_name: "AnnesLoyalty::LoyaltyLocation",
     optional: true
 
   before_validation :assign_receipt_number, on: :create

@@ -3,7 +3,7 @@ require "test_helper"
 class InternalRoutesTest < ActionDispatch::IntegrationTest
   setup do
     Customer.create!(name: "Route Test Customer")
-    AnneLoyalty::LoyaltyProgram.create!(
+    AnnesLoyalty::LoyaltyProgram.create!(
       code: "route-test",
       name: "Route Test",
       point_name: "pt",

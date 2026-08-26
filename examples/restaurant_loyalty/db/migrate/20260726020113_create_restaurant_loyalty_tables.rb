@@ -21,7 +21,7 @@ class CreateRestaurantLoyaltyTables < ActiveRecord::Migration[8.1]
     create_table :receipts do |t|
       t.string :receipt_number, null: false
       t.references :customer, null: false, foreign_key: true
-      t.references :loyalty_location, foreign_key: { to_table: :anne_loyalty_loyalty_locations }
+      t.references :loyalty_location, foreign_key: { to_table: :annes_loyalty_loyalty_locations }
       t.integer :amount_cents, null: false
       t.datetime :purchased_at, null: false
       t.text :memo
@@ -35,7 +35,7 @@ class CreateRestaurantLoyaltyTables < ActiveRecord::Migration[8.1]
 
     create_table :visits do |t|
       t.references :customer, null: false, foreign_key: true
-      t.references :loyalty_location, foreign_key: { to_table: :anne_loyalty_loyalty_locations }
+      t.references :loyalty_location, foreign_key: { to_table: :annes_loyalty_loyalty_locations }
       t.datetime :visited_at, null: false
       t.text :memo
 

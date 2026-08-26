@@ -9,30 +9,30 @@ require "rubygems"
 class GemReleasePreparation
   ROOT = Pathname(__dir__).join("..").expand_path
   GEM_METADATA = {
-    "anne_auth" => {
-      path: "anne_auth",
-      gemspec: "anne_auth.gemspec",
-      tag_prefix: "anne_auth-v"
+    "annes_auth" => {
+      path: "annes_auth",
+      gemspec: "annes_auth.gemspec",
+      tag_prefix: "annes_auth-v"
     },
-    "anne_admin" => {
-      path: "anne_admin",
-      gemspec: "anne_admin.gemspec",
-      tag_prefix: "anne_admin-v"
+    "annes_admin" => {
+      path: "annes_admin",
+      gemspec: "annes_admin.gemspec",
+      tag_prefix: "annes_admin-v"
     },
-    "anne_access" => {
-      path: "anne_access",
-      gemspec: "anne_access.gemspec",
-      tag_prefix: "anne_access-v"
+    "annes_access" => {
+      path: "annes_access",
+      gemspec: "annes_access.gemspec",
+      tag_prefix: "annes_access-v"
     },
-    "anne_audit" => {
-      path: "anne_audit",
-      gemspec: "anne_audit.gemspec",
-      tag_prefix: "anne_audit-v"
+    "annes_audit" => {
+      path: "annes_audit",
+      gemspec: "annes_audit.gemspec",
+      tag_prefix: "annes_audit-v"
     },
-    "anne_loyalty" => {
-      path: "anne_loyalty",
-      gemspec: "anne_loyalty.gemspec",
-      tag_prefix: "anne_loyalty-v"
+    "annes_loyalty" => {
+      path: "annes_loyalty",
+      gemspec: "annes_loyalty.gemspec",
+      tag_prefix: "annes_loyalty-v"
     }
   }.freeze
 

@@ -47,6 +47,6 @@ class AdminSessionsTest < ActionDispatch::IntegrationTest
   end
 
   test "anne access remains deny by default" do
-    assert_not AnneAccess.can?(@unassigned_account, :read, :loyalty_members)
+    assert_not AnnesAccess.can?(@unassigned_account, :read, :loyalty_members)
   end
 end

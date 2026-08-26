@@ -3,22 +3,22 @@ module Staff
     before_action :require_account_authentication
     helper_method :current_location
 
-    rescue_from AnneAccess::NotAuthorizedError do
+    rescue_from AnnesAccess::NotAuthorizedError do
       render plain: "Forbidden", status: :forbidden
     end
 
     private
       def authorize_loyalty!(action, resource)
-        AnneAccess.authorize!(current_account, action, resource)
+        AnnesAccess.authorize!(current_account, action, resource)
       end
 
       def current_location
-        @current_location ||= AnneLoyalty::LoyaltyLocation.active.order(:id).first ||
+        @current_location ||= AnnesLoyalty::LoyaltyLocation.active.order(:id).first ||
           raise(ActiveRecord::RecordNotFound, "No active loyalty location is available")
       end
 
       def find_member_by_key!(member_key)
-        AnneLoyalty::LoyaltyMember.includes(:owner, :loyalty_program)
+        AnnesLoyalty::LoyaltyMember.includes(:owner, :loyalty_program)
           .find_by!(member_key: member_key.to_s.strip)
       end
 

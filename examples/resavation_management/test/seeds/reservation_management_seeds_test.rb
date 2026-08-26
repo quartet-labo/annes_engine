@@ -33,17 +33,17 @@ class ReservationManagementSeedsTest < ActiveSupport::TestCase
     with_reservation_management_seeds do
       AccessHelpers::ROLE_PERMISSIONS.each do |role_key, resource_actions|
         account = Account.find_by!(email: "#{role_key}@example.com")
-        role = AnneAccess::Role.find_by!(key: role_key.to_s)
+        role = AnnesAccess::Role.find_by!(key: role_key.to_s)
         expected_permissions = resource_actions.flat_map do |resource, actions|
           actions.map { |action| [ resource, action ] }
         end.sort
 
         assert account.authenticate(ReservationManagementSeedTestHelper::SEED_PASSWORD),
           "#{account.email} should authenticate with the seed password"
-        assigned_role_keys = AnneAccess::Assignment
+        assigned_role_keys = AnnesAccess::Assignment
           .where(principal: account)
           .joins(:role)
-          .pluck("anne_access_roles.key")
+          .pluck("annes_access_roles.key")
         assert_equal [ role_key.to_s ], assigned_role_keys
         assert_equal expected_permissions, role.permissions.pluck(:resource, :action).sort
       end
@@ -106,10 +106,10 @@ class ReservationManagementSeedsTest < ActiveSupport::TestCase
     def seed_record_counts
       [
         Account,
-        AnneAccess::Role,
-        AnneAccess::Permission,
-        AnneAccess::RolePermission,
-        AnneAccess::Assignment,
+        AnnesAccess::Role,
+        AnnesAccess::Permission,
+        AnnesAccess::RolePermission,
+        AnnesAccess::Assignment,
         Customer,
         ReservationResource,
         Reservation

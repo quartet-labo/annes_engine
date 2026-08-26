@@ -1,4 +1,4 @@
-AnneAdmin.resource :reservation_resources, model: "ReservationResource" do
+AnnesAdmin.resource :reservation_resources, model: "ReservationResource" do
   label "予約対象"
   actions :index, :show, :new, :create, :edit, :update
 

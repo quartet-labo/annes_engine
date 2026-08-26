@@ -1,4 +1,4 @@
-AnneAdmin.resource :loyalty_rewards, model: "AnneLoyalty::LoyaltyReward" do
+AnnesAdmin.resource :loyalty_rewards, model: "AnnesLoyalty::LoyaltyReward" do
   label "特典"
   actions :index, :show, :new, :create, :edit, :update
 
@@ -6,7 +6,7 @@ AnneAdmin.resource :loyalty_rewards, model: "AnneLoyalty::LoyaltyReward" do
   field :loyalty_program_id,
     label: "プログラム",
     type: :association,
-    collection: -> { AnneLoyalty::LoyaltyProgram.order(:name) },
+    collection: -> { AnnesLoyalty::LoyaltyProgram.order(:name) },
     display_with: ->(reward) { reward.loyalty_program&.name }
   field :code, label: "コード", searchable: true, sortable: true
   field :name, label: "特典名", searchable: true, sortable: true

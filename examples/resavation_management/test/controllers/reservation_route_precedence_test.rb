@@ -9,7 +9,7 @@ class ReservationRoutePrecedenceTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/admin/reservations/schedule"
   end
 
-  test "host reservation routes are recognized before the AnneAdmin mount" do
+  test "host reservation routes are recognized before the AnnesAdmin mount" do
     assert_equal(
       { controller: "admin/reservations", action: "schedule" },
       recognized_route("/admin/reservations/schedule", :get)

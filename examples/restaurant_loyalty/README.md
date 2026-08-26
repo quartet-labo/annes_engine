@@ -2,10 +2,10 @@
 
 飲食店の紙のポイントカードを置き換えるdemo appです。
 
-- `anne_loyalty`: ポイント制度、会員、ledger、point lot、特典、redemption token
-- `anne_auth`: スタッフ・管理者ログイン
-- `anne_access`: admin / manager / staff / viewer のRBAC
-- `anne_admin`: ポイントプログラム、店舗、特典の管理CRUD
+- `annes_loyalty`: ポイント制度、会員、ledger、point lot、特典、redemption token
+- `annes_auth`: スタッフ・管理者ログイン
+- `annes_access`: admin / manager / staff / viewer のRBAC
+- `annes_admin`: ポイントプログラム、店舗、特典の管理CRUD
 - host app: 顧客、receipt、顧客画面、スタッフ付与・特典利用画面
 
 詳細な設計背景は[技術構想](docs/technical_concept.md)を参照してください。
@@ -15,7 +15,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`anne_auth`、`anne_access`、`anne_admin`、`anne_loyalty`
+- repository内の`annes_auth`、`annes_access`、`annes_admin`、`annes_loyalty`
 
 ## Setup
 
@@ -72,11 +72,11 @@ Seed customer:
 
 ## Authorization Matrix
 
-このexampleのAnneAccess matrixは、店舗スタッフ向けのRBAC例です。`admin`はprogram、location、rewardを管理し、会員閲覧、ポイント付与/調整、特典利用確定を実行できます。`manager`はprogram確認/更新とlocation/reward管理、`staff`は会員閲覧、ポイント付与、特典利用確定、`viewer`は会員閲覧のみです。
+このexampleのAnnesAccess matrixは、店舗スタッフ向けのRBAC例です。`admin`はprogram、location、rewardを管理し、会員閲覧、ポイント付与/調整、特典利用確定を実行できます。`manager`はprogram確認/更新とlocation/reward管理、`staff`は会員閲覧、ポイント付与、特典利用確定、`viewer`は会員閲覧のみです。
 
-顧客向け画面はAnneAccess roleではなく、顧客sessionとhost app側のloyalty member relationで表示対象を決めます。店舗、会員、顧客ごとのscopeを増やす場合もAnneAccess runtimeへ移さず、controller、query、model scope、serviceで調整してください。
+顧客向け画面はAnnesAccess roleではなく、顧客sessionとhost app側のloyalty member relationで表示対象を決めます。店舗、会員、顧客ごとのscopeを増やす場合もAnnesAccess runtimeへ移さず、controller、query、model scope、serviceで調整してください。
 
-共通の考え方はAnneAccessの[role and permission templates](../../anne_access/docs/role-and-permission-templates.md)を参照してください。
+共通の考え方はAnnesAccessの[role and permission templates](../../annes_access/docs/role-and-permission-templates.md)を参照してください。
 
 ## Main Screens
 
@@ -136,8 +136,8 @@ bin/rails test
 
 ## Security Notes
 
-- `config/initializers/anne_loyalty.rb`ではtoken digest secretに`secret_key_base`を使います。本番では安定したsecretを設定してください。
+- `config/initializers/annes_loyalty.rb`ではtoken digest secretに`secret_key_base`を使います。本番では安定したsecretを設定してください。
 - 顧客向け画面は`session[:customer_id]`でログイン済み顧客だけを表示します。`customer_id` queryで顧客を切り替える挙動は提供しません。
 - QRには`member:<member_key>`または`redemption:<token>`だけを表示し、残高や個人情報は含めません。
-- ポイントの付与・利用は`anne_loyalty` service経由で行い、ledgerを直接更新しません。
+- ポイントの付与・利用は`annes_loyalty` service経由で行い、ledgerを直接更新しません。
 - demo seedの固定パスワードは開発用です。本番環境では使用しないでください。

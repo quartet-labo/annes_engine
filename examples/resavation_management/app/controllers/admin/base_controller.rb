@@ -1,10 +1,10 @@
 module Admin
-  class BaseController < AnneAdmin::ApplicationController
-    include AnneAccess::Authorization
+  class BaseController < AnnesAdmin::ApplicationController
+    include AnnesAccess::Authorization
 
     helper_method :can_access?
 
-    rescue_from AnneAccess::NotAuthorizedError, with: :render_forbidden
+    rescue_from AnnesAccess::NotAuthorizedError, with: :render_forbidden
     rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
 
     private

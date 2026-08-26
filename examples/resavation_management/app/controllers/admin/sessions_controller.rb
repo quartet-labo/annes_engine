@@ -9,7 +9,7 @@ module Admin
     end
 
     def create
-      account = AnneAuth.configuration.account_class.authenticate_by(session_params)
+      account = AnnesAuth.configuration.account_class.authenticate_by(session_params)
 
       if account&.disabled?
         reject_login

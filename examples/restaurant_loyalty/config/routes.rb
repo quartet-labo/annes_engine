@@ -34,5 +34,5 @@ Rails.application.routes.draw do
   get "auth/admin/login", to: redirect("/admin/login")
   get "auth/*path", to: redirect("/admin/login")
 
-  mount AnneAdmin::Engine => "/admin", as: :anne_admin
+  mount AnnesAdmin::Engine => "/admin", as: :annes_admin
 end

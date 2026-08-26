@@ -10,8 +10,8 @@ require "action_mailer/railtie"
 
 Bundler.require(*Rails.groups)
 
-require "anne_auth"
-require "anne_admin"
+require "annes_auth"
+require "annes_admin"
 
 module CustomerManagement
   class Application < Rails::Application

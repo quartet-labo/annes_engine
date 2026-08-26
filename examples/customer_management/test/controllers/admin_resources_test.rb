@@ -32,7 +32,7 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_includes response.body, label
-      assert_select "link[rel='stylesheet'][href*='anne_admin/application']"
+      assert_select "link[rel='stylesheet'][href*='annes_admin/application']"
     end
   end
 
@@ -49,8 +49,8 @@ class AdminResourcesTest < ActionDispatch::IntegrationTest
   end
 
   test "admin resources are loaded in navigation order" do
-    assert_equal %w[customers persons organizations customer_contacts projects], AnneAdmin.configuration.resources.map(&:name)
-    assert_equal %i[customer_number kind person_id organization_id status source memo created_at], AnneAdmin.configuration.resources.fetch(:customers).fields.map(&:name)
+    assert_equal %w[customers persons organizations customer_contacts projects], AnnesAdmin.configuration.resources.map(&:name)
+    assert_equal %i[customer_number kind person_id organization_id status source memo created_at], AnnesAdmin.configuration.resources.fetch(:customers).fields.map(&:name)
   end
 
   test "viewer can read admin resources but cannot write" do

@@ -10,9 +10,9 @@ require "action_mailer/railtie"
 
 Bundler.require(*Rails.groups)
 
-require "anne_auth"
-require "anne_admin"
-require "anne_access"
+require "annes_auth"
+require "annes_admin"
+require "annes_access"
 
 module ReservationManagement
   class Application < Rails::Application

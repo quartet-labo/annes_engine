@@ -16,57 +16,78 @@ class PrepareGemReleaseTest < Minitest::Test
       github_output = Pathname(directory).join("github-output.txt")
 
       stdout, stderr, status = run_script(
-        "--gem", "anne_auth",
-        "--version", "0.4.0",
+        "--gem", "annes_auth",
+        "--version", "1.0.0",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
 
       assert status.success?, "#{stdout}\n#{stderr}"
-      assert_includes github_output.read, "gem=anne_auth\n"
-      assert_includes github_output.read, "path=anne_auth\n"
-      assert_includes github_output.read, "gemspec=anne_auth.gemspec\n"
-      assert_includes github_output.read, "version=0.4.0\n"
-      assert_includes github_output.read, "tag_name=anne_auth-v0.4.0\n"
+      assert_includes github_output.read, "gem=annes_auth\n"
+      assert_includes github_output.read, "path=annes_auth\n"
+      assert_includes github_output.read, "gemspec=annes_auth.gemspec\n"
+      assert_includes github_output.read, "version=1.0.0\n"
+      assert_includes github_output.read, "tag_name=annes_auth-v1.0.0\n"
       assert_includes github_output.read, "notes_file=#{notes_file}\n"
 
       notes = notes_file.read
-      assert_includes notes, "notification stream"
-      refute_includes notes, "## 0.4.0"
+      assert_includes notes, "Rename the gem"
+      refute_includes notes, "## 1.0.0"
       refute_includes notes, "## 0.3.3"
     end
   end
 
-  def test_prepares_release_outputs_for_anne_audit
+  def test_prepares_release_outputs_for_annes_audit
     Dir.mktmpdir do |directory|
       notes_file = Pathname(directory).join("notes.md")
       github_output = Pathname(directory).join("github-output.txt")
 
       stdout, stderr, status = run_script(
-        "--gem", "anne_audit",
-        "--version", "0.1.0",
+        "--gem", "annes_audit",
+        "--version", "1.0.0",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
 
       assert status.success?, "#{stdout}\n#{stderr}"
-      assert_includes github_output.read, "gem=anne_audit\n"
-      assert_includes github_output.read, "path=anne_audit\n"
-      assert_includes github_output.read, "gemspec=anne_audit.gemspec\n"
-      assert_includes github_output.read, "version=0.1.0\n"
-      assert_includes github_output.read, "tag_name=anne_audit-v0.1.0\n"
+      assert_includes github_output.read, "gem=annes_audit\n"
+      assert_includes github_output.read, "path=annes_audit\n"
+      assert_includes github_output.read, "gemspec=annes_audit.gemspec\n"
+      assert_includes github_output.read, "version=1.0.0\n"
+      assert_includes github_output.read, "tag_name=annes_audit-v1.0.0\n"
 
       notes = notes_file.read
-      assert_includes notes, "append-only audit event persistence"
-      refute_includes notes, "## 0.1.0"
+      assert_includes notes, "Rename the published gem"
+      refute_includes notes, "## 1.0.0"
+    end
+  end
+
+  def test_prepares_release_outputs_for_annes_access
+    Dir.mktmpdir do |directory|
+      notes_file = Pathname(directory).join("notes.md")
+      github_output = Pathname(directory).join("github-output.txt")
+
+      stdout, stderr, status = run_script(
+        "--gem", "annes_access",
+        "--version", "1.0.0",
+        "--notes-file", notes_file.to_s,
+        "--github-output", github_output.to_s
+      )
+
+      assert status.success?, "#{stdout}\n#{stderr}"
+      assert_includes github_output.read, "gem=annes_access\n"
+      assert_includes github_output.read, "path=annes_access\n"
+      assert_includes github_output.read, "gemspec=annes_access.gemspec\n"
+      assert_includes github_output.read, "tag_name=annes_access-v1.0.0\n"
+      assert_includes notes_file.read, "Rename the gem"
     end
   end
 
   def test_rejects_a_version_that_does_not_match_the_gemspec
-    stdout, stderr, status = run_script("--gem", "anne_auth", "--version", "9.9.9")
+    stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 
     refute status.success?, stdout
-    assert_includes stderr, "does not match anne_auth gemspec version 0.4.0"
+    assert_includes stderr, "does not match annes_auth gemspec version 1.0.0"
   end
 
   def test_rejects_an_unknown_gem
@@ -90,12 +111,12 @@ class PrepareGemReleaseTest < Minitest::Test
 
       stdout, stderr, status = run_script(
         "--root", root.to_s,
-        "--gem", "anne_auth",
+        "--gem", "annes_auth",
         "--version", "0.4.0"
       )
 
       refute status.success?, stdout
-      assert_includes stderr, "CHANGELOG section is missing for anne_auth 0.4.0"
+      assert_includes stderr, "CHANGELOG section is missing for annes_auth 0.4.0"
     end
   end
 
@@ -115,12 +136,12 @@ class PrepareGemReleaseTest < Minitest::Test
 
       stdout, stderr, status = run_script(
         "--root", root.to_s,
-        "--gem", "anne_auth",
+        "--gem", "annes_auth",
         "--version", "0.4.0"
       )
 
       refute status.success?, stdout
-      assert_includes stderr, "CHANGELOG section is empty for anne_auth 0.4.0"
+      assert_includes stderr, "CHANGELOG section is empty for annes_auth 0.4.0"
     end
   end
 
@@ -131,23 +152,23 @@ class PrepareGemReleaseTest < Minitest::Test
 
     def write_minimal_root(directory, changelog:)
       root = Pathname(directory)
-      engine = root.join("anne_auth")
-      engine.join("lib/anne_auth").mkpath
-      engine.join("lib/anne_auth/version.rb").write(<<~RUBY)
+      engine = root.join("annes_auth")
+      engine.join("lib/annes_auth").mkpath
+      engine.join("lib/annes_auth/version.rb").write(<<~RUBY)
         # frozen_string_literal: true
 
-        module AnneAuth
+        module AnnesAuth
           VERSION = "0.4.0"
         end
       RUBY
-      engine.join("anne_auth.gemspec").write(<<~RUBY)
+      engine.join("annes_auth.gemspec").write(<<~RUBY)
         # frozen_string_literal: true
 
-        require_relative "lib/anne_auth/version"
+        require_relative "lib/annes_auth/version"
 
         Gem::Specification.new do |spec|
-          spec.name = "anne_auth"
-          spec.version = AnneAuth::VERSION
+          spec.name = "annes_auth"
+          spec.version = AnnesAuth::VERSION
           spec.summary = "Fixture"
           spec.authors = [ "Quartet Labo LLC." ]
         end

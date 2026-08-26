@@ -4,7 +4,7 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
   setup do
     @customer = Customer.create!(name: "山田 太郎", email: "taro@example.com", access_code: "123456")
     @other_customer = Customer.create!(name: "佐藤 花子", email: "hanako@example.com", access_code: "654321")
-    @program = AnneLoyalty::LoyaltyProgram.create!(
+    @program = AnnesLoyalty::LoyaltyProgram.create!(
       code: "restaurant-demo",
       name: "Restaurant Demo",
       point_name: "pt",
@@ -12,29 +12,29 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
       earn_points_per_unit: 1,
       default_expiration_months: 12
     )
-    @location = AnneLoyalty::LoyaltyLocation.create!(
+    @location = AnnesLoyalty::LoyaltyLocation.create!(
       loyalty_program: @program,
       code: "ginza",
       name: "Ginza",
       time_zone: "Asia/Tokyo"
     )
-    @member = AnneLoyalty.enroll!(program: @program, owner: @customer, member_key: @customer.customer_number)
-    AnneLoyalty.enroll!(program: @program, owner: @other_customer, member_key: @other_customer.customer_number)
-    @coffee = AnneLoyalty::LoyaltyReward.create!(
+    @member = AnnesLoyalty.enroll!(program: @program, owner: @customer, member_key: @customer.customer_number)
+    AnnesLoyalty.enroll!(program: @program, owner: @other_customer, member_key: @other_customer.customer_number)
+    @coffee = AnnesLoyalty::LoyaltyReward.create!(
       loyalty_program: @program,
       code: "coffee",
       name: "コーヒー無料",
       required_points: 20,
       valid_minutes: 10
     )
-    @dessert = AnneLoyalty::LoyaltyReward.create!(
+    @dessert = AnnesLoyalty::LoyaltyReward.create!(
       loyalty_program: @program,
       code: "dessert",
       name: "デザート無料",
       required_points: 40,
       valid_minutes: 10
     )
-    AnneLoyalty.earn!(
+    AnnesLoyalty.earn!(
       member: @member,
       location: @location,
       amount_cents: 2_500,

@@ -5,11 +5,11 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
 
 ## Repository Layout
 
-- `anne_auth/`: authentication, sessions, verification, password resets,
+- `annes_auth/`: authentication, sessions, verification, password resets,
   invitations, bootstrap, event hooks, and Google OAuth.
-- `anne_access/`: lightweight role-based authorization.
-- `anne_admin/`: configurable administration screens for host models.
-- `anne_loyalty/`: loyalty programs, members, point ledger, rewards, and
+- `annes_access/`: lightweight role-based authorization.
+- `annes_admin/`: configurable administration screens for host models.
+- `annes_loyalty/`: loyalty programs, members, point ledger, rewards, and
   redemption workflows.
 - `examples/`: Rails host applications that demonstrate engine integration.
 - `script/` and `test/`: repository-level CI, documentation, release, and
@@ -34,10 +34,10 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
 Use Ruby 3.4.9, matching CI.
 
 - Engine tests:
-  - `cd anne_auth && bundle exec rake test`
-  - `cd anne_admin && bundle exec rake test`
-  - `cd anne_access && bundle exec rake test`
-  - `cd anne_loyalty && bundle exec rake test`
+  - `cd annes_auth && bundle exec rake test`
+  - `cd annes_admin && bundle exec rake test`
+  - `cd annes_access && bundle exec rake test`
+  - `cd annes_loyalty && bundle exec rake test`
 - Example app tests:
   - `cd examples/customer_management && bin/rails test`
   - `cd examples/resavation_management && bin/rails test`

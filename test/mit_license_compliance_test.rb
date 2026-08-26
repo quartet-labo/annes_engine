@@ -11,9 +11,9 @@ class MitLicenseComplianceTest < Minitest::Test
   ROOT = Pathname(__dir__).join("..").expand_path
   CHECKER = ROOT.join("script/check_gem_license")
   ENGINE_GEMSPECS = {
-    "anne_auth" => "anne_auth.gemspec",
-    "anne_access" => "anne_access.gemspec",
-    "anne_admin" => "anne_admin.gemspec"
+    "annes_auth" => "annes_auth.gemspec",
+    "annes_access" => "annes_access.gemspec",
+    "annes_admin" => "annes_admin.gemspec"
   }.freeze
   EXPECTED_LICENSE = <<~LICENSE
     Copyright (c) 2026 Quartet Labo LLC.
@@ -119,7 +119,7 @@ class MitLicenseComplianceTest < Minitest::Test
         gem.version = "1.0.0"
         gem.summary = "Fixture gem for license compliance tests"
         gem.authors = [ "Quartet Labo LLC." ]
-        gem.homepage = "https://github.com/quartet-labo/anne_engine"
+        gem.homepage = "https://github.com/quartet-labo/annes_engine"
         gem.required_ruby_version = ">= 3.4.0"
         gem.files = [ "lib/fixture.rb" ]
         gem.files << "MIT-LICENSE" if license_text

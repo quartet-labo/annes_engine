@@ -3,19 +3,19 @@
 - Type: technical concept
 - Date: 2026-07-26
 - Status: Plan 1 MVP implemented
-- Target: `anne_loyalty` engine and `examples/restaurant_loyalty`
+- Target: `annes_loyalty` engine and `examples/restaurant_loyalty`
 
 ## 0. 実装ステータス
 
 2026-07-26時点で、Plan 1 MVPとして次を実装済み。
 
-- `anne_loyalty` engine skeleton、public API、migration、model、service、test
+- `annes_loyalty` engine skeleton、public API、migration、model、service、test
 - program、location、member、ledger entry、point lot、reward、redemption
 - 基本付与、残高取得、FIFO lot消費、取消entry、冪等付与
 - redemption tokenの発行、HMAC digest保存、期限・状態・location検証、一度きり利用
 - 飲食店demo appの顧客画面、スタッフ会員検索、ポイント付与、特典利用確定
 - 顧客画面のsession認証。表示対象はログイン済み顧客のみで、`customer_id` queryでは切り替えない
-- AnneAdminでのprogram、location、reward管理
+- AnnesAdminでのprogram、location、reward管理
 - admin / manager / staff / viewerのseed権限、demo seed、受け入れtest、CI selector
 
 未実装の将来項目: campaign evaluator、point expiration batch、rank / tier、集計report、POS import adapter、camera QR scan、PWA、offline対応、push/メール通知。
@@ -30,7 +30,7 @@ demo app は飲食店向けの具体的な顧客体験とスタッフ操作を�
 
 ### 切り出すもの
 
-`anne_loyalty` はポイントの整合性、監査性、再利用性に関わる責務を持つ。
+`annes_loyalty` はポイントの整合性、監査性、再利用性に関わる責務を持つ。
 
 - ポイントプログラムの定義
 - 複数店舗・拠点とポイントプログラムの適用範囲
@@ -55,10 +55,10 @@ demo app は飲食店向けの具体的な顧客体験とスタッフ操作を�
 ### 決定事項
 
 - `LoyaltyMember` と host app の顧客 model は polymorphic association で接続する。
-- 複数店舗・拠点は将来的に `anne_loyalty` で扱う。初期 demo は 1 店舗でも、engine の model は multi-location を前提にする。
+- 複数店舗・拠点は将来的に `annes_loyalty` で扱う。初期 demo は 1 店舗でも、engine の model は multi-location を前提にする。
 - キャンペーン条件は拡張性を優先し、固定 enum だけではなく versioned JSON rule と condition/effect registry で表現する。
 - 顧客向け画面は初期実装では Rails View で作る。PWA 化は次フェーズ以降に回す。
-- token の発行、digest 保存、検証、一度きり利用の状態遷移は `anne_loyalty` に置く。QR 読み取り画面とスタッフ操作 UI は host app に置く。
+- token の発行、digest 保存、検証、一度きり利用の状態遷移は `annes_loyalty` に置く。QR 読み取り画面とスタッフ操作 UI は host app に置く。
 
 ## 3. 全体アーキテクチャ
 
@@ -68,10 +68,10 @@ flowchart LR
     Staff["スタッフブラウザ"] --> Host
     Admin["管理者ブラウザ"] --> Host
 
-    Host --> Auth["anne_auth\nAccount / Session"]
-    Host --> Access["anne_access\nRole / Permission"]
-    Host --> AdminEngine["anne_admin\n管理 CRUD"]
-    Host --> Loyalty["anne_loyalty\nPoint / Reward / Campaign"]
+    Host --> Auth["annes_auth\nAccount / Session"]
+    Host --> Access["annes_access\nRole / Permission"]
+    Host --> AdminEngine["annes_admin\n管理 CRUD"]
+    Host --> Loyalty["annes_loyalty\nPoint / Reward / Campaign"]
 
     Host --> Domain["飲食店ドメイン\nCustomer / Visit / Receipt / POS"]
 
@@ -82,17 +82,17 @@ flowchart LR
     Domain --> DB
 ```
 
-飲食店固有の controller/view は host app に置き、ポイント計算や残高更新は `anne_loyalty` の service API 経由で行う。
+飲食店固有の controller/view は host app に置き、ポイント計算や残高更新は `annes_loyalty` の service API 経由で行う。
 
 ## 4. 想定エンジン境界
 
 | 領域 | 実装先 | 理由 |
 | --- | --- | --- |
-| ログイン、session | `anne_auth` | 既存 engine の責務 |
-| staff role、permission | `anne_access` | 既存 engine の責務 |
-| プログラム・店舗・特典・キャンペーン管理 | `anne_admin` + `anne_loyalty` model | 標準 CRUD で管理可能 |
-| ポイント残高、ledger、失効 | `anne_loyalty` | 再利用と整合性が重要 |
-| redemption token の発行・検証 | `anne_loyalty` | 二重利用防止と監査性が重要 |
+| ログイン、session | `annes_auth` | 既存 engine の責務 |
+| staff role、permission | `annes_access` | 既存 engine の責務 |
+| プログラム・店舗・特典・キャンペーン管理 | `annes_admin` + `annes_loyalty` model | 標準 CRUD で管理可能 |
+| ポイント残高、ledger、失効 | `annes_loyalty` | 再利用と整合性が重要 |
+| redemption token の発行・検証 | `annes_loyalty` | 二重利用防止と監査性が重要 |
 | QR 提示・読み取り UI | host app | 業態ごとに体験が変わる |
 | 会計・注文・来店 | host app | POS や店舗運用に依存 |
 | push 通知、メール配信 | host app or future engine | 初期 scope では外す |
@@ -293,16 +293,16 @@ demo の初期実装で失効処理を画面化しない場合でも、lot 構�
 
 ## 6. Service API 案
 
-host app は model を直接更新せず、`anne_loyalty` の command service を呼ぶ。
+host app は model を直接更新せず、`annes_loyalty` の command service を呼ぶ。
 
 ```ruby
-AnneLoyalty.enroll!(
+AnnesLoyalty.enroll!(
   program: program,
   owner: customer,
   member_key: customer.customer_number
 )
 
-AnneLoyalty.quote_earn(
+AnnesLoyalty.quote_earn(
   member: member,
   location: location,
   amount_cents: 3200,
@@ -310,7 +310,7 @@ AnneLoyalty.quote_earn(
   context: {weather: "rain"}
 )
 
-AnneLoyalty.earn!(
+AnnesLoyalty.earn!(
   member: member,
   location: location,
   amount_cents: 3200,
@@ -319,19 +319,19 @@ AnneLoyalty.earn!(
   actor: current_account
 )
 
-AnneLoyalty.redeem_reward!(
+AnnesLoyalty.redeem_reward!(
   member: member,
   reward: reward,
   actor: current_account
 )
 
-AnneLoyalty.confirm_redemption!(
+AnnesLoyalty.confirm_redemption!(
   token: params[:token],
   location: location,
   actor: current_account
 )
 
-AnneLoyalty.reverse!(
+AnnesLoyalty.reverse!(
   ledger_entry: entry,
   reason: "receipt voided",
   actor: current_account
@@ -404,7 +404,7 @@ Service は必ず DB transaction 内で次を行う。
 host app や将来 engine は、initializer で condition/effect handler を追加できる。
 
 ```ruby
-AnneLoyalty.campaign_conditions.register("weather") do |condition, input|
+AnnesLoyalty.campaign_conditions.register("weather") do |condition, input|
   input.context[:weather].to_s == condition.params.fetch("value")
 end
 ```
@@ -461,7 +461,7 @@ Plan 1 MVPで実装済みの管理画面はProgram settings、Location、Rewards
 
 ## 9. 権限案
 
-`anne_access` に以下の permission を定義する。
+`annes_access` に以下の permission を定義する。
 
 | Permission | 用途 |
 | --- | --- |
@@ -480,7 +480,7 @@ Plan 1 MVPで実装済みの管理画面はProgram settings、Location、Rewards
 - Staff: 会員閲覧、付与、特典利用
 - Viewer: 集計閲覧のみ
 
-Plan 1 MVPの実装では、AnneAccessのresource/actionとして`loyalty_programs`、`loyalty_locations`、`loyalty_rewards`、`loyalty_members`、`loyalty_points`、`loyalty_redemptions`を使う。Viewerは会員閲覧のみで、集計reportは未実装。
+Plan 1 MVPの実装では、AnnesAccessのresource/actionとして`loyalty_programs`、`loyalty_locations`、`loyalty_rewards`、`loyalty_members`、`loyalty_points`、`loyalty_redemptions`を使う。Viewerは会員閲覧のみで、集計reportは未実装。
 
 ## 10. 整合性とセキュリティ
 
@@ -495,9 +495,9 @@ Plan 1 MVPの実装では、AnneAccessのresource/actionとして`loyalty_progra
 
 ### Token 検証の実装境界
 
-redemption token の発行と検証は `anne_loyalty` の責務にする。
+redemption token の発行と検証は `annes_loyalty` の責務にする。
 
-`anne_loyalty` が持つ責務:
+`annes_loyalty` が持つ責務:
 
 - token の生成
 - token digest の保存
@@ -511,16 +511,16 @@ host app が持つ責務:
 
 - 顧客画面で redemption QR を表示する
 - スタッフ画面で QR を読み取る
-- `AnneLoyalty.confirm_redemption!` を呼ぶ
+- `AnnesLoyalty.confirm_redemption!` を呼ぶ
 - 成功、期限切れ、使用済み、権限不足などの結果を画面表示する
 
-スタッフ権限の判定は controller 側で `anne_access` を使って行う。`anne_loyalty` service は actor を受け取り、監査用 metadata に残す。service 側でも invalid token、expired token、already redeemed、location mismatch は必ず拒否する。
+スタッフ権限の判定は controller 側で `annes_access` を使って行う。`annes_loyalty` service は actor を受け取り、監査用 metadata に残す。service 側でも invalid token、expired token、already redeemed、location mismatch は必ず拒否する。
 
 ## 11. 初期実装スコープ
 
 ### MVP
 
-- `anne_loyalty` engine skeleton
+- `annes_loyalty` engine skeleton
 - program、location、member、ledger entry、point lot、reward、redemption
 - 基本付与率による point earn
 - 特典交換と token 検証
@@ -559,14 +559,14 @@ host app が持つ責務:
 
 ## 13. 実装ステップ案
 
-1. `anne_loyalty` の責務、public API、table 名を確定する。
+1. `annes_loyalty` の責務、public API、table 名を確定する。
 2. engine skeleton、dummy app、test setup を追加する。
 3. program / location / member / ledger / point lot の migration と model を作る。
 4. `earn!`、`balance_for`、`reverse!` を実装する。
 5. reward / redemption と token 検証を実装する。
 6. `examples/restaurant_loyalty` を作成し、顧客・会計・来店の最小モデルを置く。店舗は `LoyaltyLocation` を使う。
 7. 顧客画面とスタッフ画面から engine service を呼ぶ。
-8. `anne_admin` で program、location、reward の管理画面を接続する。
+8. `annes_admin` で program、location、reward の管理画面を接続する。
 9. campaign evaluator を追加し、ランチ 2 倍などの demo data を入れる。（次フェーズ）
 10. README、設計書、upgrade guide を整える。
 

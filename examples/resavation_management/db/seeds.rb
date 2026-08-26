@@ -28,19 +28,19 @@ role_permissions.each do |role_key, resource_actions|
   account.assign_attributes(password: seed_password, password_confirmation: seed_password)
   account.save!
 
-  role = AnneAccess::Role.find_or_create_by!(key: role_key) do |record|
+  role = AnnesAccess::Role.find_or_create_by!(key: role_key) do |record|
     record.name = role_names.fetch(role_key)
     record.system = true
   end
 
   resource_actions.each do |resource, actions|
     actions.each do |action|
-      permission = AnneAccess::Permission.find_or_create_by!(resource:, action:)
-      AnneAccess::RolePermission.find_or_create_by!(role:, permission:)
+      permission = AnnesAccess::Permission.find_or_create_by!(resource:, action:)
+      AnnesAccess::RolePermission.find_or_create_by!(role:, permission:)
     end
   end
 
-  AnneAccess::Assignment.find_or_create_by!(principal: account, role:)
+  AnnesAccess::Assignment.find_or_create_by!(principal: account, role:)
   accounts[role_key] = account
 end
 

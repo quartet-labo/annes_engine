@@ -1,19 +1,19 @@
 PATH
-  remote: ../../anne_access
+  remote: ../../annes_access
   specs:
-    anne_access (0.1.2)
+    annes_access (1.0.0)
       rails (>= 8.1.0, < 8.2)
 
 PATH
-  remote: ../../anne_admin
+  remote: ../../annes_admin
   specs:
-    anne_admin (0.2.3)
+    annes_admin (1.0.0)
       rails (>= 8.1.0, < 8.2)
 
 PATH
-  remote: ../../anne_auth
+  remote: ../../annes_auth
   specs:
-    anne_auth (0.4.0)
+    annes_auth (1.0.0)
       bcrypt (~> 3.1.7)
       omniauth (~> 2.1)
       omniauth-google-oauth2 (~> 1.2)
@@ -278,9 +278,9 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  anne_access!
-  anne_admin!
-  anne_auth!
+  annes_access!
+  annes_admin!
+  annes_auth!
   pg (~> 1.1)
   propshaft
   puma (>= 6.0)

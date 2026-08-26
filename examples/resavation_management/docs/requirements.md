@@ -10,11 +10,11 @@
 
 紙、表計算、個人カレンダー等に分散した予約情報を一元管理し、スタッフが顧客、予約対象、当日の予定を安全に管理できるようにする。
 
-同時に、Anne Engine の3エンジンを組み合わせる example として、次の責務分担を示す。
+同時に、Annes Engine の3エンジンを組み合わせる example として、次の責務分担を示す。
 
-- `anne_auth`: スタッフ認証とセッション
-- `anne_access`: role と permission による認可
-- `anne_admin`: 顧客・予約対象の標準 CRUD
+- `annes_auth`: スタッフ認証とセッション
+- `annes_access`: role と permission による認可
+- `annes_admin`: 顧客・予約対象の標準 CRUD
 - ホストアプリ: 予約固有の画面、状態遷移、重複防止
 
 ## 2. 対象利用者
@@ -208,4 +208,4 @@ A.starts_at < B.ends_at AND B.starts_at < A.ends_at
 - 取消理由は任意入力とする。
 - terminal状態の訂正機能はMVPに含めない。
 - 永続監査履歴はMVPに含めず、取消actor・日時・理由を予約へ保持する。
-- AnneAdmin標準画面は`authorize_with`の判定に従って権限のない操作リンクを非表示にし、server-side認可も別途実行する。
+- AnnesAdmin標準画面は`authorize_with`の判定に従って権限のない操作リンクを非表示にし、server-side認可も別途実行する。

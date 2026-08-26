@@ -1,4 +1,4 @@
-AnneAdmin.resource :customers, model: "Customer" do
+AnnesAdmin.resource :customers, model: "Customer" do
   label "顧客"
   actions :index, :show, :new, :create, :edit, :update
 
