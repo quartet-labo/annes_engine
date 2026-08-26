@@ -68,7 +68,7 @@ class CiTargetSelector
     Target.new("annes_admin", "annes_admin", "annes_admin_test", "bundle exec rake test", []),
     Target.new("annes_access", "annes_access", "annes_access_test", "bundle exec rake test", []),
     Target.new("annes_audit", "annes_audit", "annes_audit_test", "bundle exec rake test", []),
-    Target.new("anne_loyalty", "anne_loyalty", "anne_loyalty_test", "bundle exec rake test", []),
+    Target.new("annes_loyalty", "annes_loyalty", "annes_loyalty_test", "bundle exec rake test", []),
     Target.new(
       "customer_management",
       "examples/customer_management",
@@ -88,7 +88,7 @@ class CiTargetSelector
       "examples/restaurant_loyalty",
       "anne_restaurant_loyalty_test",
       "bin/rails test",
-      %w[annes_auth annes_admin annes_access anne_loyalty]
+      %w[annes_auth annes_admin annes_access annes_loyalty]
     )
   ].freeze
 

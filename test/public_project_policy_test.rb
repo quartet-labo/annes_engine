@@ -13,7 +13,7 @@ class PublicProjectPolicyTest < Minitest::Test
     "annes_auth" => ROOT.join("annes_auth/README.md"),
     "annes_admin" => ROOT.join("annes_admin/README.md"),
     "annes_access" => ROOT.join("annes_access/README.md"),
-    "anne_loyalty" => ROOT.join("anne_loyalty/README.md")
+    "annes_loyalty" => ROOT.join("annes_loyalty/README.md")
   }.freeze
 
   def test_public_policy_files_exist
@@ -48,7 +48,7 @@ class PublicProjectPolicyTest < Minitest::Test
     assert_includes readme, "`annes_auth`"
     assert_includes readme, "`annes_admin`"
     assert_includes readme, "`annes_access`"
-    assert_includes readme, "`anne_loyalty`"
+    assert_includes readme, "`annes_loyalty`"
     assert_includes readme, "examples/customer_management/Gemfile.lock"
     assert_includes readme, "examples/resavation_management/Gemfile.lock"
     assert_includes readme, "examples/restaurant_loyalty/Gemfile.lock"

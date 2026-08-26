@@ -81,7 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.index ["email_verified_at"], name: "index_accounts_on_email_verified_at"
   end
 
-  create_table "anne_loyalty_loyalty_ledger_entries", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_ledger_entries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "entry_type", null: false
     t.bigint "loyalty_location_id"
@@ -95,12 +95,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.index ["loyalty_location_id", "occurred_at"], name: "index_loyalty_ledger_entries_on_location_and_time"
     t.index ["loyalty_member_id", "occurred_at"], name: "index_loyalty_ledger_entries_on_member_and_time"
     t.index ["loyalty_member_id", "source_type", "source_key"], name: "index_loyalty_ledger_entries_on_idempotency_key", unique: true, where: "((source_type IS NOT NULL) AND (source_key IS NOT NULL))"
-    t.check_constraint "entry_type::text = ANY (ARRAY['earn'::character varying::text, 'redeem'::character varying::text, 'expire'::character varying::text, 'adjust'::character varying::text, 'reverse'::character varying::text])", name: "anne_loyalty_ledger_entries_known_type"
-    t.check_constraint "points_delta <> 0", name: "anne_loyalty_ledger_entries_non_zero_delta"
-    t.check_constraint "source_type IS NULL AND source_key IS NULL OR source_type IS NOT NULL AND source_key IS NOT NULL", name: "anne_loyalty_ledger_entries_source_pair"
+    t.check_constraint "entry_type::text = ANY (ARRAY['earn'::character varying::text, 'redeem'::character varying::text, 'expire'::character varying::text, 'adjust'::character varying::text, 'reverse'::character varying::text])", name: "annes_loyalty_ledger_entries_known_type"
+    t.check_constraint "points_delta <> 0", name: "annes_loyalty_ledger_entries_non_zero_delta"
+    t.check_constraint "source_type IS NULL AND source_key IS NULL OR source_type IS NOT NULL AND source_key IS NOT NULL", name: "annes_loyalty_ledger_entries_source_pair"
   end
 
-  create_table "anne_loyalty_loyalty_locations", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_locations", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.string "code", null: false
     t.datetime "created_at", null: false
@@ -109,11 +109,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.string "name", null: false
     t.string "time_zone", null: false
     t.datetime "updated_at", null: false
-    t.index ["active"], name: "index_anne_loyalty_loyalty_locations_on_active"
+    t.index ["active"], name: "index_annes_loyalty_loyalty_locations_on_active"
     t.index ["loyalty_program_id", "code"], name: "index_loyalty_locations_on_program_and_code", unique: true
   end
 
-  create_table "anne_loyalty_loyalty_members", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_members", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.integer "cached_balance", default: 0, null: false
     t.datetime "created_at", null: false
@@ -127,10 +127,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.index ["loyalty_program_id", "member_key"], name: "index_loyalty_members_on_program_and_member_key", unique: true
     t.index ["loyalty_program_id", "owner_type", "owner_id"], name: "index_loyalty_members_on_program_and_owner", unique: true
     t.index ["owner_type", "owner_id"], name: "index_loyalty_members_on_owner"
-    t.check_constraint "cached_balance >= 0 AND lifetime_earned_points >= 0", name: "anne_loyalty_members_non_negative_balances"
+    t.check_constraint "cached_balance >= 0 AND lifetime_earned_points >= 0", name: "annes_loyalty_members_non_negative_balances"
   end
 
-  create_table "anne_loyalty_loyalty_point_lots", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_point_lots", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "expires_on", null: false
     t.bigint "loyalty_member_id", null: false
@@ -140,11 +140,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.datetime "updated_at", null: false
     t.index ["loyalty_member_id", "expires_on"], name: "index_loyalty_point_lots_on_member_and_expiry"
     t.index ["loyalty_member_id", "status"], name: "index_loyalty_point_lots_on_member_and_status"
-    t.check_constraint "original_points > 0 AND remaining_points >= 0 AND remaining_points <= original_points", name: "anne_loyalty_point_lots_remaining_range"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'consumed'::character varying::text, 'expired'::character varying::text, 'voided'::character varying::text])", name: "anne_loyalty_point_lots_known_status"
+    t.check_constraint "original_points > 0 AND remaining_points >= 0 AND remaining_points <= original_points", name: "annes_loyalty_point_lots_remaining_range"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'consumed'::character varying::text, 'expired'::character varying::text, 'voided'::character varying::text])", name: "annes_loyalty_point_lots_known_status"
   end
 
-  create_table "anne_loyalty_loyalty_programs", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_programs", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.string "code", null: false
     t.datetime "created_at", null: false
@@ -154,11 +154,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.string "name", null: false
     t.string "point_name", null: false
     t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_anne_loyalty_loyalty_programs_on_code", unique: true
-    t.check_constraint "earn_unit_amount_cents > 0 AND earn_points_per_unit > 0 AND default_expiration_months > 0", name: "anne_loyalty_programs_positive_earn_settings"
+    t.index ["code"], name: "index_annes_loyalty_loyalty_programs_on_code", unique: true
+    t.check_constraint "earn_unit_amount_cents > 0 AND earn_points_per_unit > 0 AND default_expiration_months > 0", name: "annes_loyalty_programs_positive_earn_settings"
   end
 
-  create_table "anne_loyalty_loyalty_redemptions", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_redemptions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
     t.datetime "issued_at", null: false
@@ -173,12 +173,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.index ["loyalty_member_id", "status"], name: "index_loyalty_redemptions_on_member_and_status"
     t.index ["loyalty_reward_id", "status"], name: "index_loyalty_redemptions_on_reward_and_status"
     t.index ["token_digest"], name: "index_loyalty_redemptions_on_token_digest", unique: true
-    t.check_constraint "expires_at > issued_at", name: "anne_loyalty_redemptions_expiry_after_issue"
-    t.check_constraint "redeemed_at IS NULL OR redeemed_at >= issued_at", name: "anne_loyalty_redemptions_redeemed_after_issue"
-    t.check_constraint "status::text = ANY (ARRAY['issued'::character varying::text, 'redeemed'::character varying::text, 'expired'::character varying::text, 'canceled'::character varying::text])", name: "anne_loyalty_redemptions_known_status"
+    t.check_constraint "expires_at > issued_at", name: "annes_loyalty_redemptions_expiry_after_issue"
+    t.check_constraint "redeemed_at IS NULL OR redeemed_at >= issued_at", name: "annes_loyalty_redemptions_redeemed_after_issue"
+    t.check_constraint "status::text = ANY (ARRAY['issued'::character varying::text, 'redeemed'::character varying::text, 'expired'::character varying::text, 'canceled'::character varying::text])", name: "annes_loyalty_redemptions_known_status"
   end
 
-  create_table "anne_loyalty_loyalty_rewards", force: :cascade do |t|
+  create_table "annes_loyalty_loyalty_rewards", force: :cascade do |t|
     t.boolean "active", default: true, null: false
     t.string "code", null: false
     t.datetime "created_at", null: false
@@ -187,9 +187,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
     t.integer "required_points", null: false
     t.datetime "updated_at", null: false
     t.integer "valid_minutes", null: false
-    t.index ["active"], name: "index_anne_loyalty_loyalty_rewards_on_active"
+    t.index ["active"], name: "index_annes_loyalty_loyalty_rewards_on_active"
     t.index ["loyalty_program_id", "code"], name: "index_loyalty_rewards_on_program_and_code", unique: true
-    t.check_constraint "required_points > 0 AND valid_minutes > 0", name: "anne_loyalty_rewards_positive_settings"
+    t.check_constraint "required_points > 0 AND valid_minutes > 0", name: "annes_loyalty_rewards_positive_settings"
   end
 
   create_table "annes_access_assignments", force: :cascade do |t|
@@ -296,20 +296,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_001000) do
   add_foreign_key "account_password_reset_tokens", "accounts"
   add_foreign_key "account_sessions", "accounts"
   add_foreign_key "account_verification_tokens", "accounts"
-  add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
-  add_foreign_key "anne_loyalty_loyalty_ledger_entries", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
-  add_foreign_key "anne_loyalty_loyalty_locations", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
-  add_foreign_key "anne_loyalty_loyalty_members", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
-  add_foreign_key "anne_loyalty_loyalty_point_lots", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
-  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_locations", column: "redeemed_loyalty_location_id"
-  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_members", column: "loyalty_member_id"
-  add_foreign_key "anne_loyalty_loyalty_redemptions", "anne_loyalty_loyalty_rewards", column: "loyalty_reward_id"
-  add_foreign_key "anne_loyalty_loyalty_rewards", "anne_loyalty_loyalty_programs", column: "loyalty_program_id"
+  add_foreign_key "annes_loyalty_loyalty_ledger_entries", "annes_loyalty_loyalty_locations", column: "loyalty_location_id"
+  add_foreign_key "annes_loyalty_loyalty_ledger_entries", "annes_loyalty_loyalty_members", column: "loyalty_member_id"
+  add_foreign_key "annes_loyalty_loyalty_locations", "annes_loyalty_loyalty_programs", column: "loyalty_program_id"
+  add_foreign_key "annes_loyalty_loyalty_members", "annes_loyalty_loyalty_programs", column: "loyalty_program_id"
+  add_foreign_key "annes_loyalty_loyalty_point_lots", "annes_loyalty_loyalty_members", column: "loyalty_member_id"
+  add_foreign_key "annes_loyalty_loyalty_redemptions", "annes_loyalty_loyalty_locations", column: "redeemed_loyalty_location_id"
+  add_foreign_key "annes_loyalty_loyalty_redemptions", "annes_loyalty_loyalty_members", column: "loyalty_member_id"
+  add_foreign_key "annes_loyalty_loyalty_redemptions", "annes_loyalty_loyalty_rewards", column: "loyalty_reward_id"
+  add_foreign_key "annes_loyalty_loyalty_rewards", "annes_loyalty_loyalty_programs", column: "loyalty_program_id"
   add_foreign_key "annes_access_assignments", "annes_access_roles", column: "role_id"
   add_foreign_key "annes_access_role_permissions", "annes_access_permissions", column: "permission_id"
   add_foreign_key "annes_access_role_permissions", "annes_access_roles", column: "role_id"
-  add_foreign_key "receipts", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
+  add_foreign_key "receipts", "annes_loyalty_loyalty_locations", column: "loyalty_location_id"
   add_foreign_key "receipts", "customers"
-  add_foreign_key "visits", "anne_loyalty_loyalty_locations", column: "loyalty_location_id"
+  add_foreign_key "visits", "annes_loyalty_loyalty_locations", column: "loyalty_location_id"
   add_foreign_key "visits", "customers"
 end

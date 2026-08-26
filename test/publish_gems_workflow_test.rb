@@ -23,7 +23,7 @@ class PublishGemsWorkflowTest < Minitest::Test
 
     assert_equal true, gem_input.fetch("required")
     assert_equal "choice", gem_input.fetch("type")
-    assert_equal %w[annes_auth annes_admin annes_access annes_audit anne_loyalty], gem_input.fetch("options")
+    assert_equal %w[annes_auth annes_admin annes_access annes_audit annes_loyalty], gem_input.fetch("options")
     refute_includes gem_input.fetch("options"), "all"
 
     assert_equal true, version_input.fetch("required")

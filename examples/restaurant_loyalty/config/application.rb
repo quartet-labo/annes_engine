@@ -13,7 +13,7 @@ Bundler.require(*Rails.groups)
 require "annes_auth"
 require "annes_admin"
 require "annes_access"
-require "anne_loyalty"
+require "annes_loyalty"
 
 module RestaurantLoyalty
   class Application < Rails::Application

@@ -1,6 +1,6 @@
-class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
+class CreateAnnesLoyaltyCoreTables < ActiveRecord::Migration[8.1]
   def change
-    create_table :anne_loyalty_loyalty_programs do |t|
+    create_table :annes_loyalty_loyalty_programs do |t|
       t.string :code, null: false
       t.string :name, null: false
       t.string :point_name, null: false
@@ -14,12 +14,12 @@ class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
       t.index :code, unique: true
     end
 
-    add_check_constraint :anne_loyalty_loyalty_programs,
+    add_check_constraint :annes_loyalty_loyalty_programs,
       "earn_unit_amount_cents > 0 AND earn_points_per_unit > 0 AND default_expiration_months > 0",
-      name: "anne_loyalty_programs_positive_earn_settings"
+      name: "annes_loyalty_programs_positive_earn_settings"
 
-    create_table :anne_loyalty_loyalty_locations do |t|
-      t.references :loyalty_program, null: false, foreign_key: { to_table: :anne_loyalty_loyalty_programs }, index: false
+    create_table :annes_loyalty_loyalty_locations do |t|
+      t.references :loyalty_program, null: false, foreign_key: { to_table: :annes_loyalty_loyalty_programs }, index: false
       t.string :code, null: false
       t.string :name, null: false
       t.string :time_zone, null: false
@@ -32,8 +32,8 @@ class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
       t.index :active
     end
 
-    create_table :anne_loyalty_loyalty_members do |t|
-      t.references :loyalty_program, null: false, foreign_key: { to_table: :anne_loyalty_loyalty_programs }, index: false
+    create_table :annes_loyalty_loyalty_members do |t|
+      t.references :loyalty_program, null: false, foreign_key: { to_table: :annes_loyalty_loyalty_programs }, index: false
       t.string :member_key, null: false
       t.string :owner_type, null: false
       t.bigint :owner_id, null: false
@@ -53,13 +53,13 @@ class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
         name: "index_loyalty_members_on_program_and_member_key"
     end
 
-    add_check_constraint :anne_loyalty_loyalty_members,
+    add_check_constraint :annes_loyalty_loyalty_members,
       "cached_balance >= 0 AND lifetime_earned_points >= 0",
-      name: "anne_loyalty_members_non_negative_balances"
+      name: "annes_loyalty_members_non_negative_balances"
 
-    create_table :anne_loyalty_loyalty_ledger_entries do |t|
-      t.references :loyalty_member, null: false, foreign_key: { to_table: :anne_loyalty_loyalty_members }, index: false
-      t.references :loyalty_location, null: true, foreign_key: { to_table: :anne_loyalty_loyalty_locations }, index: false
+    create_table :annes_loyalty_loyalty_ledger_entries do |t|
+      t.references :loyalty_member, null: false, foreign_key: { to_table: :annes_loyalty_loyalty_members }, index: false
+      t.references :loyalty_location, null: true, foreign_key: { to_table: :annes_loyalty_loyalty_locations }, index: false
       t.string :entry_type, null: false
       t.integer :points_delta, null: false
       t.string :source_type
@@ -77,18 +77,18 @@ class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
         name: "index_loyalty_ledger_entries_on_idempotency_key"
     end
 
-    add_check_constraint :anne_loyalty_loyalty_ledger_entries,
+    add_check_constraint :annes_loyalty_loyalty_ledger_entries,
       "entry_type IN ('earn', 'redeem', 'expire', 'adjust', 'reverse')",
-      name: "anne_loyalty_ledger_entries_known_type"
-    add_check_constraint :anne_loyalty_loyalty_ledger_entries,
+      name: "annes_loyalty_ledger_entries_known_type"
+    add_check_constraint :annes_loyalty_loyalty_ledger_entries,
       "points_delta <> 0",
-      name: "anne_loyalty_ledger_entries_non_zero_delta"
-    add_check_constraint :anne_loyalty_loyalty_ledger_entries,
+      name: "annes_loyalty_ledger_entries_non_zero_delta"
+    add_check_constraint :annes_loyalty_loyalty_ledger_entries,
       "(source_type IS NULL AND source_key IS NULL) OR (source_type IS NOT NULL AND source_key IS NOT NULL)",
-      name: "anne_loyalty_ledger_entries_source_pair"
+      name: "annes_loyalty_ledger_entries_source_pair"
 
-    create_table :anne_loyalty_loyalty_point_lots do |t|
-      t.references :loyalty_member, null: false, foreign_key: { to_table: :anne_loyalty_loyalty_members }, index: false
+    create_table :annes_loyalty_loyalty_point_lots do |t|
+      t.references :loyalty_member, null: false, foreign_key: { to_table: :annes_loyalty_loyalty_members }, index: false
       t.integer :original_points, null: false
       t.integer :remaining_points, null: false
       t.date :expires_on, null: false
@@ -100,11 +100,11 @@ class CreateAnneLoyaltyCoreTables < ActiveRecord::Migration[8.1]
       t.index [ :loyalty_member_id, :status ], name: "index_loyalty_point_lots_on_member_and_status"
     end
 
-    add_check_constraint :anne_loyalty_loyalty_point_lots,
+    add_check_constraint :annes_loyalty_loyalty_point_lots,
       "original_points > 0 AND remaining_points >= 0 AND remaining_points <= original_points",
-      name: "anne_loyalty_point_lots_remaining_range"
-    add_check_constraint :anne_loyalty_loyalty_point_lots,
+      name: "annes_loyalty_point_lots_remaining_range"
+    add_check_constraint :annes_loyalty_loyalty_point_lots,
       "status IN ('open', 'consumed', 'expired', 'voided')",
-      name: "anne_loyalty_point_lots_known_status"
+      name: "annes_loyalty_point_lots_known_status"
   end
 end

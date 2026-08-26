@@ -2,7 +2,7 @@ require "test_helper"
 
 class AdminLoyaltyResourcesTest < ActionDispatch::IntegrationTest
   setup do
-    @program = AnneLoyalty::LoyaltyProgram.create!(
+    @program = AnnesLoyalty::LoyaltyProgram.create!(
       code: "admin-demo",
       name: "Admin Demo",
       point_name: "pt",
@@ -10,13 +10,13 @@ class AdminLoyaltyResourcesTest < ActionDispatch::IntegrationTest
       earn_points_per_unit: 1,
       default_expiration_months: 12
     )
-    @location = AnneLoyalty::LoyaltyLocation.create!(
+    @location = AnnesLoyalty::LoyaltyLocation.create!(
       loyalty_program: @program,
       code: "ginza",
       name: "Ginza",
       time_zone: "Asia/Tokyo"
     )
-    @reward = AnneLoyalty::LoyaltyReward.create!(
+    @reward = AnnesLoyalty::LoyaltyReward.create!(
       loyalty_program: @program,
       code: "coffee",
       name: "コーヒー無料",
@@ -43,7 +43,7 @@ class AdminLoyaltyResourcesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, @reward.name
 
-    assert_difference("AnneLoyalty::LoyaltyReward.count") do
+    assert_difference("AnnesLoyalty::LoyaltyReward.count") do
       post "/admin/loyalty_rewards", params: {
         loyalty_reward: {
           loyalty_program_id: @program.id,

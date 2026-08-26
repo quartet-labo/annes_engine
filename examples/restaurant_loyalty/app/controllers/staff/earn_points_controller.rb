@@ -3,15 +3,15 @@ module Staff
     before_action -> { authorize_loyalty!(:earn, :loyalty_points) }
 
     def new
-      @member = AnneLoyalty::LoyaltyMember.find_by(member_key: params[:member_key].to_s.strip)
+      @member = AnnesLoyalty::LoyaltyMember.find_by(member_key: params[:member_key].to_s.strip)
       @amount_cents = params[:amount_cents].to_i if params[:amount_cents].present?
-      @quote = AnneLoyalty.quote_earn(member: @member, location: current_location, amount_cents: @amount_cents) if @member && @amount_cents.to_i.positive?
+      @quote = AnnesLoyalty.quote_earn(member: @member, location: current_location, amount_cents: @amount_cents) if @member && @amount_cents.to_i.positive?
     end
 
     def create
       @member = find_member_by_key!(params[:member_key])
       @receipt = find_or_create_receipt!
-      @entry = AnneLoyalty.earn!(
+      @entry = AnnesLoyalty.earn!(
         member: @member,
         location: current_location,
         amount_cents: @receipt.amount_cents,
@@ -19,9 +19,9 @@ module Staff
         actor: current_account,
         metadata: request_metadata
       )
-      @balance = AnneLoyalty.balance_for(member: @member)
+      @balance = AnnesLoyalty.balance_for(member: @member)
       render :created, status: :created
-    rescue ActiveRecord::RecordInvalid, AnneLoyalty::Error => error
+    rescue ActiveRecord::RecordInvalid, AnnesLoyalty::Error => error
       @error = error_message(error)
       render :new, status: :unprocessable_content
     end

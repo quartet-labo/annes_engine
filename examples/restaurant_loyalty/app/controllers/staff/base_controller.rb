@@ -13,12 +13,12 @@ module Staff
       end
 
       def current_location
-        @current_location ||= AnneLoyalty::LoyaltyLocation.active.order(:id).first ||
+        @current_location ||= AnnesLoyalty::LoyaltyLocation.active.order(:id).first ||
           raise(ActiveRecord::RecordNotFound, "No active loyalty location is available")
       end
 
       def find_member_by_key!(member_key)
-        AnneLoyalty::LoyaltyMember.includes(:owner, :loyalty_program)
+        AnnesLoyalty::LoyaltyMember.includes(:owner, :loyalty_program)
           .find_by!(member_key: member_key.to_s.strip)
       end
 

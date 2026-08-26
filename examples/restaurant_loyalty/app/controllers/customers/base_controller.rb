@@ -16,12 +16,12 @@ module Customers
       end
 
       def loyalty_program
-        @loyalty_program ||= AnneLoyalty::LoyaltyProgram.active.order(:id).first ||
+        @loyalty_program ||= AnnesLoyalty::LoyaltyProgram.active.order(:id).first ||
           raise(ActiveRecord::RecordNotFound, "No active loyalty program is available")
       end
 
       def loyalty_member
-        @loyalty_member ||= AnneLoyalty.enroll!(
+        @loyalty_member ||= AnnesLoyalty.enroll!(
           program: loyalty_program,
           owner: current_customer,
           member_key: current_customer.customer_number

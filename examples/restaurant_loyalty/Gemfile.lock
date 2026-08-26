@@ -20,9 +20,9 @@ PATH
       rails (>= 8.1.0, < 8.2)
 
 PATH
-  remote: ../../anne_loyalty
+  remote: ../../annes_loyalty
   specs:
-    anne_loyalty (0.1.0)
+    annes_loyalty (1.0.0)
       rails (>= 8.1.0, < 8.2)
 
 GEM
@@ -312,7 +312,7 @@ DEPENDENCIES
   annes_access!
   annes_admin!
   annes_auth!
-  anne_loyalty!
+  annes_loyalty!
   pg (~> 1.1)
   propshaft
   puma (>= 6.0)

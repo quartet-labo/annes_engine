@@ -6,16 +6,16 @@ module Staff
     end
 
     def create
-      @redemption = AnneLoyalty.confirm_redemption!(
+      @redemption = AnnesLoyalty.confirm_redemption!(
         token: params[:token],
         location: current_location,
         actor: current_account,
         metadata: request_metadata
       )
       @member = @redemption.loyalty_member
-      @balance = AnneLoyalty.balance_for(member: @member)
+      @balance = AnnesLoyalty.balance_for(member: @member)
       render :created, status: :created
-    rescue AnneLoyalty::Error => error
+    rescue AnnesLoyalty::Error => error
       @error = error.message
       render :new, status: :unprocessable_content
     end

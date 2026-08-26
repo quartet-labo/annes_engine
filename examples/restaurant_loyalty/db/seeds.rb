@@ -47,7 +47,7 @@ role_permissions.each do |role_key, resource_actions|
   AnnesAccess::Assignment.find_or_create_by!(principal: account, role:)
 end
 
-program = AnneLoyalty::LoyaltyProgram.find_or_initialize_by(code: "cafe-demo")
+program = AnnesLoyalty::LoyaltyProgram.find_or_initialize_by(code: "cafe-demo")
 program.assign_attributes(
   name: "Cafe Demo",
   point_name: "pt",
@@ -58,7 +58,7 @@ program.assign_attributes(
 )
 program.save!
 
-location = AnneLoyalty::LoyaltyLocation.find_or_initialize_by(loyalty_program: program, code: "ginza")
+location = AnnesLoyalty::LoyaltyLocation.find_or_initialize_by(loyalty_program: program, code: "ginza")
 location.assign_attributes(name: "Ginza", time_zone: "Asia/Tokyo", active: true)
 location.save!
 
@@ -66,7 +66,7 @@ rewards = {
   "coffee" => { name: "コーヒー無料", required_points: 20, valid_minutes: 10 },
   "dessert" => { name: "デザート無料", required_points: 40, valid_minutes: 10 }
 }.to_h do |code, attributes|
-  reward = AnneLoyalty::LoyaltyReward.find_or_initialize_by(loyalty_program: program, code:)
+  reward = AnnesLoyalty::LoyaltyReward.find_or_initialize_by(loyalty_program: program, code:)
   reward.assign_attributes(attributes.merge(active: true))
   reward.save!
   [ code, reward ]
@@ -79,7 +79,7 @@ customers = {
   customer = Customer.find_or_initialize_by(customer_number:)
   customer.assign_attributes(attributes.merge(active: true, access_code: customer_access_code))
   customer.save!
-  member = AnneLoyalty.enroll!(program:, owner: customer, member_key: customer.customer_number)
+  member = AnnesLoyalty.enroll!(program:, owner: customer, member_key: customer.customer_number)
   [ customer_number, { customer:, member: } ]
 end
 
@@ -92,7 +92,7 @@ receipt.assign_attributes(
 )
 receipt.save!
 
-AnneLoyalty.earn!(
+AnnesLoyalty.earn!(
   member: customers.fetch("C-DEMO-001").fetch(:member),
   location:,
   amount_cents: receipt.amount_cents,

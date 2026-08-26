@@ -19,7 +19,7 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`annes_access`](annes_access/README.md) - lightweight role-based authorization
 - [`annes_admin`](annes_admin/README.md) - configurable administration screens for host models
 - [`annes_audit`](annes_audit/README.md) - durable audit event persistence and notification mapping
-- [`anne_loyalty`](anne_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
+- [`annes_loyalty`](annes_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
 - [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
 - [`examples/restaurant_loyalty`](examples/restaurant_loyalty/README.md) - restaurant point card demo integrating loyalty, auth, access, and admin screens
@@ -32,7 +32,7 @@ by Quartet Labo LLC. guide the project roadmap.
 | AnnesAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnnesAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
 | AnnesAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
-| AnneLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
+| AnnesLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
 
 For applications using all three engines, adopt them in this order:
 
@@ -64,7 +64,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "annes_admin", "~> 1.0"
   gem "annes_access", "~> 1.0"
   gem "annes_audit", "~> 1.0"
-  gem "anne_loyalty", "~> 0.1.0"
+  gem "annes_loyalty", "~> 1.0"
 end
 ```
 
@@ -75,7 +75,7 @@ gem "annes_auth", path: "../anne_engine/annes_auth"
 gem "annes_admin", path: "../anne_engine/annes_admin"
 gem "annes_access", path: "../anne_engine/annes_access"
 gem "annes_audit", path: "../anne_engine/annes_audit"
-gem "anne_loyalty", path: "../anne_engine/anne_loyalty"
+gem "annes_loyalty", path: "../anne_engine/annes_loyalty"
 ```
 
 ## Publishing
@@ -94,8 +94,8 @@ guide, and the dependent sample app lockfiles, then commit the release change:
   `annes_access/UPGRADING.md`
 - `annes_audit/lib/annes_audit/version.rb`, `annes_audit/CHANGELOG.md`, and
   `annes_audit/UPGRADING.md`
-- `anne_loyalty/lib/anne_loyalty/version.rb`, `anne_loyalty/CHANGELOG.md`, and
-  `anne_loyalty/UPGRADING.md`
+- `annes_loyalty/lib/annes_loyalty/version.rb`, `annes_loyalty/CHANGELOG.md`, and
+  `annes_loyalty/UPGRADING.md`
 
 After changing a target gem version, refresh every example app `Gemfile.lock`
 that depends on that gem so the path-sourced gemspec version is committed with
@@ -111,7 +111,7 @@ the release:
   `examples/resavation_management/Gemfile.lock`, and
   `examples/restaurant_loyalty/Gemfile.lock`
 - `annes_audit`: update each example app lockfile that opts in to durable audit storage.
-- `anne_loyalty`: `examples/restaurant_loyalty/Gemfile.lock`
+- `annes_loyalty`: `examples/restaurant_loyalty/Gemfile.lock`
 
 Run `bundle update <gem_name>` from each affected example directory. For
 releases that bump multiple engines together, pass all affected gem names in
@@ -129,14 +129,14 @@ See the package-specific upgrade guides before updating a host application:
 - [AnnesAccess upgrade guide](annes_access/UPGRADING.md)
 - [AnnesAdmin upgrade guide](annes_admin/UPGRADING.md)
 - [AnnesAudit upgrade guide](annes_audit/UPGRADING.md)
-- [AnneLoyalty upgrade guide](anne_loyalty/UPGRADING.md)
+- [AnnesLoyalty upgrade guide](annes_loyalty/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
 target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, or `anne_loyalty`, and
+`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, or `annes_loyalty`, and
 set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,
@@ -207,7 +207,7 @@ authorization matrix, database constraints, and implementation boundaries.
 ### Restaurant Loyalty
 
 [`examples/restaurant_loyalty`](examples/restaurant_loyalty/README.md) is a
-restaurant point card demo. It uses `anne_loyalty` for the point ledger, reward
+restaurant point card demo. It uses `annes_loyalty` for the point ledger, reward
 exchange, and redemption tokens; `annes_auth` for staff login; `annes_access` for
 RBAC; and `annes_admin` for program, location, and reward CRUD.
 

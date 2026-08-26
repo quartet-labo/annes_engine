@@ -6,7 +6,7 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
 
     customer = Customer.find_by!(customer_number: "C-DEMO-001")
     member = customer.loyalty_member
-    coffee = AnneLoyalty::LoyaltyReward.find_by!(code: "coffee")
+    coffee = AnnesLoyalty::LoyaltyReward.find_by!(code: "coffee")
 
     sign_in_seeded_customer(customer.customer_number)
     get customer_root_path(customer_id: Customer.find_by!(customer_number: "C-DEMO-002").id)
@@ -52,7 +52,7 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
     post "/admin/loyalty_rewards",
       params: {
         loyalty_reward: {
-          loyalty_program_id: AnneLoyalty::LoyaltyProgram.find_by!(code: "cafe-demo").id,
+          loyalty_program_id: AnnesLoyalty::LoyaltyProgram.find_by!(code: "cafe-demo").id,
           code: "tea",
           name: "紅茶無料",
           required_points: 25,
@@ -61,7 +61,7 @@ class DemoWorkflowTest < ActionDispatch::IntegrationTest
         }
       }
     assert_response :redirect
-    assert AnneLoyalty::LoyaltyReward.exists?(code: "tea")
+    assert AnnesLoyalty::LoyaltyReward.exists?(code: "tea")
 
     delete "/admin/logout"
     sign_in_seeded_account("viewer@example.com")

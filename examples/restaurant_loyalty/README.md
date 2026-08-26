@@ -2,7 +2,7 @@
 
 飲食店の紙のポイントカードを置き換えるdemo appです。
 
-- `anne_loyalty`: ポイント制度、会員、ledger、point lot、特典、redemption token
+- `annes_loyalty`: ポイント制度、会員、ledger、point lot、特典、redemption token
 - `annes_auth`: スタッフ・管理者ログイン
 - `annes_access`: admin / manager / staff / viewer のRBAC
 - `annes_admin`: ポイントプログラム、店舗、特典の管理CRUD
@@ -15,7 +15,7 @@
 - Ruby 3.4.9
 - Rails 8.1.x
 - PostgreSQL 16以降
-- repository内の`annes_auth`、`annes_access`、`annes_admin`、`anne_loyalty`
+- repository内の`annes_auth`、`annes_access`、`annes_admin`、`annes_loyalty`
 
 ## Setup
 
@@ -136,8 +136,8 @@ bin/rails test
 
 ## Security Notes
 
-- `config/initializers/anne_loyalty.rb`ではtoken digest secretに`secret_key_base`を使います。本番では安定したsecretを設定してください。
+- `config/initializers/annes_loyalty.rb`ではtoken digest secretに`secret_key_base`を使います。本番では安定したsecretを設定してください。
 - 顧客向け画面は`session[:customer_id]`でログイン済み顧客だけを表示します。`customer_id` queryで顧客を切り替える挙動は提供しません。
 - QRには`member:<member_key>`または`redemption:<token>`だけを表示し、残高や個人情報は含めません。
-- ポイントの付与・利用は`anne_loyalty` service経由で行い、ledgerを直接更新しません。
+- ポイントの付与・利用は`annes_loyalty` service経由で行い、ledgerを直接更新しません。
 - demo seedの固定パスワードは開発用です。本番環境では使用しないでください。

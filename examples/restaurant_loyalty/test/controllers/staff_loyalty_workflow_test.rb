@@ -3,7 +3,7 @@ require "test_helper"
 class StaffLoyaltyWorkflowTest < ActionDispatch::IntegrationTest
   setup do
     @customer = Customer.create!(name: "山田 太郎")
-    @program = AnneLoyalty::LoyaltyProgram.create!(
+    @program = AnnesLoyalty::LoyaltyProgram.create!(
       code: "staff-workflow",
       name: "Staff Workflow",
       point_name: "pt",
@@ -11,14 +11,14 @@ class StaffLoyaltyWorkflowTest < ActionDispatch::IntegrationTest
       earn_points_per_unit: 1,
       default_expiration_months: 12
     )
-    @location = AnneLoyalty::LoyaltyLocation.create!(
+    @location = AnnesLoyalty::LoyaltyLocation.create!(
       loyalty_program: @program,
       code: "ginza",
       name: "Ginza",
       time_zone: "Asia/Tokyo"
     )
-    @member = AnneLoyalty.enroll!(program: @program, owner: @customer, member_key: @customer.customer_number)
-    @reward = AnneLoyalty::LoyaltyReward.create!(
+    @member = AnnesLoyalty.enroll!(program: @program, owner: @customer, member_key: @customer.customer_number)
+    @reward = AnnesLoyalty::LoyaltyReward.create!(
       loyalty_program: @program,
       code: "coffee",
       name: "コーヒー無料",
@@ -50,7 +50,7 @@ class StaffLoyaltyWorkflowTest < ActionDispatch::IntegrationTest
   test "staff cannot reuse another customer's receipt number" do
     sign_in_as_role(:staff)
     other_customer = Customer.create!(name: "佐藤 花子")
-    other_member = AnneLoyalty.enroll!(
+    other_member = AnnesLoyalty.enroll!(
       program: @program,
       owner: other_customer,
       member_key: other_customer.customer_number
@@ -74,8 +74,8 @@ class StaffLoyaltyWorkflowTest < ActionDispatch::IntegrationTest
 
   test "staff can confirm redemption tokens once" do
     sign_in_as_role(:staff)
-    AnneLoyalty.earn!(member: @member, location: @location, amount_cents: 3_000, source: { type: "Receipt", key: "R-ST-002" })
-    issue = AnneLoyalty.redeem_reward!(member: @member, reward: @reward)
+    AnnesLoyalty.earn!(member: @member, location: @location, amount_cents: 3_000, source: { type: "Receipt", key: "R-ST-002" })
+    issue = AnnesLoyalty.redeem_reward!(member: @member, reward: @reward)
 
     post staff_redemptions_path, params: { token: issue.token }
 

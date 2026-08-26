@@ -4,7 +4,7 @@ class Customer < ApplicationRecord
   has_secure_password :access_code, validations: false
 
   has_one :loyalty_member,
-    class_name: "AnneLoyalty::LoyaltyMember",
+    class_name: "AnnesLoyalty::LoyaltyMember",
     as: :owner,
     dependent: :restrict_with_error
   has_many :receipts, dependent: :restrict_with_error

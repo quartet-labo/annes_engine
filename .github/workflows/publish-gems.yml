@@ -13,7 +13,7 @@ on:
           - annes_admin
           - annes_access
           - annes_audit
-          - anne_loyalty
+          - annes_loyalty
       version:
         description: Expected gem version to publish
         required: true
