@@ -9,7 +9,9 @@ This is a breaking package and namespace migration.
 2. Rename `config/initializers/anne_audit.rb` to
    `config/initializers/annes_audit.rb`, and replace `AnneAudit` with
    `AnnesAudit` in host code.
-3. Run `bin/rails db:migrate`. The included migration renames
+3. Copy the new engine migration with
+   `bin/rails generate annes_audit:install`, then run `bin/rails db:migrate`.
+   The included migration renames
    `anne_audit_events` and all of its indexes to the `annes_audit` prefix
    without changing audit event rows.
 4. Replace built-in mapper references with `AnnesAudit::Mappers::AnnesAuth`
