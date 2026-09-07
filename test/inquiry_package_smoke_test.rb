@@ -12,6 +12,7 @@ class InquiryPackageSmokeTest < Minitest::Test
         File.write(path, "#!/bin/sh\necho UNEXPECTED_PACKAGE_COMMAND\nexit 99\n")
         File.chmod(0o755, path)
       end
+      command_path = "#{directory}:#{ENV.fetch('PATH')}"
       [
         "postgresql:///production",
         "postgresql:///annes_inquiry_package_test?database=production",
@@ -19,7 +20,7 @@ class InquiryPackageSmokeTest < Minitest::Test
         "sqlite3:///annes_inquiry_package_test"
       ].each do |url|
         output, status = Open3.capture2e(
-          { "INQUIRY_PACKAGE_DATABASE_URL" => url, "PATH" => "#{directory}:#{ENV.fetch('PATH')}" },
+          { "INQUIRY_PACKAGE_DATABASE_URL" => url, "PATH" => command_path, "BUNDLER_ORIG_PATH" => command_path },
           RbConfig.ruby, File.expand_path("../script/check_inquiry_package", __dir__)
         )
         refute status.success?, url
