@@ -15,6 +15,8 @@ module AnnesInquiry
       load_form
       adapter = AnnesInquiry.configuration.adapters[@form.key]
       context = adapter.prepare_context(self) if adapter&.respond_to?(:prepare_context)
+      return if performed?
+
       raw = params[:inquiry].is_a?(ActionController::Parameters) ? params[:inquiry].to_unsafe_h : (params[:inquiry] || {})
       result = SubmissionService.call(form: @form, token: params[:submission_token], identity: identity, raw_values: raw, adapter: adapter, context: context)
       if result.success?

@@ -38,6 +38,23 @@ class InputPoliciesTest < ActiveSupport::TestCase
     assert_not parse("files" => [ upload("hello", "fake.png") ]).valid?
   end
 
+  test "excess attachment count rejects the input before inspecting any file" do
+    field = @version.fields.create!(key: "files", label: "Files", value_type: "attachment", widget: "file", max_files: 1, max_file_bytes: 10)
+    field.file_types.create!(extension: ".txt", content_type: "text/plain")
+    files = [ upload("one", "one.txt"), upload("two", "two.txt") ]
+    files.each do |file|
+      file.define_singleton_method(:tempfile) { raise "Rejected uploads must not be inspected" }
+    end
+
+    assert_no_difference "ActiveStorage::Blob.count" do
+      input = parse("files" => files)
+      assert_not input.valid?
+      assert_equal [ "は1件以下にしてください" ], input.errors[:files]
+      assert_empty input.values["files"]
+      assert_equal files, input.raw_values["files"]
+    end
+  end
+
   test "refines compatible file types and validates text across bounded chunks" do
     require "zip"
     field = @version.fields.create!(key: "files", label: "Files", value_type: "attachment", widget: "file", max_files: 1, max_file_bytes: 300_000)

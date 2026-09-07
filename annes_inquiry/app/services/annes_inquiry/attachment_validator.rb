@@ -3,7 +3,10 @@ module AnnesInquiry
     Upload = Data.define(:upload, :checksum, :byte_size, :filename, :content_type)
 
     def self.call(field, files, errors)
-      errors.add(field.key, "は#{field.max_files}件以下にしてください") if field.max_files && files.size > field.max_files
+      if field.max_files && files.size > field.max_files
+        errors.add(field.key, "は#{field.max_files}件以下にしてください")
+        return []
+      end
       files.filter_map do |file|
         unless file.is_a?(ActionDispatch::Http::UploadedFile)
           errors.add(field.key, "はファイルを選択してください")

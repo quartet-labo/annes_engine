@@ -121,7 +121,7 @@ Active Storageはホスト側でインストールしてください（dummyに�
 
 数値は厳格変換し、bigintの範囲とdecimal(25,6)の精度を超える入力は丸めず拒否します。datetimeは `time_zone` のローカル時刻をUTCへ変換し、存在しない/曖昧な夏時間は拒否します。booleanの必須はfalseを許可し、同意必須はtrueのみ許可します。
 
-添付はmultipartのUploadedFileだけを受け付けます。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
+添付はmultipartのUploadedFileだけを受け付けます。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
 
 ホストのcontrollerで `helper AnnesInquiry::FormHelper` を指定し、`annes_inquiry/forms/form` に `version`、`input`、`scope`、`submit_url` を渡すとフォームを表示できます。既存のform内では `annes_inquiry/forms/fields` を利用し、`excluded_keys` で認証済み補完項目などの表示を省略できます（必須検証は省略しません）。CSSは `stylesheet_link_tag "annes_inquiry/forms"` で読み込みます。ホストの同一パスのpartialを配置するとRails標準のview探索で差し替えられます。ラベル・説明・選択肢・入力値はエスケープして表示します。
 
@@ -137,7 +137,7 @@ JavaScriptに依存せず全widgetを使用できます。数値・日付・日�
 
 アダプターの `enrichment_keys(context)` は認証情報から補完するキーを返します。再POSTではそのキーに限り保存時の回答を使い、現在のプロフィール変更で重複判定が変わらないようにします。`digest_context(context)` は業務に影響する安定したID等のHashを返します。クライアント入力項目とリピート元などは今回の値と比較します。検証メソッドは副作用を持たせないでください。
 
-入力検証とアップロードはフォームロックの外側で行います。フォーム行のロック取得後に版と重複を再確認し、受付・回答・アダプターの `persist!`・通知要求を同じprimary DB接続で保存します。ホストは `prepare_context(controller)` で権限を検証してからServiceを呼びます。保存アダプターでメール/APIを実行しないでください。
+入力検証とアップロードはフォームロックの外側で行います。フォーム行のロック取得後に版と重複を再確認し、受付・回答・アダプターの `persist!`・通知要求を同じprimary DB接続で保存します。ホストは `prepare_context(controller)` で権限を検証してからServiceを呼びます。標準公開controllerは、このフックが `head`・`render`・`redirect_to` でレスポンスを確定した場合、入力検証・受付保存・通知処理へ進みません。ホスト独自controllerが同じフックを使う場合も、拒否レスポンス後に処理を続行しないでください。保存アダプターでメール/APIを実行しないでください。
 
 標準公開controllerは `public_endpoints_enabled = true` のときだけ使用できます。`GET/POST forms/:key` と `GET complete/:receipt_id` を提供し、CSRF保護とセッション本人確認を併用します。完了画面は同じセッションで送信した最近20件だけ閲覧できます。ホスト固有URLはこのcontrollerを使わずServiceへ接続できます。
 
