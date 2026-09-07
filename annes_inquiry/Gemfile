@@ -1,0 +1,11 @@
+source "https://rubygems.org"
+gemspec
+gem "pg", "~> 1.1"
+gem "propshaft"
+gem "rake"
+gem "capybara"
+gem "selenium-webdriver"
+gem "simplecov", "~> 0.22"
+gem "psych", "5.4.0"
+gem "puma", "~> 8.0"
+gem "brakeman", require: false

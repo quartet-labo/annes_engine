@@ -1,0 +1,5 @@
+<% if input.errors[field.key].any? %>
+  <%= text_field_tag name, value.is_a?(String) ? value : nil, **attributes, inputmode: "decimal" %>
+<% else %>
+  <%= number_field_tag name, value.is_a?(String) ? value : nil, **attributes, min: field.min_numeric, max: field.max_numeric, step: 1 %>
+<% end %>

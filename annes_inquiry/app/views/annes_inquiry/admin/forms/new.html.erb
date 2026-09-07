@@ -1,0 +1,7 @@
+<h1>フォームを追加</h1>
+<% @form.errors.full_messages.each do |message| %><p role="alert"><%= message %></p><% end %>
+<%= form_with model: @form, scope: :form, url: admin_forms_path, local: true do |f| %>
+  <p><%= f.label :key, "フォームキー" %><%= f.text_field :key, required: true %></p>
+  <p><%= f.label :name, "管理名" %><%= f.text_field :name, required: true %></p>
+  <%= f.submit "フォームを作成" %>
+<% end %>

@@ -1,0 +1,3 @@
+<!DOCTYPE html>
+<html lang="ja"><head><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width, initial-scale=1"><title>問い合わせプレビュー</title><%= stylesheet_link_tag "annes_inquiry/forms" %></head>
+<body><%= render "annes_inquiry/forms/form", version: @version, input: @input, scope: "inquiry", submit_url: "/preview/#{@version.id}" %></body></html>

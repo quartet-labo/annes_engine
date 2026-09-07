@@ -1,0 +1,5 @@
+<% if input.errors[field.key].any? %>
+  <%= text_field_tag name, value.is_a?(String) ? value : nil, **attributes %>
+<% else %>
+  <%= date_field_tag name, value.is_a?(String) ? value : nil, **attributes, min: field.min_date, max: field.max_date %>
+<% end %>

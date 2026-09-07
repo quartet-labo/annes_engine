@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+require "uri"
+
+engine = File.expand_path("..", __dir__)
+if ENV["INQUIRY_DATABASE_URL"] && !ENV["INQUIRY_DATABASE_URL"].empty?
+  begin
+    uri = URI.parse(ENV.fetch("INQUIRY_DATABASE_URL"))
+    database = uri.path.to_s.delete_prefix("/")
+    options = URI.decode_www_form(uri.query.to_s).map(&:first)
+    valid = %w[postgres postgresql].include?(uri.scheme) &&
+      database.match?(/\A[a-zA-Z0-9_]+_test\z/) && database != "anne_mark_test" &&
+      (options - %w[sslmode connect_timeout]).empty?
+    abort "INQUIRY_DATABASE_URL must name a separate *_test database; only sslmode/connect_timeout options are supported" unless valid
+  rescue URI::InvalidURIError, ArgumentError
+    abort "Invalid INQUIRY_DATABASE_URL"
+  end
+end
+ENV.delete("DATABASE_URL")
+ENV["RAILS_ENV"] = "test"
+ENV["BUNDLE_GEMFILE"] = File.join(engine, "Gemfile")
+Dir.chdir(engine)
+
+case ARGV.first
+when "--install"
+  exec "bundle", "install"
+when "--prepare"
+  exec "bundle", "exec", "rake", "db:prepare"
+when "--schema-round-trip"
+  abort "Schema dump failed" unless system("bundle", "exec", "rake", "db:schema:dump")
+  abort "Schema load failed" unless system("bundle", "exec", "rake", "db:schema:load")
+  exec "bundle", "exec", "ruby", "-Itest", "test/run.rb"
+when "--system"
+  exec "bundle", "exec", "ruby", "-Itest", "test/run.rb", "test/system/**/*_test.rb"
+else
+  exec "bundle", "exec", "ruby", "-Itest", "test/run.rb", *ARGV
+end

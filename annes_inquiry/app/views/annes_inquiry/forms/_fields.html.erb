@@ -1,0 +1,16 @@
+<% version.fields.includes(:options, :file_types).each do |field| %>
+  <% next if local_assigns.fetch(:excluded_keys, []).include?(field.key) %>
+  <% attributes = inquiry_field_attributes(field, input, scope: scope) %>
+  <% name = "#{scope}[#{field.key}]" %>
+  <% value = inquiry_raw_value(input, field) %>
+  <div class="inquiry-field">
+    <%= label_tag attributes[:id], field.label %>
+    <% if field.required %><span class="inquiry-required">必須</span><% end %>
+    <%= render "annes_inquiry/forms/#{field.value_type}", field: field, input: input, attributes: attributes, name: name, value: value %>
+    <p id="<%= attributes[:id] %>_help" class="inquiry-help"><%= field.help_text %></p>
+    <% if field.value_type == "datetime" %><p class="inquiry-help">入力する日時のタイムゾーン: <%= input.time_zone %></p><% end %>
+    <div id="<%= attributes[:id] %>_errors" class="inquiry-error" <%= 'role="alert"'.html_safe if input.errors[field.key].any? %>>
+      <% input.errors[field.key].each do |message| %><p><%= field.label %><%= message %></p><% end %>
+    </div>
+  </div>
+<% end %>

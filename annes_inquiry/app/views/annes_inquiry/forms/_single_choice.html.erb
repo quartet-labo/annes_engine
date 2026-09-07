@@ -1,0 +1,11 @@
+<% if field.widget == "select" %>
+  <%= select_tag name, options_for_select(field.options.map { |option| [option.label, option.value] }, value), **attributes, include_blank: "選択してください" %>
+<% else %>
+  <div role="group" aria-label="<%= field.label %>">
+    <% field.options.each do |option| %>
+      <% option_id = "#{attributes[:id]}_#{option.id}" %>
+      <%= radio_button_tag name, option.value, value == option.value, **attributes.merge(id: option_id) %>
+      <%= label_tag option_id, option.label %>
+    <% end %>
+  </div>
+<% end %>
