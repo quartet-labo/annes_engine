@@ -1,3 +1,6 @@
 source "https://rubygems.org"
 
 gemspec
+
+# Rails 8.1 passes positional JSON options, which JSON 3 no longer accepts.
+gem "json", "< 3"
