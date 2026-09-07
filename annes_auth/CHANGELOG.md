@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.1
+
+- Require `json < 3` at runtime to prevent Rails 8.1 JSON decoding errors that
+  return HTTP 500 when reading encrypted authentication sessions.
+
 ## 1.0.0
 
 - Rename the gem from `anne_auth` to `annes_auth` and the Ruby namespace from

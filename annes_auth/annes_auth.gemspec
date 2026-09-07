@@ -22,6 +22,8 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 8.1.0", "< 8.2"
+  # Rails 8.1's JSON decoder passes options as a positional hash.
+  spec.add_dependency "json", "< 3"
   spec.add_dependency "bcrypt", "~> 3.1.7"
   spec.add_dependency "omniauth", "~> 2.1"
   spec.add_dependency "omniauth-google-oauth2", "~> 1.2"

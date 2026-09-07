@@ -10,7 +10,7 @@ class AnnesAuth::EngineTest < ActiveSupport::TestCase
   end
 
   test "exposes only the AnnesAuth public namespace" do
-    assert_equal "1.0.0", AnnesAuth::VERSION
+    assert_equal "1.0.1", AnnesAuth::VERSION
     refute Object.const_defined?(:AnneAuth)
   end
 

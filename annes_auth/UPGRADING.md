@@ -20,6 +20,13 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 1.0.0 -> 1.0.1
+
+Run `bundle update annes_auth json` to resolve the new `json < 3` runtime
+dependency, then run the host app authentication test suite. This avoids the
+JSON 3.0 argument error in the Rails 8.1 decoder when reading encrypted sessions.
+No migrations or application code changes are required.
+
 ## 0.4.x -> 1.0.0
 
 `1.0.0` is a breaking package and namespace rename. Make a database backup

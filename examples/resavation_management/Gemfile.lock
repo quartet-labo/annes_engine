@@ -13,8 +13,9 @@ PATH
 PATH
   remote: ../../annes_auth
   specs:
-    annes_auth (1.0.0)
+    annes_auth (1.0.1)
       bcrypt (~> 3.1.7)
+      json (< 3)
       omniauth (~> 2.1)
       omniauth-google-oauth2 (~> 1.2)
       rails (>= 8.1.0, < 8.2)
