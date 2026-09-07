@@ -1,0 +1,18 @@
+<% unless @version.draft? %>
+  <ul><% @field.file_types.each do |type| %><li><%= [type.extension, type.content_type].compact.join(" / ") %></li><% end %></ul>
+<% else %>
+<h2>添付の許可形式</h2>
+<% types = @field.file_types.to_a.select(&:persisted?) %>
+<% if @edited_file_type&.persisted? %><% types = types.map { |type| type.id == @edited_file_type.id ? @edited_file_type : type } %><% end %>
+<% types << (@edited_file_type&.new_record? ? @edited_file_type : @field.file_types.new) %>
+<% types.each do |type| %>
+  <% type.errors.full_messages.each do |message| %><p role="alert"><%= message %></p><% end %>
+  <%= form_with model: type, scope: :file_type, namespace: "file_type_#{type.id || 'new'}", url: type.persisted? ? update_file_type_admin_field_path(@field, child_id: type.id) : file_types_admin_field_path(@field), local: true do |f| %>
+    <%= hidden_field_tag :lock_version, @version.lock_version %>
+    <p><%= f.label :extension, "拡張子（.pdfなど）" %><%= f.text_field :extension %></p>
+    <p><%= f.label :content_type, "内容のMIME（任意）" %><%= f.text_field :content_type %></p>
+    <%= f.submit type.persisted? ? "許可形式を更新" : "許可形式を追加" %>
+  <% end %>
+  <% if type.persisted? %><%= button_to "許可形式を削除", remove_file_type_admin_field_path(@field, child_id: type.id), method: :delete, params: { lock_version: @version.lock_version } %><% end %>
+<% end %>
+<% end %>

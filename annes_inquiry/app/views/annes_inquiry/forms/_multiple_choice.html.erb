@@ -1,0 +1,12 @@
+<%= hidden_field_tag "#{name}[]", "", id: nil %>
+<% if field.widget == "multi_select" %>
+  <%= select_tag "#{name}[]", options_for_select(field.options.map { |option| [option.label, option.value] }, Array(value).select { |item| item.is_a?(String) }), **attributes, multiple: true %>
+<% else %>
+  <div role="group" aria-label="<%= field.label %>">
+    <% field.options.each do |option| %>
+      <% option_id = "#{attributes[:id]}_#{option.id}" %>
+      <%= check_box_tag "#{name}[]", option.value, Array(value).include?(option.value), **attributes.merge(id: option_id, required: false) %>
+      <%= label_tag option_id, option.label %>
+    <% end %>
+  </div>
+<% end %>

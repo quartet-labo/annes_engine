@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler"
+require "fileutils"
+require "rubygems/package"
+require "tmpdir"
+require "uri"
+
+root = File.expand_path("..", __dir__)
+engine = File.join(root, "annes_inquiry")
+database_url = ENV.fetch("INQUIRY_PACKAGE_DATABASE_URL", "postgresql:///annes_inquiry_package_test")
+begin
+  uri = URI.parse(database_url)
+  valid = %w[postgres postgresql].include?(uri.scheme) && uri.path == "/annes_inquiry_package_test" &&
+    (URI.decode_www_form(uri.query.to_s).map(&:first) - %w[sslmode connect_timeout]).empty?
+  abort "Package smoke requires the dedicated annes_inquiry_package_test database" unless valid
+rescue URI::InvalidURIError, ArgumentError
+  abort "Invalid INQUIRY_PACKAGE_DATABASE_URL"
+end
+
+# Never reuse the Engine Gemfile/lockfile or host DATABASE_URL in this test.
+Bundler.with_unbundled_env do
+  Dir.mktmpdir("annes-inquiry-package-") do |directory|
+    package_file = File.join(directory, "annes_inquiry.gem")
+    abort "Gem build failed" unless system("gem", "build", "annes_inquiry.gemspec", "--output", package_file, chdir: engine)
+    package = Gem::Package.new(package_file)
+    dependency = package.spec.runtime_dependencies.find { |item| item.name == "json" }
+    abort "Packaged dependencies must exclude JSON 3" unless dependency &&
+      !dependency.requirement.satisfied_by?(Gem::Version.new("3.0.0"))
+
+    package_path = File.join(directory, "package")
+    package.extract_files(package_path)
+    # Resolve from the shipped gemspec and contents, never the repository source.
+    File.write(File.join(package_path, "annes_inquiry.gemspec"), package.spec.to_ruby)
+    host = File.join(directory, "host")
+    FileUtils.cp_r(File.join(engine, "test/package_host"), host)
+    abort "Package host must resolve without a lockfile" if File.exist?(File.join(host, "Gemfile.lock"))
+    environment = {
+      "BUNDLE_GEMFILE" => File.join(host, "Gemfile"),
+      "BUNDLE_APP_CONFIG" => File.join(directory, "bundle_config"),
+      "BUNDLE_PATH" => File.join(directory, "bundle"),
+      "BUNDLE_FROZEN" => "false", "BUNDLE_DEPLOYMENT" => "false",
+      "DATABASE_URL" => nil, "RAILS_ENV" => "test",
+      "INQUIRY_PACKAGE_PATH" => package_path,
+      "INQUIRY_PACKAGE_DATABASE_URL" => database_url
+    }
+    commands = [
+      ["bundle", "install"],
+      ["bundle", "exec", "ruby", "bin/rails", "active_storage:install"],
+      ["bundle", "exec", "ruby", "bin/rails", "railties:install:migrations", "FROM=annes_inquiry"],
+      ["bundle", "exec", "ruby", "bin/rails", "db:drop", "db:create", "db:migrate"],
+      ["bundle", "exec", "ruby", "smoke.rb"]
+    ]
+    commands.each do |command|
+      abort "Package smoke failed: #{command.join(' ')}" unless system(environment, *command, chdir: host)
+    end
+  end
+end

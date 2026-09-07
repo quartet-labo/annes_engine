@@ -1,0 +1,5 @@
+<% if field.widget == "textarea" %>
+  <%= text_area_tag name, value.is_a?(String) ? value : nil, **attributes, minlength: field.min_length, maxlength: field.max_length, rows: 5 %>
+<% else %>
+  <%= tag.input(**attributes, name: name, value: value.is_a?(String) ? value : nil, type: %w[text email tel].include?(field.widget) ? field.widget : "text", minlength: field.min_length, maxlength: field.max_length) %>
+<% end %>

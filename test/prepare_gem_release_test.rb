@@ -83,6 +83,19 @@ class PrepareGemReleaseTest < Minitest::Test
     end
   end
 
+  def test_prepares_release_outputs_for_annes_inquiry
+    Dir.mktmpdir do |directory|
+      notes_file = Pathname(directory).join("notes.md")
+      stdout, stderr, status = run_script(
+        "--gem", "annes_inquiry", "--version", "0.1.0", "--notes-file", notes_file.to_s
+      )
+      assert status.success?, "#{stdout}\n#{stderr}"
+      assert_includes stdout, "path=annes_inquiry\n"
+      assert_includes stdout, "tag_name=annes_inquiry-v0.1.0\n"
+      assert_includes notes_file.read, "Extract the inquiry engine"
+    end
+  end
+
   def test_rejects_a_version_that_does_not_match_the_gemspec
     stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 

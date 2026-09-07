@@ -1,0 +1,39 @@
+<h1>問い合わせ受付詳細</h1>
+<p><%= link_to "受付一覧へ戻る", admin_submissions_path(form_id: @submission.form_version.form_id) %></p>
+<p>受付番号: <%= @submission.receipt_id %></p>
+<p>受付日時: <%= @submission.received_at.utc %></p>
+<p><%= @submission.form_version.title %> / 版<%= @submission.form_version.number %></p>
+<dl>
+<% @submission.form_version.fields.each do |field| %>
+  <% value = @reader[field.key] %>
+  <div data-field-key="<%= field.key %>" class="inquiry-answer">
+    <dt><strong><%= field.label %></strong> (<%= field.key %>)</dt>
+    <dd>
+      <% if value.nil? || value == [] %>未回答
+      <% elsif field.choice? %><%= @reader.choice_labels(field.key).join("、") %>
+      <% elsif field.value_type == "attachment" %>
+        <ul><% value.each do |attachment| %><li><%= link_to attachment.file.filename.to_s, admin_submission_attachment_path(@submission, attachment) %></li><% end %></ul>
+      <% elsif field.value_type == "boolean" %><%= value ? "はい" : "いいえ" %>
+      <% elsif field.value_type == "datetime" %><%= value.utc.iso8601 %>
+      <% elsif field.value_type == "decimal" %><%= value.to_s("F") %>
+      <% else %><span class="inquiry-answer-value"><%= value %></span>
+      <% end %>
+    </dd>
+  </div>
+<% end %>
+</dl>
+
+<% if (action = inquiry_host_action(@host_link)) %><p><%= link_to action[:label], action[:path] %></p><% end %>
+<h2>通知の状態</h2>
+<% @notifications.each do |notification| %>
+  <section>
+    <h3><%= notification.kind %>: <%= inquiry_notification_status(notification.status) %></h3>
+    <p>試行回数: <%= notification.attempts %> / 送信日時: <%= notification.sent_at&.utc %></p>
+    <% if notification.last_error.present? %><p><%= notification.last_error %></p><% end %>
+    <% if notification.unknown? %><p>送達結果を確認してから対応してください。自動再送はしません。</p><% end %>
+    <% if (action = inquiry_host_action(@notification_actions[notification.id], notification: notification)) %>
+      <% if action[:method] == "post" %><%= button_to action[:label], action[:path], method: :post %>
+      <% else %><p><%= link_to action[:label], action[:path] %></p><% end %>
+    <% end %>
+  </section>
+<% end %>

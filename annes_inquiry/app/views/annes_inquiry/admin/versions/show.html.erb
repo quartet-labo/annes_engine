@@ -1,0 +1,25 @@
+<h1><%= @version.title %> / 版<%= @version.number %></h1>
+<p><%= link_to "フォームへ戻る", admin_form_path(@version.form) %> / <%= @version.status %></p>
+<% @version.errors.full_messages.each do |message| %><p role="alert"><%= message %></p><% end %>
+<% if @operation_error %><p role="alert" class="inquiry-error"><%= @operation_error %></p><% end %>
+<p><%= link_to "プレビュー", preview_admin_version_path(@version) %></p>
+<% if @version.draft? %>
+  <%= form_with model: @version, scope: :version, url: admin_version_path(@version), local: true do |f| %>
+    <%= hidden_field_tag :lock_version, @version.lock_version %>
+    <% { title: "タイトル", description: "説明", submit_label: "送信ボタン", completion_message: "完了メッセージ" }.each do |key, label| %>
+      <p><%= f.label key, label %><%= f.text_area key, rows: 2 %></p>
+    <% end %>
+    <%= f.submit "表示設定を保存" %>
+  <% end %>
+  <p><%= link_to "項目を追加", new_admin_version_field_path(@version) %></p>
+<% else %>
+  <p>公開した版は閲覧のみです。編集するときは複製してください。</p>
+<% end %>
+<ul><% @version.fields.each do |field| %><li><%= link_to "#{field.position}: #{field.label} (#{field.key})", edit_admin_field_path(field) %></li><% end %></ul>
+
+<% if @version.draft? %>
+  <%= button_to "公開する", publish_admin_version_path(@version), params: { lock_version: @version.lock_version } %>
+  <%= button_to "下書きを削除", admin_version_path(@version), method: :delete, params: { lock_version: @version.lock_version } %>
+<% else %>
+  <%= button_to "複製して編集", duplicate_admin_version_path(@version) %>
+<% end %>

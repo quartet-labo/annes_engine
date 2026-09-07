@@ -9,6 +9,7 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
   invitations, bootstrap, event hooks, and Google OAuth.
 - `annes_access/`: lightweight role-based authorization.
 - `annes_admin/`: configurable administration screens for host models.
+- `annes_inquiry/`: configurable inquiry forms, typed answers, administration, and host adapters.
 - `annes_loyalty/`: loyalty programs, members, point ledger, rewards, and
   redemption workflows.
 - `examples/`: Rails host applications that demonstrate engine integration.
@@ -38,6 +39,10 @@ Use Ruby 3.4.9, matching CI.
   - `cd annes_admin && bundle exec rake test`
   - `cd annes_access && bundle exec rake test`
   - `cd annes_loyalty && bundle exec rake test`
+- Inquiry engine tests (dedicated PostgreSQL DB):
+  - `cd annes_inquiry && bin/test --prepare && bundle exec rake test`
+  - `cd annes_inquiry && bin/test --schema-round-trip && bin/test --system`
+  - `ruby script/check_inquiry_package` (builds the gem; recreates only `annes_inquiry_package_test`)
 - Example app tests:
   - `cd examples/customer_management && bin/rails test`
   - `cd examples/resavation_management && bin/rails test`

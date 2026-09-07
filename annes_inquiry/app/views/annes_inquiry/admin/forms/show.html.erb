@@ -1,0 +1,14 @@
+<h1><%= @form.name %></h1><p>フォームキー: <%= @form.key %></p>
+<% @form.errors.full_messages.each do |message| %><p role="alert"><%= message %></p><% end %>
+<%= form_with model: @form, scope: :form, url: admin_form_path(@form), local: true do |f| %>
+  <%= hidden_field_tag :lock_version, @form.lock_version %>
+  <p><%= f.label :name, "管理名" %><%= f.text_field :name %></p>
+  <p><%= f.check_box :enabled %><%= f.label :enabled, "受付を有効にする" %></p>
+  <%= f.submit "フォーム設定を保存" %>
+<% end %>
+<h2>バージョン履歴</h2>
+<ul><% @form.versions.order(number: :desc).each do |version| %><li><%= link_to "版#{version.number}", admin_version_path(version) %> — <%= version.status %></li><% end %></ul>
+
+<% unless @form.versions.exists? %><%= button_to "下書きを作成", draft_admin_form_path(@form) %><% end %>
+
+<p><%= link_to "このフォームの受付一覧", admin_submissions_path(form_id: @form.id) %></p>

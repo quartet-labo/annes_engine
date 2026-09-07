@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width, initial-scale=1"><title>問い合わせ管理</title><%= csrf_meta_tags %><%= stylesheet_link_tag "annes_inquiry/forms" %></head>
+<body><main class="annes-inquiry inquiry-admin">
+  <nav><%= link_to "フォーム管理", admin_forms_path %> | <%= link_to "受付一覧", admin_submissions_path %> <% if AnnesInquiry.configuration.admin_home_path %> | <%= link_to "管理トップ", AnnesInquiry.configuration.admin_home_path %><% end %></nav>
+  <% if notice.present? %><p role="status"><%= notice %></p><% end %>
+  <% if alert.present? %><p role="alert" class="inquiry-error"><%= alert %></p><% end %>
+  <%= yield %>
+</main></body></html>

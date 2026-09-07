@@ -1,0 +1,2 @@
+<%= file_field_tag "#{name}[]", **attributes, multiple: true, accept: field.file_types.map(&:extension).join(",") %>
+<% if Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %><p class="inquiry-help">ファイルをもう一度選択してください。</p><% end %>

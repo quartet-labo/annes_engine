@@ -1,0 +1,5 @@
+<% if input.errors[field.key].any? %>
+  <%= text_field_tag name, value.is_a?(String) ? value : nil, **attributes %>
+<% else %>
+  <%= datetime_local_field_tag name, value.is_a?(String) ? value : nil, **attributes, step: "0.000001" %>
+<% end %>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja"><head><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width, initial-scale=1"><title><%= @version.title %></title><%= stylesheet_link_tag "annes_inquiry/forms" %></head><body>
+<section class="annes-inquiry">
+  <h1><%= @version.title %></h1><p><%= @version.description %></p>
+  <% @input.errors[:base].each do |message| %><p role="alert"><%= message %></p><% end %>
+  <% if response.status == 409 %><p><%= link_to "最新のフォームを開く", form_path(@form.key) %></p><% end %>
+  <% (@definition_changes || {}).each do |label, keys| %>
+    <% if keys.any? %><p><%= label %>: <%= keys.join("、") %></p><% end %>
+  <% end %>
+  <%= form_with url: form_path(@form.key), scope: :inquiry, multipart: true, local: true do %>
+    <%= hidden_field_tag :submission_token, @submission_token %>
+    <%= render "annes_inquiry/forms/fields", version: @version, input: @input, scope: "inquiry" %>
+    <%= submit_tag @version.submit_label %>
+  <% end %>
+</section></body></html>

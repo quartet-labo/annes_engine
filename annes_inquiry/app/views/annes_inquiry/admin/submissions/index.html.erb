@@ -1,0 +1,21 @@
+<h1>問い合わせ受付一覧</h1>
+<% if @query_error %><p role="alert"><%= @query_error %></p><% end %>
+<%= form_with url: admin_submissions_path, method: :get, local: true do %>
+  <p><%= label_tag :form_id, "フォーム" %><%= select_tag :form_id, options_from_collection_for_select(@forms, :id, :name, params[:form_id]), include_blank: "すべて" %></p>
+  <p><%= label_tag :version_id, "版ID（任意）" %><%= text_field_tag :version_id, params[:version_id] %></p>
+  <p><%= label_tag :from, "受付開始日（UTC）" %><%= date_field_tag :from, params[:from] %></p>
+  <p><%= label_tag :to, "受付終了日（UTC）" %><%= date_field_tag :to, params[:to] %></p>
+  <h2>回答条件</h2><p>回答検索はフォームを選択し、項目キーと値を入力してください。複数条件はすべて満たす受付を表示します。</p>
+  <% 3.times do |index| %>
+    <% filter = @filters[index].is_a?(Hash) ? @filters[index] : {} %>
+    <fieldset><legend>条件<%= index + 1 %></legend>
+      <%= label_tag "filter_#{index}_key", "項目キー" %><%= text_field_tag "filters[#{index}][key]", filter["key"], id: "filter_#{index}_key" %>
+      <%= label_tag "filter_#{index}_operator", "条件" %><%= select_tag "filters[#{index}][operator]", options_for_select([["一致", "eq"], ["以上", "gte"], ["以下", "lte"], ["文字列を含む", "contains"]], filter["operator"]), id: "filter_#{index}_operator" %>
+      <%= label_tag "filter_#{index}_value", "値" %><%= text_field_tag "filters[#{index}][value]", filter["value"], id: "filter_#{index}_value" %>
+    </fieldset>
+  <% end %>
+  <%= submit_tag "検索" %>
+<% end %>
+<ul><% @submissions.each do |submission| %><li><%= link_to submission.receipt_id, admin_submission_path(submission) %> / <%= submission.form_version.form.name %> 版<%= submission.form_version.number %> / <%= submission.received_at.utc %></li><% end %></ul>
+<% if @page > 1 %><%= link_to "前のページ", request.query_parameters.merge(page: @page - 1) %><% end %>
+<% if @submissions.size == 50 %><%= link_to "次のページ", request.query_parameters.merge(page: @page + 1) %><% end %>

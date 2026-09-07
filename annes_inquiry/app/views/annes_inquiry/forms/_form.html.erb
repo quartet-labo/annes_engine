@@ -1,0 +1,9 @@
+<section class="annes-inquiry">
+  <h1><%= version.title %></h1>
+  <p><%= version.description %></p>
+  <% input.errors[:base].each do |message| %><p role="alert" class="inquiry-error"><%= message %></p><% end %>
+  <%= form_with url: submit_url, scope: scope, multipart: true, local: true do %>
+    <%= render "annes_inquiry/forms/fields", version: version, input: input, scope: scope %>
+    <%= submit_tag version.submit_label %>
+  <% end %>
+</section>

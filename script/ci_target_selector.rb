@@ -68,6 +68,7 @@ class CiTargetSelector
     Target.new("annes_admin", "annes_admin", "annes_admin_test", "bundle exec rake test", []),
     Target.new("annes_access", "annes_access", "annes_access_test", "bundle exec rake test", []),
     Target.new("annes_audit", "annes_audit", "annes_audit_test", "bundle exec rake test", []),
+    Target.new("annes_inquiry", "annes_inquiry", "annes_inquiry_test", "COVERAGE=true bin/test --schema-round-trip", []),
     Target.new("annes_loyalty", "annes_loyalty", "annes_loyalty_test", "bundle exec rake test", []),
     Target.new(
       "customer_management",

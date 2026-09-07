@@ -1,0 +1,20 @@
+.annes-inquiry { box-sizing: border-box; max-width: 48rem; margin: 2rem auto; padding: 1.25rem; color: #172c35; font: 1rem/1.6 system-ui, sans-serif; }
+.annes-inquiry *, .annes-inquiry *::before, .annes-inquiry *::after { box-sizing: border-box; }
+.annes-inquiry h1 { font-size: 1.7rem; }
+.annes-inquiry .inquiry-field { margin-bottom: 1.4rem; }
+.annes-inquiry label { font-weight: 600; }
+.annes-inquiry input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=submit]), .annes-inquiry textarea, .annes-inquiry select { display: block; width: 100%; max-width: 100%; margin-top: .4rem; padding: .7rem; border: 1px solid #71838c; border-radius: .3rem; background: white; color: #172c35; font: inherit; }
+.annes-inquiry input[type=submit], .annes-inquiry button { padding: .7rem 1.5rem; background: #19535f; color: white; border: 0; border-radius: .3rem; font: inherit; cursor: pointer; }
+.annes-inquiry .inquiry-help { margin: .35rem 0; color: #52666e; font-size: .9rem; overflow-wrap: anywhere; }
+.annes-inquiry .inquiry-error, .annes-inquiry .inquiry-required { color: #a22525; }
+.annes-inquiry .inquiry-required { margin-left: .5rem; font-size: .8rem; }
+.annes-inquiry [aria-invalid=true] { border-color: #a22525; }
+.annes-inquiry :focus-visible { outline: 3px solid #367dab; outline-offset: 2px; }
+
+.inquiry-admin fieldset { min-width: 0; padding: 0; border: 0; }
+.inquiry-admin a { color: #19535f; overflow-wrap: anywhere; }
+.inquiry-admin form { margin-bottom: 1.2rem; }
+.inquiry-answer { margin: 1.2rem 0; overflow-wrap: anywhere; }
+.inquiry-answer dd { margin: .35rem 0; }
+.inquiry-answer-value { white-space: pre-wrap; }
+.inquiry-admin > p { overflow-wrap: anywhere; }

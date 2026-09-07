@@ -1,0 +1,6 @@
+<h1>項目を追加</h1>
+<%= form_with url: new_admin_version_field_path(@version), method: :get, local: true do %>
+  <%= label_tag :value_type, "入力の型" %><%= select_tag :value_type, options_for_select(AnnesInquiry::TypeRegistry::WIDGETS.keys, @field.value_type) %>
+  <%= submit_tag "型を選択" %>
+<% end %>
+<%= render "form" %>

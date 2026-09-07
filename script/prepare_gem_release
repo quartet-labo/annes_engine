@@ -29,6 +29,11 @@ class GemReleasePreparation
       gemspec: "annes_audit.gemspec",
       tag_prefix: "annes_audit-v"
     },
+    "annes_inquiry" => {
+      path: "annes_inquiry",
+      gemspec: "annes_inquiry.gemspec",
+      tag_prefix: "annes_inquiry-v"
+    },
     "annes_loyalty" => {
       path: "annes_loyalty",
       gemspec: "annes_loyalty.gemspec",

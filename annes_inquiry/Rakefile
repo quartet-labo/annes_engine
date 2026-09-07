@@ -1,0 +1,10 @@
+require_relative "test/dummy/config/application"
+Rails.application.load_tasks
+
+Rake::Task[:test].clear if Rake::Task.task_defined?(:test)
+desc "Run the standalone inquiry tests"
+task :test do
+  ruby "bin/test"
+end
+
+task default: :test
