@@ -19,6 +19,7 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`annes_access`](annes_access/README.md) - lightweight role-based authorization
 - [`annes_admin`](annes_admin/README.md) - configurable administration screens for host models
 - [`annes_audit`](annes_audit/README.md) - durable audit event persistence and notification mapping
+- [`annes_inquiry`](annes_inquiry/README.md) - versioned inquiry forms, typed answers, attachments, administration, and host adapters
 - [`annes_loyalty`](annes_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
 - [`examples/resavation_management`](examples/resavation_management/README.md) - reservation workflow sample with RBAC, state transitions, and concurrency control
@@ -32,6 +33,7 @@ by Quartet Labo LLC. guide the project roadmap.
 | AnnesAccess | Coarse-grained RBAC checks for an authenticated principal | Login, tenant or ownership scopes, or workflow authorization |
 | AnnesAdmin | Configurable CRUD screens, authentication and authorization hooks, audit notifications | Domain models, credentials, or host-specific business services |
 | AnnesAudit | Durable audit event storage, record API, request context capture, metadata filtering, notification mapper registration | Authentication, authorization, admin CRUD screens, SIEM forwarding, tamper-proof storage, or analytics dashboards |
+| AnnesInquiry | Form definitions, typed answers, submission handling, administration, and notification requests | Host authentication, customers, projects, business persistence, or email delivery |
 | AnnesLoyalty | Loyalty programs, locations, members, append-only point ledger, point lots, rewards, redemptions, and redemption token verification | Customer/POS models, customer-facing screens, staff scan UI, campaign marketing copy, or host RBAC policy |
 
 For applications using all three engines, adopt them in this order:
@@ -65,6 +67,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "annes_access", "~> 1.0"
   gem "annes_audit", "~> 1.0"
   gem "annes_loyalty", "~> 1.0"
+  gem "annes_inquiry", "~> 0.1.0"
 end
 ```
 
@@ -76,6 +79,7 @@ gem "annes_admin", path: "../annes_engine/annes_admin"
 gem "annes_access", path: "../annes_engine/annes_access"
 gem "annes_audit", path: "../annes_engine/annes_audit"
 gem "annes_loyalty", path: "../annes_engine/annes_loyalty"
+gem "annes_inquiry", path: "../annes_engine/annes_inquiry"
 ```
 
 ## Publishing
@@ -96,6 +100,9 @@ guide, and the dependent sample app lockfiles, then commit the release change:
   `annes_audit/UPGRADING.md`
 - `annes_loyalty/lib/annes_loyalty/version.rb`, `annes_loyalty/CHANGELOG.md`, and
   `annes_loyalty/UPGRADING.md`
+
+- `annes_inquiry/lib/annes_inquiry/version.rb`, `annes_inquiry/CHANGELOG.md`, and
+  `annes_inquiry/UPGRADING.md`
 
 After changing a target gem version, refresh every example app `Gemfile.lock`
 that depends on that gem so the path-sourced gemspec version is committed with
@@ -130,13 +137,14 @@ See the package-specific upgrade guides before updating a host application:
 - [AnnesAdmin upgrade guide](annes_admin/UPGRADING.md)
 - [AnnesAudit upgrade guide](annes_audit/UPGRADING.md)
 - [AnnesLoyalty upgrade guide](annes_loyalty/UPGRADING.md)
+- [AnnesInquiry upgrade guide](annes_inquiry/UPGRADING.md)
 
 If a release has no manual host-app upgrade steps, note that explicitly in the
 target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, or `annes_loyalty`, and
+`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, `annes_loyalty`, or `annes_inquiry`, and
 set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,

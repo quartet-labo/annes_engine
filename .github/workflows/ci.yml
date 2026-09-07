@@ -30,6 +30,11 @@ jobs:
       - name: Verify public project policies
         run: ruby test/public_project_policy_test.rb
 
+      - name: Test package release contracts
+        run: |
+          ruby test/prepare_gem_release_test.rb
+          ruby test/publish_gems_workflow_test.rb
+
       - name: Check documentation
         run: ruby script/check_docs
 
@@ -164,6 +169,7 @@ jobs:
       BUNDLE_RETRY: 3
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/${{ matrix.database }}
       RAILS_ENV: test
+      INQUIRY_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/annes_inquiry_test
 
     steps:
       - name: Checkout
@@ -181,9 +187,41 @@ jobs:
         working-directory: ${{ matrix.path }}
         run: bin/rails db:test:prepare
 
+      - name: Prepare inquiry database
+        if: matrix.module == 'annes_inquiry'
+        working-directory: annes_inquiry
+        run: bin/test --prepare
+
       - name: Run tests
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.test_command }}
+
+      - name: Run inquiry browser tests
+        if: matrix.module == 'annes_inquiry'
+        working-directory: annes_inquiry
+        run: bin/test --system
+
+      - name: Scan inquiry Engine
+        if: matrix.module == 'annes_inquiry'
+        working-directory: annes_inquiry
+        run: bundle exec brakeman --force-scan --no-pager
+
+      - name: Keep inquiry screenshots
+        if: failure() && matrix.module == 'annes_inquiry'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-inquiry-tests
+          path: annes_inquiry/test/dummy/tmp/screenshots
+          if-no-files-found: ignore
+
+      - name: Upload inquiry coverage
+        if: matrix.module == 'annes_inquiry'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-inquiry-tests
+          path: annes_inquiry/coverage
+          include-hidden-files: true
+          if-no-files-found: error
 
   test-result:
     name: Tests
