@@ -17,7 +17,7 @@ class PrepareGemReleaseTest < Minitest::Test
 
       stdout, stderr, status = run_script(
         "--gem", "annes_auth",
-        "--version", "1.0.0",
+        "--version", "1.0.1",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
@@ -26,12 +26,14 @@ class PrepareGemReleaseTest < Minitest::Test
       assert_includes github_output.read, "gem=annes_auth\n"
       assert_includes github_output.read, "path=annes_auth\n"
       assert_includes github_output.read, "gemspec=annes_auth.gemspec\n"
-      assert_includes github_output.read, "version=1.0.0\n"
-      assert_includes github_output.read, "tag_name=annes_auth-v1.0.0\n"
+      assert_includes github_output.read, "version=1.0.1\n"
+      assert_includes github_output.read, "tag_name=annes_auth-v1.0.1\n"
       assert_includes github_output.read, "notes_file=#{notes_file}\n"
 
       notes = notes_file.read
-      assert_includes notes, "Rename the gem"
+      assert_includes notes, "Require `json < 3` at runtime"
+      refute_includes notes, "## 1.0.1"
+      refute_includes notes, "Rename the gem"
       refute_includes notes, "## 1.0.0"
       refute_includes notes, "## 0.3.3"
     end
@@ -100,7 +102,7 @@ class PrepareGemReleaseTest < Minitest::Test
     stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 
     refute status.success?, stdout
-    assert_includes stderr, "does not match annes_auth gemspec version 1.0.0"
+    assert_includes stderr, "does not match annes_auth gemspec version 1.0.1"
   end
 
   def test_rejects_an_unknown_gem
