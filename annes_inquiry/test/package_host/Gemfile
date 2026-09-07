@@ -1,0 +1,6 @@
+source "https://rubygems.org"
+
+gem "annes_inquiry", path: ENV.fetch("INQUIRY_PACKAGE_PATH")
+gem "pg"
+gem "propshaft"
+gem "rack-test"

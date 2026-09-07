@@ -10,6 +10,13 @@ class EngineTest < ActiveSupport::TestCase
     Rails.application.eager_load!
   end
 
+  test "runtime dependencies exclude JSON versions incompatible with Rails decoding" do
+    dependency = Gem.loaded_specs.fetch("annes_inquiry").runtime_dependencies.find { |item| item.name == "json" }
+    assert dependency, "The published gem must constrain JSON independently of the development lockfile"
+    assert dependency.requirement.satisfied_by?(Gem::Version.new("2.21.2"))
+    assert_not dependency.requirement.satisfied_by?(Gem::Version.new("3.0.0"))
+  end
+
   test "keeps configuration across a reload" do
     configuration = AnnesInquiry.configuration
     Rails.application.reloader.reload!

@@ -61,6 +61,26 @@ class InputTest < ActiveSupport::TestCase
     assert_not parse("text" => "  ").valid?
   end
 
+  test "rejects NUL text before normalization including optional empty-looking input" do
+    field("text", normalizer_key: "trim")
+    [ "Alice\0Bob", "\0Alice", "Alice\0", "\0" ].each do |raw|
+      input = parse("text" => raw)
+      assert_not input.valid?
+      assert input.errors[:text].any?
+      assert_equal raw, input.raw_values["text"]
+    end
+    assert parse("text" => "Alice\nBob").valid?
+  end
+
+  test "rejects NUL in adapter-enriched text" do
+    field("text")
+    adapter = Object.new
+    adapter.define_singleton_method(:enrich_input) { |_, _| { "text" => "Alice\0Bob" } }
+    input = AnnesInquiry::Input.new(@version, raw_values: {}, adapter: adapter)
+    assert_not input.valid?
+    assert input.errors[:text].any?
+  end
+
   private
     def field(type, **settings)
       @version.fields.create!({ key: type, label: type, value_type: type }.merge(settings))

@@ -42,6 +42,7 @@ Use Ruby 3.4.9, matching CI.
 - Inquiry engine tests (dedicated PostgreSQL DB):
   - `cd annes_inquiry && bin/test --prepare && bundle exec rake test`
   - `cd annes_inquiry && bin/test --schema-round-trip && bin/test --system`
+  - `ruby script/check_inquiry_package` (builds the gem; recreates only `annes_inquiry_package_test`)
 - Example app tests:
   - `cd examples/customer_management && bin/rails test`
   - `cd examples/resavation_management && bin/rails test`

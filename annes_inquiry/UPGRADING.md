@@ -25,7 +25,14 @@ No data migration or adapter API changes are required. Active Storage setup and
 configuration, the same-primary-DB transaction boundary, notifications, and cleanup
 schedules remain the host's responsibility. For a new installation, follow README.
 
-The first package also hardens two validation boundaries found during extraction review:
+The runtime gemspec excludes JSON 3, which is incompatible with Rails 8.1's JSON
+decoder. Update the host lockfile through Bundler so the constraint is included;
+the Engine's development lockfile is not used by consuming applications.
+
+The first package also hardens validation boundaries found during extraction review:
 public controllers stop after a context hook sends a response, and excessive
 attachment counts return a count error without inspecting individual files.
 Allowed context hooks and in-limit uploads keep their existing behavior.
+Text input containing NUL characters, including adapter-enriched values, now
+returns a field error with HTTP 422 instead of raising during PostgreSQL persistence.
+Raw text is checked before normalization so trimming cannot silently remove NUL.

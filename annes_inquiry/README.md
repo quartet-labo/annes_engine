@@ -7,6 +7,8 @@ It has no dependency on other Annes engines or host domain models.
 ## Installation
 
 Use Ruby 3.4 or later, Rails 8.1.3.1 or later in the 8.1 series, and PostgreSQL.
+The gem constrains JSON to versions below 3 because Rails 8.1's JSON decoder
+passes options in a form that JSON 3 no longer accepts.
 Configure GitHub Packages credentials as described in the [repository README](https://github.com/quartet-labo/annes_engine#installation).
 
 ```ruby
@@ -54,6 +56,18 @@ Tests are discovered by `test/run.rb`. `--system` selects the Chrome tests and
 fails if no tests exist. Coverage is written to `annes_inquiry/coverage`.
 The tests, runner, dummy, and development dependencies are repository-only files;
 the published gem contains runtime code, migrations, assets, and package documents.
+
+From the repository root, `ruby script/check_inquiry_package` builds the gem and
+tests its extracted contents in a fresh host. It resolves dependencies without
+the Engine's development lockfile, installs Active Storage and the five Engine
+migrations, then checks CSS discovery, signed submissions, CSRF-protected public
+submission/completion, and invalid-input responses. This check runs in CI and
+does not publish or download the gem through GitHub Packages.
+
+The package check drops and recreates only `annes_inquiry_package_test`.
+Set `INQUIRY_PACKAGE_DATABASE_URL` for its PostgreSQL connection; the database
+name must remain exactly `annes_inquiry_package_test`, and only `sslmode` and
+`connect_timeout` query options are accepted. It ignores `DATABASE_URL`.
 
 ## Boundaries
 
@@ -120,6 +134,8 @@ Active Storageはホスト側でインストールしてください（dummyに�
 `Input.new(version, raw_values: hash, adapter: nil, context: nil, time_zone: "UTC")` の `valid?` で検証します。`raw_values` は再表示用、`values` は型付きの値、`errors` は項目キー付きActiveModelエラーです。未知キーと配列/ハッシュ等の不正形状はホストの処理を呼ぶ前に拒否します。アダプターは `validate_raw_input`、`enrich_input`、`validate_input` を任意に実装できます。補完は信頼済みの型付き値を返し、標準検証も受けます。
 
 数値は厳格変換し、bigintの範囲とdecimal(25,6)の精度を超える入力は丸めず拒否します。datetimeは `time_zone` のローカル時刻をUTCへ変換し、存在しない/曖昧な夏時間は拒否します。booleanの必須はfalseを許可し、同意必須はtrueのみ許可します。
+
+テキスト項目のNUL文字は正規化前に拒否し、アダプター補完値にも同じ検証を適用します。DBへ保存せず項目エラーを返し、受付サービスと標準公開POSTは422になります。通常の改行は許可します。
 
 添付はmultipartのUploadedFileだけを受け付けます。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
 

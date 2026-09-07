@@ -201,6 +201,14 @@ jobs:
         working-directory: annes_inquiry
         run: bin/test --system
 
+      - name: Test inquiry package in a fresh host
+        if: matrix.module == 'annes_inquiry'
+        env:
+          INQUIRY_PACKAGE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/annes_inquiry_package_test
+        run: |
+          ruby test/inquiry_package_smoke_test.rb
+          ruby script/check_inquiry_package
+
       - name: Scan inquiry Engine
         if: matrix.module == 'annes_inquiry'
         working-directory: annes_inquiry

@@ -16,6 +16,15 @@ class SubmissionServiceTest < ActiveSupport::TestCase
     assert_equal @version.id, result.submission.form_version_id
   end
 
+  test "NUL text is an input error without persisting a submission" do
+    assert_no_difference [ "AnnesInquiry::Submission.count", "AnnesInquiry::Answer.count" ] do
+      result = submit(raw_values: { "name" => "Alice\0Bob" })
+      assert_equal 422, result.status
+      assert_not result.success?
+      assert result.input.errors[:name].any?
+    end
+  end
+
   test "rejects missing invalid expired and foreign identity tokens" do
     [ nil, [], {}, "fake", @token + "tamper" ].each { |token| assert_equal 409, submit(token: token).status }
     assert_equal 409, submit(identity: "other-session").status

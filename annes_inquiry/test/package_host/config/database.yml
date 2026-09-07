@@ -1,0 +1,3 @@
+test:
+  adapter: postgresql
+  url: <%= ENV.fetch("INQUIRY_PACKAGE_DATABASE_URL") %>

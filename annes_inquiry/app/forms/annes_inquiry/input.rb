@@ -51,6 +51,7 @@ module AnnesInquiry
             value.nil? || value.is_a?(String)
           end
           errors.add(field.key, "の入力形式が正しくありません") unless valid
+          validate_text_content(field, value) if valid && field.value_type == "text" && value
         end
         errors.empty?
       end
@@ -63,6 +64,7 @@ module AnnesInquiry
 
         case field.value_type
         when "text"
+          validate_text_content(field, value)
           check_bounds(field, value.length, :length)
           if field.format_key == "email" && !URI::MailTo::EMAIL_REGEXP.match?(value)
             errors.add(field.key, "のメールアドレスが正しくありません")
@@ -80,6 +82,10 @@ module AnnesInquiry
         when "attachment"
           values[field.key] = AttachmentValidator.call(field, value, errors)
         end
+      end
+
+      def validate_text_content(field, value)
+        errors.add(field.key, "に使用できない文字が含まれています") if value.include?("\0")
       end
 
       def check_bounds(field, value, kind)

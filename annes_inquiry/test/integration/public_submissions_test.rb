@@ -84,6 +84,16 @@ class PublicSubmissionsTest < ActionDispatch::IntegrationTest
     assert_equal [ context ], persisted_contexts
   end
 
+  test "NUL text returns a field error instead of a server error" do
+    get "/inquiry/forms/public_contact"
+    token = css_select("input[name=submission_token]").first["value"]
+    assert_no_difference [ "AnnesInquiry::Submission.count", "AnnesInquiry::Answer.count" ] do
+      post "/inquiry/forms/public_contact", params: { submission_token: token, inquiry: { name: "Alice\0Bob" } }
+    end
+    assert_response :unprocessable_entity
+    assert_select "[role=alert]", text: /使用できない文字/
+  end
+
   test "CSRF protection rejects a POST without authenticity token when enabled" do
     AnnesInquiry::PublicSubmissionsController.allow_forgery_protection = true
     get "/inquiry/forms/public_contact"
