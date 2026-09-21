@@ -1,0 +1,7 @@
+<h1>回答を確認</h1>
+<% @steps.each do |step| %><section><h2><%= step.flow_step.title %></h2>
+  <% step.form_version.fields.each do |field| %><p><strong><%= field.label %></strong>: <%= flow_value(@answers.dig(step.key, field.key)) %></p><% end %>
+  <% step.draft_attachments.each do |attachment| %><p><%= attachment.field.label %>: <%= attachment.file.filename %></p><% end %>
+  <%= link_to "修正する", flow_step_path(@run, step_id: step.id) %>
+</section><% end %>
+<%= form_with url: finalize_flow_run_path(@run), local: true do %><%= hidden_field_tag :token, @token %><%= submit_tag "正式に送信する" %><% end %>

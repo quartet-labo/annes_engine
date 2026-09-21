@@ -1,0 +1,16 @@
+<h1><%= @step.flow_step.title %></h1>
+<% if @input.errors.any? %><div role="alert"><%= @input.errors.full_messages.to_sentence %></div><% end %>
+<%= form_with url: save_flow_step_path(@run, step_id: @step.id), method: :patch, local: true, multipart: true, html: {novalidate: true} do %>
+  <%= hidden_field_tag :token, @token %>
+  <%= render "annes_inquiry/forms/fields", version: @step.form_version, input: @input, scope: "inquiry" %>
+  <% @step.form_version.fields.where(value_type: "attachment").each do |field| %>
+    <%= hidden_field_tag "retained[#{field.key}][]", "" %>
+    <% @step.draft_attachments.where(field: field).each do |attachment| %>
+      <p><label><%= check_box_tag "retained[#{field.key}][]", attachment.id, true %> 保持する: <%= attachment.file.filename %></label>
+      <%= link_to "ダウンロード", flow_attachment_path(@run, step_id: @step.id, attachment_id: attachment.id) %></p>
+    <% end %>
+  <% end %>
+  <%= button_tag "途中保存", name: "advance", value: "0" %>
+  <%= button_tag "保存して次へ", name: "advance", value: "1" %>
+<% end %>
+<p><%= link_to "進行状況に戻る", flow_run_path(@run) %></p>

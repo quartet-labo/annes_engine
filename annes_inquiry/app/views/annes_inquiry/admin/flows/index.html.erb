@@ -1,0 +1,7 @@
+<h1>フロー管理</h1>
+<ul><% @flows.each do |flow| %><li><%= link_to flow.name, admin_flow_path(flow) %></li><% end %></ul>
+<h2>フローを作成</h2>
+<%= form_with url: admin_flows_path, scope: :flow, local: true do |f| %>
+<p><%= f.label :key, "キー" %><%= f.text_field :key, required: true %></p>
+<p><%= f.label :name, "名前" %><%= f.text_field :name, required: true %></p><%= f.submit "作成" %>
+<% end %>

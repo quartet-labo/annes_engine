@@ -1,0 +1,5 @@
+<h1>プレビュー: <%= @version.title %></h1><p>回答と添付は保存されません。</p>
+<%= form_with url: preview_admin_flow_path(@flow, version_id: @version.id), local: true, multipart: true, html: {novalidate: true} do %>
+<% @version.steps.each do |step| %><section><h2><%= step.title %></h2>
+<%= render "annes_inquiry/forms/fields", version: step.form_version, input: @inputs.fetch(step.key), scope: "answers[#{step.key}]" %>
+</section><% end %><%= submit_tag "入力を確認" %><% end %>

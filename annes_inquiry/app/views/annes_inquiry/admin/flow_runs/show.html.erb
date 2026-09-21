@@ -1,0 +1,9 @@
+<h1>受付 <%= @run.receipt_id %></h1>
+<p>状態: <%= @run.status %> / 定義版: <%= @run.flow_version.number %> / 期限: <%= @run.expires_at %></p>
+<% @steps.each do |step| %><section><h2><%= step.flow_step.title %> — <%= flow_step_status(step) %></h2>
+<% values = step.submission ? @answers.fetch(step.key) : AnnesInquiry::Flows::DraftReader.call(step) %>
+<% step.form_version.fields.each do |field| %><p><strong><%= field.label %></strong>: <%= flow_value(values[field.key]) %></p><% end %>
+<% files = step.submission ? step.submission.answers.flat_map { |answer| answer.attachments.to_a } : step.draft_attachments %>
+<% files.each do |attachment| %><p><%= link_to attachment.file.filename.to_s, attachment_admin_flow_run_path(@flow, @run, step_id: step.id, attachment_id: attachment.id, kind: step.submission ? "answer" : "draft") %></p><% end %>
+</section><% end %>
+<h2>通知</h2><ul><% @run.notification_requests.each do |notification| %><li><%= notification.event_key %>: <%= inquiry_notification_status(notification.status) %></li><% end %></ul>

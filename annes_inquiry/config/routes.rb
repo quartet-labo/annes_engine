@@ -1,6 +1,30 @@
 AnnesInquiry::Engine.routes.draw do
   root "admin/forms#index"
+  get "flows/:key", to: "flow_runs#new", as: :new_flow_run
+  post "flows/:key", to: "flow_runs#create", as: :start_flow
+  resources :flow_runs, only: :show do
+    member do
+      post :resume
+      get :review
+      post :finalize
+      post :cancel
+    end
+  end
+  get "flow_runs/:id/steps/:step_id", to: "flow_runs#step", as: :flow_step
+  patch "flow_runs/:id/steps/:step_id", to: "flow_runs#save", as: :save_flow_step
+  get "flow_runs/:id/steps/:step_id/attachments/:attachment_id", to: "flow_runs#attachment", as: :flow_attachment
   namespace :admin do
+    resources :flows, only: %i[index create show update] do
+      member do
+        patch "versions/:version_id", action: :edit_version, as: :edit_version
+        post "versions/:version_id/publish", action: :publish, as: :publish
+        post "versions/:version_id/duplicate", action: :duplicate, as: :duplicate
+        match "versions/:version_id/preview", action: :preview, via: %i[get post], as: :preview
+      end
+      resources :runs, controller: :flow_runs, as: :runs, only: %i[index show] do
+        get "steps/:step_id/attachments/:attachment_id", action: :attachment, on: :member, as: :attachment
+      end
+    end
     resources :submissions, only: %i[index show] do
       resources :attachments, only: :show
     end

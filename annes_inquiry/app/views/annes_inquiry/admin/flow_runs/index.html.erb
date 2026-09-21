@@ -1,0 +1,6 @@
+<h1><%= @flow.name %>の進行・受付</h1>
+<%= form_with url: admin_flow_runs_path(@flow), method: :get, local: true do %>
+<%= label_tag :status, "状態" %><%= select_tag :status, options_for_select(AnnesInquiry::FlowRun.statuses.keys, params[:status]), include_blank: true %>
+<%= label_tag :from, "開始日" %><%= date_field_tag :from, params[:from] %><%= label_tag :to, "終了日" %><%= date_field_tag :to, params[:to] %><%= submit_tag "検索" %><% end %>
+<ul><% @runs.each do |run| %><li><%= link_to run.receipt_id, admin_flow_run_path(@flow, run) %> — <%= run.status %> / <%= run.flow_version.title %></li><% end %></ul>
+<% if @runs.size == 50 %><%= link_to "次のページ", admin_flow_runs_path(@flow, status: params[:status], from: params[:from], to: params[:to], page: [params[:page].to_i, 1].max + 1) %><% end %>
