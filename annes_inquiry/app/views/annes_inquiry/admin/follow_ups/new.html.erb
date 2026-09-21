@@ -1,0 +1,9 @@
+<h1>追加質問を準備</h1>
+<p>初回受付: <%= @root.receipt_id %></p>
+<%= form_with url: admin_flow_run_follow_ups_path(@root.flow, @root), local: true do %>
+<%= hidden_field_tag :request_key, @request_key %>
+<p><%= label_tag :title, "質問タイトル" %><%= text_field_tag :title, nil, required: true %></p>
+<p><%= label_tag :version_id, "質問テンプレート" %><%= select_tag :version_id, options_for_select(@templates.map { |version| ["#{version.title} / #{version.number}", version.id] }) %></p>
+<p><%= label_tag :due_at, "回答期限（UTC）" %><%= datetime_local_field_tag :due_at, 7.days.from_now.utc.strftime("%Y-%m-%dT%H:%M"), required: true %></p>
+<p><label><%= check_box_tag :custom, "1" %> この依頼専用に複製して編集する</label></p>
+<%= submit_tag "質問を準備" %><% end %>

@@ -3,7 +3,7 @@ require "test_helper"
 class EngineTest < ActiveSupport::TestCase
   test "loads an isolated engine without host domain models" do
     assert AnnesInquiry::Engine.isolated?
-    assert_equal "0.1.0", AnnesInquiry::VERSION
+    assert_equal "0.2.0", AnnesInquiry::VERSION
     assert_not Object.const_defined?(:Customer)
     assert_not Object.const_defined?(:Project)
     assert_not Object.const_defined?(:AnnesAuth)

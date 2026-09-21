@@ -1,6 +1,9 @@
 module AnnesInquiry
   class FlowRun < ApplicationRecord
     belongs_to :flow_version, class_name: "AnnesInquiry::FlowVersion"
+    has_one :follow_up_request, class_name: "AnnesInquiry::FollowUpRequest", foreign_key: :response_run_id
+    has_many :follow_up_requests, -> { order(:number) }, class_name: "AnnesInquiry::FollowUpRequest", foreign_key: :root_run_id, dependent: :restrict_with_exception
+    def adapter_flow = follow_up_request ? follow_up_request.root_run.flow : flow
     has_one :flow, through: :flow_version
     has_many :step_runs, class_name: "AnnesInquiry::StepRun", dependent: :restrict_with_exception
     has_many :notification_requests, class_name: "AnnesInquiry::FlowNotificationRequest", dependent: :restrict_with_exception

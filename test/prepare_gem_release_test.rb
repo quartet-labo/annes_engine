@@ -89,12 +89,12 @@ class PrepareGemReleaseTest < Minitest::Test
     Dir.mktmpdir do |directory|
       notes_file = Pathname(directory).join("notes.md")
       stdout, stderr, status = run_script(
-        "--gem", "annes_inquiry", "--version", "0.1.0", "--notes-file", notes_file.to_s
+        "--gem", "annes_inquiry", "--version", "0.2.0", "--notes-file", notes_file.to_s
       )
       assert status.success?, "#{stdout}\n#{stderr}"
       assert_includes stdout, "path=annes_inquiry\n"
-      assert_includes stdout, "tag_name=annes_inquiry-v0.1.0\n"
-      assert_includes notes_file.read, "Extract the inquiry engine"
+      assert_includes stdout, "tag_name=annes_inquiry-v0.2.0\n"
+      assert_includes notes_file.read, "follow-up questions"
     end
   end
 

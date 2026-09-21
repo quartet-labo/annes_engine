@@ -3,7 +3,7 @@ module AnnesInquiry
     class FinalizeRun
       def self.call(run:, context:, token:)
         Lock.call(run) do |current|
-          policy = AccessPolicy.new(flow: current.flow, context: context)
+          policy = AccessPolicy.for_run(current, context)
           policy.authorize!(:finalize, run: current)
           data = OperationToken.verify!(token, run: current, action: :finalize, policy: policy, replay: current.submitted?)
           if current.submitted?
@@ -34,12 +34,18 @@ module AnnesInquiry
             messages = policy.adapter.validate_flow(current, payload, context)
             raise Error, Array(messages).join("、") if messages.present?
           end
-          raise Forbidden, "フロー保存adapterを設定してください。" unless policy.adapter.respond_to?(:persist!)
-          policy.adapter.persist!(current, payload, context)
+          if follow_up = current.follow_up_request
+            raise Forbidden, "追加回答保存adapterを設定してください。" unless policy.adapter.respond_to?(:persist_follow_up!)
+            policy.adapter.persist_follow_up!(follow_up, current, payload, context)
+            follow_up.update_columns(status: "answered", answered_at: Time.current, lock_version: follow_up.lock_version + 1, updated_at: Time.current)
+          else
+            raise Forbidden, "フロー保存adapterを設定してください。" unless policy.adapter.respond_to?(:persist!)
+            policy.adapter.persist!(current, payload, context)
+          end
           digest = Digest::SHA256.hexdigest(steps.map { |step| step.reload.submission.payload_digest }.join(":"))
           current.update!(status: "submitted", final_key: data.fetch("request_key"), payload_digest: digest, submitted_at: Time.current, submitted_revision: current.revision, revision: current.revision + 1)
           if policy.adapter.respond_to?(:deliver)
-            request = current.notification_requests.create!(event_key: "received")
+            request = current.notification_requests.create!(event_key: follow_up ? "answered" : "received", follow_up_request: follow_up)
             ActiveRecord.after_all_transactions_commit { NotificationDispatcher.call(request.id) }
           end
           current

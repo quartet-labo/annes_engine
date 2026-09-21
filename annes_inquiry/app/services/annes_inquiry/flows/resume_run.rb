@@ -3,7 +3,7 @@ module AnnesInquiry
     class ResumeRun
       def self.call(run:, context:)
         Lock.call(run) do |current|
-          AccessPolicy.new(flow: current.flow, context: context).authorize!(:resume, run: current)
+          AccessPolicy.for_run(current, context).authorize!(:resume, run: current)
           Lock.writable!(current)
           current
         end

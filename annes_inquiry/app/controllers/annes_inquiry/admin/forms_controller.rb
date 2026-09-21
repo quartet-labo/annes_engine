@@ -3,10 +3,11 @@ module AnnesInquiry
     class FormsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include DefinitionErrors
 
       def index
-        @forms = Form.order(:id)
+        @forms = Form.templates.order(:id)
       end
 
       def new

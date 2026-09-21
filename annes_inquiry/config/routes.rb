@@ -22,6 +22,10 @@ AnnesInquiry::Engine.routes.draw do
         match "versions/:version_id/preview", action: :preview, via: %i[get post], as: :preview
       end
       resources :runs, controller: :flow_runs, as: :runs, only: %i[index show] do
+        resources :follow_ups, only: %i[new create show] do
+          post :issue, on: :member
+          post :cancel, on: :member
+        end
         get "steps/:step_id/attachments/:attachment_id", action: :attachment, on: :member, as: :attachment
       end
     end

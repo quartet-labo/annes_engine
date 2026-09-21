@@ -12,7 +12,7 @@ module AnnesInquiry
 
     def call
       relation = Submission.standalone
-      versions = FormVersion.all
+      versions = FormVersion.where(form_id: Form.templates.select(:id))
       versions = versions.where(form_id: @form_id) if @form_id
       versions = versions.where(id: @version_id) if @version_id
       relation = relation.where(form_version_id: versions.select(:id)) if @form_id || @version_id

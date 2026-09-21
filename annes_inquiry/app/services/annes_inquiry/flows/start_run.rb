@@ -3,6 +3,7 @@ module AnnesInquiry
     class StartRun
       def self.call(flow:, context:, request_key: SecureRandom.uuid)
         raise Conflict unless request_key.is_a?(String) && request_key.match?(/\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z/)
+        raise Forbidden if flow.reload.follow_up_request_id
         policy = AccessPolicy.new(flow: flow, context: context)
         policy.authorize!(:start)
         Flow.find(flow.id).with_lock do

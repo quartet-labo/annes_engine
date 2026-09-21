@@ -2,9 +2,13 @@ module AnnesInquiry
   module Flows
     class AccessPolicy
       attr_reader :adapter, :context, :flow
-      def initialize(flow:, context:)
+      def self.for_run(run, context)
+        new(flow: run.flow, context: context, run: run)
+      end
+      def initialize(flow:, context:, run: nil)
         @flow, @context = flow, context
-        @adapter = AnnesInquiry.configuration.flow_adapters[flow.key]
+        @run = run
+        @adapter = AnnesInquiry.configuration.flow_adapters[(run ? run.adapter_flow : flow).key]
         raise Forbidden, "フローへのアクセスを許可できません。" unless adapter && %i[identity context_key authorize!].all? { |method| adapter.respond_to?(method) }
       end
 
@@ -16,6 +20,11 @@ module AnnesInquiry
         raise Forbidden unless !step || (run && step.flow_run_id == run.id)
         if run && !action.to_s.start_with?("admin_")
           raise Forbidden unless run.owner_digest == owner_digest && run.context_digest == context_digest
+        end
+        if run&.follow_up_request
+          root = run.follow_up_request.root_run
+          root_action = action.to_s.start_with?("admin_") ? :admin_view : :view
+          raise Forbidden unless adapter.authorize!(action: root_action, run: root, step: nil, context: context) == true
         end
         allowed = adapter.authorize!(action: action.to_sym, run: run, step: step, context: context)
         raise Forbidden unless allowed == true

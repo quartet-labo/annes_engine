@@ -14,7 +14,7 @@ class PackageSmokeTest < ActionDispatch::IntegrationTest
     assert_operator Gem.loaded_specs.fetch("json").version, :<, Gem::Version.new("3.0.0")
     assert_equal Pathname(ENV.fetch("INQUIRY_PACKAGE_PATH")).realpath, AnnesInquiry::Engine.root.realpath
     assert_not AnnesInquiry::Engine.root.join("test").exist?
-    assert_equal 8, Rails.root.join("db/migrate").glob("*.annes_inquiry.rb").size
+    assert_equal 9, Rails.root.join("db/migrate").glob("*.annes_inquiry.rb").size
     assert Rails.application.assets.load_path.find("annes_inquiry/forms.css")
 
     token = AnnesInquiry::SubmissionToken.issue(@version, identity: "package-client")
@@ -51,9 +51,14 @@ class PackageFlowSmokeTest < ActiveSupport::TestCase
     def identity(context) = "package-customer"
     def context_key(context) = "package-request"
     def authorize!(**options) = true
+    def scope_runs(relation, context:) = relation.where(owner_digest: Digest::SHA256.hexdigest(identity(context)))
     def run_expires_at(context) = 7.days.from_now
     def persist!(run, answers, context)
       FlowIntakeRequest.create!(flow_run_id: run.id, customer_key: identity(context))
+    end
+    def persist_follow_up!(request, run, answers, context)
+      parent = FlowIntakeRequest.find_by!(flow_run_id: request.root_run_id)
+      FlowFollowUpAnswer.create!(flow_intake_request: parent, follow_up_request_id: request.id, flow_run_id: run.id)
     end
     def deliver(request) = :sent
   end
@@ -112,6 +117,26 @@ class PackageFlowSmokeTest < ActiveSupport::TestCase
     attachment = AnnesInquiry::AnswerAttachment.where(answer_id: run.step_runs.first.submission.answers.select(:id)).sole
     assert_equal retained_blob_id, attachment.file.blob_id
     assert_equal "retained package attachment", attachment.file.download
+    follow_up = AnnesInquiry::Flows::PrepareFollowUp.call(root: run.reload, version: version, context: nil, request_key: SecureRandom.uuid, title: "Package additional questions", due_at: 2.days.from_now, custom: true)
+    response = AnnesInquiry::Flows::IssueFollowUp.call(request: follow_up, context: nil, expected_lock_version: follow_up.lock_version, expected_definition_digest: AnnesInquiry::Flows::FollowUpDefinitionDigest.call(follow_up))
+    response.step_runs.order(:id).each_with_index do |step, index|
+      upload_file.rewind
+      values = index.zero? ? {"name" => "Additional", "options" => %w[a b], "document" => [ActionDispatch::Http::UploadedFile.new(tempfile: upload_file, filename: "additional.txt", type: "text/plain")]} : {}
+      token = AnnesInquiry::Flows::OperationToken.issue(run: response.reload, step: step, context: nil, action: :save)
+      AnnesInquiry::Flows::SaveDraft.call(run: response, step: step, context: nil, token: token, raw_values: values)
+      AnnesInquiry::Flows::ResumeRun.call(run: response, context: nil)
+      token = AnnesInquiry::Flows::OperationToken.issue(run: response.reload, step: step, context: nil, action: :complete)
+      AnnesInquiry::Flows::CompleteStep.call(run: response, step: step, context: nil, token: token)
+    end
+    token = AnnesInquiry::Flows::OperationToken.issue(run: response.reload, context: nil, action: :finalize)
+    2.times { AnnesInquiry::Flows::FinalizeRun.call(run: response, context: nil, token: token) }
+    assert_equal 1, FlowIntakeRequest.where(flow_run_id: run.id).count
+    assert_equal 1, FlowFollowUpAnswer.where(follow_up_request_id: follow_up.id).count
+    assert_equal "answered", follow_up.reload.status
+    assert_equal 1, response.notification_requests.where(event_key: "answered").count
+    assert_equal retained_blob_id, attachment.reload.file.blob_id
+    assert_equal "Customer", AnnesInquiry::Flows::AnswerReader.call(run: run.reload, context: nil).fetch("step_0").fetch("name")
+    assert_equal "Additional", AnnesInquiry::Flows::AnswerReader.call(run: response.reload, context: nil).fetch("step_1").fetch("name")
   ensure
     upload_file&.close!
     AnnesInquiry.configuration.flow_adapters.clear

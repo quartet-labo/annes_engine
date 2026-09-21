@@ -6,6 +6,7 @@ module AnnesInquiry
           Flow.find(version.flow_id).with_lock do
             source = FlowVersion.find(version.id)
             raise Error, "公開済み版を複製してください。" if source.draft?
+            raise Error, "発行済みの追加質問は複製できません。" if source.flow.follow_up_request && !source.flow.follow_up_request.draft?
             raise Error, "すでに下書きがあります。" if source.flow.versions.draft.exists?
             copy = source.dup
             copy.assign_attributes(status: "draft", published_at: nil, number: source.flow.versions.maximum(:number) + 1, lock_version: 0)

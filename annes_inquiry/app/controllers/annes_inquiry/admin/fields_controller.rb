@@ -3,6 +3,7 @@ module AnnesInquiry
     class FieldsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include DefinitionErrors
       before_action :load_definition
 
@@ -42,6 +43,9 @@ module AnnesInquiry
       end
 
       def destroy
+        if FlowCondition.where(field_id: @field.id).exists? || FlowValueMapping.where(source_field_id: @field.id).or(FlowValueMapping.where(target_field_id: @field.id)).exists?
+          raise Flows::Error, "参照する条件・引継ぎを先に削除してください。"
+        end
         edit_draft { |draft| draft.fields.find(@field.id).destroy! }
         redirect_to admin_version_path(@version), status: :see_other
       end

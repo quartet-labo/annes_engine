@@ -13,7 +13,7 @@ Configure GitHub Packages credentials as described in the [repository README](ht
 
 ```ruby
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "annes_inquiry", "~> 0.1.0"
+  gem "annes_inquiry", "~> 0.2.0"
 end
 ```
 
@@ -193,7 +193,7 @@ Engineのrootと `/admin/forms` は定義一覧、`/admin/versions/:id` は版�
 
 期限を過ぎた未参照BlobのDB削除と同じトランザクションで `annes_inquiry_blob_deletions` に削除要求を保存し、commit後にストレージを削除します。ストレージ障害やプロセス中断で残った要求は次の清掃実行で再試行し、ファイルと画像派生物の削除に成功した場合だけ要求を削除します。削除要求はJSONBを使わず、キー・サービス名・画像フラグを保持します。
 
-## 複数フォームの受付フロー（Unreleased）
+## 複数フォームの受付フロー（0.2.0）
 
 `Flow` / `FlowVersion` / `FlowStep` は公開済みのフォーム版を順に組み合わせます。
 定義の編集・clone・公開は `AnnesInquiry::Flows::Definitions` の各サービスを使います。
@@ -281,3 +281,59 @@ multiple_choice の `contains` に対応します。boolean の比較値は `tru
 保持されますが、確定回答・通知・host payload には含まれません。再び対象になった場合は
 再確認が必要です。管理詳細の「対象外」は正式回答ではありません。
 プレビューは同じ条件・引継ぎ評価器を使用し、回答を保存しません。
+
+### 追加質問と回答履歴
+
+管理の初回受付詳細から「追加質問を準備」を選び、公開フロー版・タイトル・回答期限を
+指定します。定型の質問は選んだ版を固定し、案件専用の質問は新しいFlow/Formへ複製します。
+案件専用の項目・構成は既存editorで編集でき、プレビュー後に発行します。
+発行時には定義全体のdigestを照合し、編集中の競合を拒否します。
+共通の質問定義や初回受付の版は退役・変更しません。案件専用定義は一般一覧・テンプレート選択・
+公開フォームURL・単独SubmissionService・通常フロー開始から利用できません。
+専用editorの直接URLでも初回受付のscopeと管理認可が必要です。
+
+追加質問は完了した初回FlowRunに一段で関連付けます。各回次の`FollowUpRequest`は
+`root_run / definition_version / response_run / number / request_key / due_at`を持ち、
+`draft → issued → answered`または`cancelled`となります。期限切れは`due_at`から判定します。
+発行前の下書きは顧客に表示しません。顧客は初回受付の「追加質問・回答履歴」から
+回答runを開き、既存の途中保存・添付・確認・確定を使えます。
+質問URLや通知リンクだけでは認可されず、毎回現在の本人・context・初回受付と追加回答への
+認可を確認します。追加回答の初回版への値統合や内部メモはホストの責務です。
+
+追加回答も**初回フローのadapter**を使用します。テンプレート側のadapterは呼びません。
+`authorize!`に`admin_follow_up`（準備・発行）と`admin_cancel_follow_up`（取消）を追加し、
+`scope_runs`で初回受付および許可する回答runを返してください。初回の`persist!`に加え、
+次の専用callbackが必要です。引数の`answers`は初回と同じstep/fieldの型付きHashです。
+
+```ruby
+# test/support/flow_test_support.rb と test/package_host/smoke.rb でも
+# 同じホスト側レコードへの追記を検証しています。
+def persist_follow_up!(request, run, answers, context)
+  parent = FlowIntakeRequest.find_by!(flow_run_id: request.root_run_id)
+  FlowFollowUpAnswer.create!(
+    flow_intake_request: parent,
+    follow_up_request_id: request.id,
+    flow_run_id: run.id
+  )
+end
+```
+
+初回の業務依頼を再作成せず、同じprimary DBで追記してください。callback内の外部通信は行わず、
+失敗時は追加回答・状態変更・通知要求がまとめてrollbackされます。初回のSubmissionと添付は
+固定され、`Flows::AnswerReader`は各runの原本を返します。履歴は
+`Flows::FollowUpReader.call(root:, context:)`（管理時は`action: :admin_view`）で取得します。
+
+独自controllerでは`Flows::PrepareFollowUp.call(root:, version:, context:, request_key:, title:, due_at:, custom: false)`、
+`Flows::IssueFollowUp.call(request:, context:, expected_lock_version:, expected_definition_digest:)`、
+`Flows::CancelFollowUp.call(request:, context:)`を使えます。発行確認画面で
+`Flows::FollowUpDefinitionDigest.call(request)`と`request.lock_version`を保存し、発行時にその値を渡します。
+新しい値を発行直前に自動取得して競合確認を省略しないでください。
+
+発行通知は初回runの`event_key = "follow_up:<id>:issued"`、回答通知は追加runの`"answered"`です。
+通知要求の`follow_up_request`から回次・タイトル・期限・回答runを参照できます。
+宛先、本文、リンク作成、配送手段、failed/unknownの確認はホストが担当します。
+停止・取消・期限は初回フローと質問フローの両方に適用され、期限の自動延長はしません。
+回答済み質問は取消できず、各回次と初回回答は履歴として残します。
+
+関連ホストの業務依頼画面・認可・通知運用（anne-mark #136 / #137など）は別途接続が必要です。
+Engineは業務判断、宛先選定、内部メモ、回答の現在値への統合を代行しません。

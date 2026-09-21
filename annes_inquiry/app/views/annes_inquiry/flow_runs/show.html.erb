@@ -20,3 +20,9 @@
     <%= button_to "入力を取り消す", cancel_flow_run_path(@run), params: {token: token} %>
   <% end %>
 <% else %><p>この入力は取り消されたか、有効期限を過ぎています。</p><% end %>
+
+<% if @follow_ups %><h2>追加質問・回答履歴</h2><ol>
+<% @follow_ups.each do |request| %><li>第<%= request.number %>回: <%= request.title %> — <%= request.expired? ? "期限切れ" : {"issued" => "回答待ち", "answered" => "回答済み", "cancelled" => "取消済み"}.fetch(request.status) %>
+<% if request.response_run %><%= link_to "質問・回答を開く", flow_run_path(request.response_run) %><% end %>
+</li><% end %></ol><% end %>
+<% if @run.follow_up_request %><p>追加質問 第<%= @run.follow_up_request.number %>回</p><p><%= link_to "初回の受付・履歴", flow_run_path(@run.follow_up_request.root_run) %></p><% end %>

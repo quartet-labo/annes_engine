@@ -6,6 +6,7 @@ module AnnesInquiry
         form.with_lock do
           source = form.versions.find(version.id)
           raise Error, "公開した版から複製してください。" if source.draft?
+          raise Error, "発行済みの追加質問は複製できません。" if form.follow_up_request && !form.follow_up_request.draft?
           raise Error, "すでに下書きがあります。" if form.versions.draft.exists?
 
           draft = source.dup

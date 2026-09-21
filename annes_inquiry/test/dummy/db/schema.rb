@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_21_002000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -218,6 +218,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
     t.datetime "created_at", null: false
     t.string "event_key", null: false
     t.bigint "flow_run_id", null: false
+    t.bigint "follow_up_request_id"
     t.text "last_error"
     t.datetime "processing_started_at"
     t.datetime "sent_at"
@@ -225,6 +226,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
     t.datetime "updated_at", null: false
     t.index ["flow_run_id", "event_key"], name: "inquiry_flow_notification_event", unique: true
     t.index ["flow_run_id"], name: "index_annes_inquiry_flow_notification_requests_on_flow_run_id"
+    t.index ["follow_up_request_id"], name: "idx_on_follow_up_request_id_46b9d6a92f"
     t.check_constraint "(status::text = ANY (ARRAY['pending'::character varying::text, 'processing'::character varying::text, 'sent'::character varying::text, 'failed'::character varying::text, 'unknown'::character varying::text])) AND attempts >= 0", name: "inquiry_flow_notification_state"
   end
 
@@ -301,12 +303,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
   create_table "annes_inquiry_flows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "enabled", default: true, null: false
+    t.bigint "follow_up_request_id"
     t.string "key", null: false
     t.integer "lock_version", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["follow_up_request_id"], name: "index_annes_inquiry_flows_on_follow_up_request_id"
     t.index ["key"], name: "index_annes_inquiry_flows_on_key", unique: true
     t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "inquiry_flow_key"
+  end
+
+  create_table "annes_inquiry_follow_up_requests", force: :cascade do |t|
+    t.datetime "answered_at"
+    t.datetime "created_at", null: false
+    t.boolean "custom", default: false, null: false
+    t.bigint "definition_version_id", null: false
+    t.datetime "due_at", null: false
+    t.datetime "issued_at"
+    t.integer "lock_version", default: 0, null: false
+    t.integer "number", null: false
+    t.uuid "request_key", null: false
+    t.bigint "response_run_id"
+    t.bigint "root_run_id", null: false
+    t.bigint "source_version_id", null: false
+    t.string "status", default: "draft", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["definition_version_id"], name: "idx_on_definition_version_id_a180f614a6"
+    t.index ["response_run_id"], name: "index_annes_inquiry_follow_up_requests_on_response_run_id", unique: true
+    t.index ["root_run_id", "number"], name: "inquiry_follow_up_number", unique: true
+    t.index ["root_run_id", "request_key"], name: "inquiry_follow_up_request_key", unique: true
+    t.index ["root_run_id"], name: "index_annes_inquiry_follow_up_requests_on_root_run_id"
+    t.index ["source_version_id"], name: "index_annes_inquiry_follow_up_requests_on_source_version_id"
+    t.check_constraint "(status::text = ANY (ARRAY['issued'::character varying::text, 'answered'::character varying::text])) AND response_run_id IS NOT NULL AND issued_at IS NOT NULL OR (status::text = ANY (ARRAY['draft'::character varying::text, 'cancelled'::character varying::text]))", name: "inquiry_follow_up_response"
+    t.check_constraint "number > 0 AND (status::text = ANY (ARRAY['draft'::character varying::text, 'issued'::character varying::text, 'answered'::character varying::text, 'cancelled'::character varying::text]))", name: "inquiry_follow_up_status"
   end
 
   create_table "annes_inquiry_form_versions", force: :cascade do |t|
@@ -331,10 +361,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
   create_table "annes_inquiry_forms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "enabled", default: true, null: false
+    t.bigint "follow_up_request_id"
     t.string "key", null: false
     t.integer "lock_version", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["follow_up_request_id"], name: "index_annes_inquiry_forms_on_follow_up_request_id"
     t.index ["key"], name: "index_annes_inquiry_forms_on_key", unique: true
     t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "inquiry_form_key"
   end
@@ -385,6 +417,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
     t.index ["receipt_id"], name: "index_annes_inquiry_submissions_on_receipt_id", unique: true
   end
 
+  create_table "flow_follow_up_answers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "flow_intake_request_id", null: false
+    t.bigint "flow_run_id", null: false
+    t.bigint "follow_up_request_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_intake_request_id"], name: "index_flow_follow_up_answers_on_flow_intake_request_id"
+    t.index ["flow_run_id"], name: "index_flow_follow_up_answers_on_flow_run_id", unique: true
+    t.index ["follow_up_request_id"], name: "index_flow_follow_up_answers_on_follow_up_request_id", unique: true
+  end
+
   create_table "flow_intake_requests", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "customer_key", null: false
@@ -413,6 +456,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
   add_foreign_key "annes_inquiry_flow_conditions", "annes_inquiry_flow_condition_groups", column: "flow_condition_group_id"
   add_foreign_key "annes_inquiry_flow_conditions", "annes_inquiry_flow_steps", column: "source_step_id"
   add_foreign_key "annes_inquiry_flow_notification_requests", "annes_inquiry_flow_runs", column: "flow_run_id"
+  add_foreign_key "annes_inquiry_flow_notification_requests", "annes_inquiry_follow_up_requests", column: "follow_up_request_id"
   add_foreign_key "annes_inquiry_flow_runs", "annes_inquiry_flow_versions", column: "flow_version_id"
   add_foreign_key "annes_inquiry_flow_steps", "annes_inquiry_flow_versions", column: "flow_version_id"
   add_foreign_key "annes_inquiry_flow_steps", "annes_inquiry_form_versions", column: "form_version_id"
@@ -421,10 +465,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
   add_foreign_key "annes_inquiry_flow_value_mappings", "annes_inquiry_flow_steps", column: "flow_step_id"
   add_foreign_key "annes_inquiry_flow_value_mappings", "annes_inquiry_flow_steps", column: "source_step_id"
   add_foreign_key "annes_inquiry_flow_versions", "annes_inquiry_flows", column: "flow_id"
+  add_foreign_key "annes_inquiry_flows", "annes_inquiry_follow_up_requests", column: "follow_up_request_id"
+  add_foreign_key "annes_inquiry_follow_up_requests", "annes_inquiry_flow_runs", column: "response_run_id"
+  add_foreign_key "annes_inquiry_follow_up_requests", "annes_inquiry_flow_runs", column: "root_run_id"
+  add_foreign_key "annes_inquiry_follow_up_requests", "annes_inquiry_flow_versions", column: "definition_version_id"
+  add_foreign_key "annes_inquiry_follow_up_requests", "annes_inquiry_flow_versions", column: "source_version_id"
   add_foreign_key "annes_inquiry_form_versions", "annes_inquiry_forms", column: "form_id"
+  add_foreign_key "annes_inquiry_forms", "annes_inquiry_follow_up_requests", column: "follow_up_request_id"
   add_foreign_key "annes_inquiry_notification_requests", "annes_inquiry_submissions", column: "submission_id"
   add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_flow_runs", column: ["flow_run_id", "flow_version_id"], primary_key: ["id", "flow_version_id"], name: "inquiry_step_run_owner"
   add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_flow_steps", column: ["flow_step_id", "flow_version_id", "form_version_id"], primary_key: ["id", "flow_version_id", "form_version_id"], name: "inquiry_step_run_definition"
   add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_submissions", column: ["submission_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_step_submission"
   add_foreign_key "annes_inquiry_submissions", "annes_inquiry_form_versions", column: "form_version_id"
+  add_foreign_key "flow_follow_up_answers", "flow_intake_requests"
 end

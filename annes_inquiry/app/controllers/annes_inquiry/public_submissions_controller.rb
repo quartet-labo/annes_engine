@@ -1,6 +1,7 @@
 module AnnesInquiry
   class PublicSubmissionsController < ActionController::Base
     protect_from_forgery with: :exception
+    rescue_from ActiveRecord::RecordNotFound, with: -> { head :not_found }
     helper AnnesInquiry::FormHelper
     before_action :require_public_endpoint
 
@@ -54,7 +55,7 @@ module AnnesInquiry
       end
 
       def load_form
-        @form = Form.find_by!(key: params[:key], enabled: true)
+        @form = Form.templates.find_by!(key: params[:key], enabled: true)
       end
 
       def identity

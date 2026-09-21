@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+- Add template and request-scoped follow-up questions, issuance/cancellation, immutable response history, and `persist_follow_up!` for appending to the original host request.
+- Protect scoped definitions across public intake and administrator access; reuse root authorization for follow-up input and notifications.
+- Add concurrent issuance/finalization/cancellation, browser workflows, additive upgrade, and built-gem acceptance coverage.
 
 - 条件グループによる複数分岐、読み取り専用の回答引継ぎ、経路変更時の再確認、管理editorと共通previewを追加。
 

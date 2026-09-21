@@ -8,7 +8,7 @@ module AnnesInquiry
       before_action :load_flow_context
 
       def index
-        scope = @policy.scope(FlowRun.joins(:flow_version).where(annes_inquiry_flow_versions: {flow_id: @flow.id}))
+        scope = @policy.scope(FlowRun.where.not(id: FollowUpRequest.where.not(response_run_id: nil).select(:response_run_id)).joins(:flow_version).where(annes_inquiry_flow_versions: {flow_id: @flow.id}))
         scope = scope.where(status: params[:status]) if FlowRun.statuses.key?(params[:status])
         %w[from to].each do |key|
           next if params[key].blank?
@@ -24,6 +24,7 @@ module AnnesInquiry
         load_run
         @steps = @run.step_runs.includes(:flow_step, form_version: :fields, draft_answers: [:field, :values], draft_attachments: {file_attachment: :blob}, submission: {answers: {attachments: {file_attachment: :blob}}})
         @answers = Flows::AnswerReader.call(run: @run, context: @context, action: :admin_view) if @run.submitted?
+        @follow_ups = Flows::FollowUpReader.call(root: @run, context: @context, action: :admin_view) if @run.submitted? && !@run.follow_up_request
         @draft_values = Flows::RouteEvaluator.evaluate(@run).raw_values unless @run.submitted?
       end
 
@@ -44,12 +45,21 @@ module AnnesInquiry
       private
         def load_flow_context
           @flow = Flow.find(params[:flow_id])
-          adapter = AnnesInquiry.configuration.flow_adapters[@flow.key]
+          candidate = FlowRun.find(params[:id]) if params[:id]
+          raise Flows::Forbidden if candidate && candidate.flow_version.flow_id != @flow.id
+          adapter_flow = candidate ? candidate.adapter_flow : (@flow.follow_up_request&.root_run&.flow || @flow)
+          adapter = AnnesInquiry.configuration.flow_adapters[adapter_flow.key]
           raise Flows::Forbidden unless adapter&.respond_to?(:prepare_context)
           @context = adapter.prepare_context(self)
           return if performed?
-          @policy = Flows::AccessPolicy.new(flow: @flow, context: @context)
+          @policy = candidate ? Flows::AccessPolicy.for_run(candidate, @context) : Flows::AccessPolicy.new(flow: adapter_flow, context: @context)
           @policy.authorize!(:admin_list)
+          if @flow.follow_up_request
+            root = @flow.follow_up_request.root_run
+            root_policy = Flows::AccessPolicy.for_run(root, @context)
+            raise Flows::Forbidden unless root_policy.scope(FlowRun.where(id: root.id)).exists?
+            root_policy.authorize!(:admin_view, run: root)
+          end
         end
         def load_run
           relation = FlowRun.joins(:flow_version).where(annes_inquiry_flow_versions: {flow_id: @flow.id})

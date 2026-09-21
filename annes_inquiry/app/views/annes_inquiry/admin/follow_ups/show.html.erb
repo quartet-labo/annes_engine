@@ -1,0 +1,13 @@
+<h1>追加質問 <%= @follow_up.number %>: <%= @follow_up.title %></h1>
+<p>状態: <%= @follow_up.status %> / 期限: <%= @follow_up.due_at %></p>
+<% version = @follow_up.definition_version %>
+<p><%= link_to "質問をプレビュー", preview_admin_flow_path(version.flow, version_id: version.id) %></p>
+<% if @follow_up.draft? %>
+<% if @follow_up.custom? %>
+<p><%= link_to "質問の構成を編集", admin_flow_path(version.flow) %></p>
+<ul><% version.steps.each do |step| %><li><%= link_to "#{step.title}の項目を編集", admin_version_path(step.form_version) %></li><% end %></ul>
+<% end %>
+<%= button_to "追加質問を発行", issue_admin_flow_run_follow_up_path(@root.flow, @root, @follow_up), params: {lock_version: @follow_up.lock_version, definition_digest: @definition_digest} %>
+<% end %>
+<% unless @follow_up.answered? || @follow_up.cancelled? %><%= button_to "追加質問を取り消す", cancel_admin_flow_run_follow_up_path(@root.flow, @root, @follow_up) %><% end %>
+<p><%= link_to "初回受付に戻る", admin_flow_run_path(@root.flow, @root) %></p>

@@ -4,7 +4,7 @@ module AnnesInquiry
       ACTIONS = %w[save complete finalize cancel].freeze
       def self.issue(run:, action:, context:, step: nil, expires_in: 2.hours)
         raise ArgumentError unless ACTIONS.include?(action.to_s)
-        policy = AccessPolicy.new(flow: run.flow, context: context)
+        policy = AccessPolicy.for_run(run, context)
         policy.authorize!(action, run: run, step: step)
         verifier.generate(binding(run, step, action, policy).merge("revision" => run.revision, "request_key" => SecureRandom.uuid), expires_in: expires_in)
       end

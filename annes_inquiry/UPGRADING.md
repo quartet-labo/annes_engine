@@ -1,10 +1,25 @@
 # Upgrading AnnesInquiry
 
-## Unreleased: flow intake
+## 0.2.0: flow intake and follow-up questions
 
 条件・引継ぎを利用する更新では `bin/rails railties:install:migrations FROM=annes_inquiry` と `db:migrate` を実行してください。追加の `CreateAnnesInquiryFlowRules` は既存の直列フロー・下書き・正式回答を変更しません。条件のない既存フローは従来どおり動作します。
 
 Install the additional Engine migrations with `bin/rails railties:install:migrations FROM=annes_inquiry` and migrate normally. Existing five migrations and standalone receipts remain unchanged; no backfill is needed. Register a flow adapter and explicitly enable `flow_endpoints_enabled` only when using the new participant endpoints. Existing form adapters are not invoked for each flow step. Configure identity, context, authorization, run expiry and same-primary-DB persistence as described in README. Flow receipts appear in flow administration, not the standalone inbox. Schedule flow notification recovery and draft cleanup separately from existing standalone jobs.
+
+### 0.1.0からの導入
+
+`bin/rails railties:install:migrations FROM=annes_inquiry`で4件の追加migrationをコピーし、
+`bin/rails db:migrate`を実行します。Engineのmigrationは合計9件です。既存5件は変更せず、
+既存回答・添付・通知およびPlan 1/2のフロー保存データへのbackfillは不要です。
+通常の単独フォームadapterには変更がありません。フロー設定の既定は無効で、adapter未登録時は拒否します。
+
+追加質問を使うホストは初回adapterに`persist_follow_up!`、管理actionの認可とscopeを実装し、
+期限・通知・清掃の運用を設定してください。既存のprimary DB以外への書き込みや外部通知を
+保存callbackへ含めないでください。詳しい契約と実行可能な接続例はREADMEとpackage hostを参照してください。
+
+公開済み版は2026-09-21確認時点で0.1.0です。この変更は後方互換の追加機能として0.2.0を準備します。
+依存するexampleのlockfileはありません。リリースは`Publish Gems` GitHub Actions workflowで行い、
+この実装作業ではgem公開・手動tag pushを行いません。
 
 ## 0.1.0
 

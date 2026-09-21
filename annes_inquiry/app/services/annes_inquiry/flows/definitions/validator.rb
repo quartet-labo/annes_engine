@@ -6,6 +6,8 @@ module AnnesInquiry
           raise Error, "ステップを追加してください。" if version.steps.empty?
           version.steps.includes(form_version: :form).each do |step|
             raise Error, "有効な公開フォーム版を選択してください。" unless step.form_version.published? && step.form_version.form.enabled?
+            scope = step.form_version.form.follow_up_request_id
+            raise Error, "別の追加質問専用フォームは利用できません。" if scope && scope != version.flow.follow_up_request_id
             rules!(step)
           end
         end

@@ -22,7 +22,7 @@
 <p><%= f.label :key, "ステップキー" %><%= f.text_field :key, required: true %></p>
 <p><%= f.label :title, "ステップ名" %><%= f.text_field :title, required: true %></p>
 <p><%= f.label :position, "順番" %><%= f.number_field :position, value: (version.steps.maximum(:position) || -1) + 1 %></p>
-<p><%= f.label :form_version_id, "公開フォーム版" %><%= f.select :form_version_id, AnnesInquiry::FormVersion.published.includes(:form).map { |v| ["#{v.form.name} / #{v.number}", v.id] } %></p>
+<p><%= f.label :form_version_id, "公開フォーム版" %><%= f.select :form_version_id, AnnesInquiry::FormVersion.joins(:form).where(annes_inquiry_forms: {follow_up_request_id: @flow.follow_up_request_id}).where(status: @flow.follow_up_request_id ? %w[draft published] : "published").includes(:form).map { |v| ["#{v.form.name} / #{v.number}", v.id] } %></p>
 <%= f.submit "ステップを追加" %><% end %>
 <%= button_to "公開する", publish_admin_flow_path(@flow, version_id: version.id), params: {lock_version: version.lock_version} %>
 <% elsif !@flow.versions.draft.exists? %><%= button_to "次の下書きを作る", duplicate_admin_flow_path(@flow, version_id: version.id) %><% end %>

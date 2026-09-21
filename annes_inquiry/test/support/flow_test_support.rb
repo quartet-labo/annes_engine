@@ -21,6 +21,12 @@ module FlowTestSupport
       FlowIntakeRequest.create!(flow_run_id: run.id, customer_key: identity(context))
       @persisted << [run.id, answers]
     end
+    def persist_follow_up!(request, run, answers, context)
+      raise failure if failure
+      parent = FlowIntakeRequest.find_by!(flow_run_id: request.root_run_id)
+      FlowFollowUpAnswer.create!(flow_intake_request: parent, follow_up_request_id: request.id, flow_run_id: run.id)
+      @persisted << [request.id, answers]
+    end
     def deliver(request)
       @delivered << request.id
       :sent

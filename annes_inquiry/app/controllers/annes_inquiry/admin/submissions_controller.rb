@@ -15,7 +15,7 @@ module AnnesInquiry
       end
 
       def index
-        @forms = Form.order(:name)
+        @forms = Form.templates.order(:name)
         @page = Integer(params[:page].presence || 1, exception: false) || 1
         @filters = params[:filters].is_a?(ActionController::Parameters) ? params[:filters].values.map { |item| item.is_a?(ActionController::Parameters) ? item.to_unsafe_h : item } : []
         @submissions = SubmissionQuery.new(form_id: params[:form_id], version_id: params[:version_id], from: params[:from], to: params[:to], filters: @filters, page: @page).call.to_a

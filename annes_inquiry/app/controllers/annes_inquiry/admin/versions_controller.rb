@@ -3,6 +3,7 @@ module AnnesInquiry
     class VersionsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include DefinitionErrors
 
       def show
@@ -25,7 +26,10 @@ module AnnesInquiry
 
       def destroy
         @version = FormVersion.find(params[:id])
-        Definitions::DraftEditor.call(@version, expected_lock_version: params[:lock_version]) { |draft| draft.destroy! }
+        Definitions::DraftEditor.call(@version, expected_lock_version: params[:lock_version]) do |draft|
+          raise Definitions::Error, "フローで参照中の版は削除できません。先にステップを削除してください。" if FlowStep.where(form_version_id: draft.id).exists?
+          draft.destroy!
+        end
         redirect_to admin_form_path(@version.form_id), status: :see_other
       end
 

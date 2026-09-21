@@ -3,11 +3,12 @@ module AnnesInquiry
     class FlowsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include FlowErrors
       helper FlowHelper
 
       def index
-        @flows = Flow.order(:id)
+        @flows = Flow.templates.order(:id)
       end
       def create
         flow = Flow.create!(params.require(:flow).permit(:key, :name))
@@ -53,6 +54,11 @@ module AnnesInquiry
             step.destroy!
           elsif params[:step]
             attrs = params.require(:step).permit(:key, :title, :position, :form_version_id)
+            if attrs[:form_version_id]
+              selected = FormVersion.find(attrs[:form_version_id])
+              scope = selected.form.follow_up_request_id
+              raise Flows::Forbidden if scope && scope != draft.flow.follow_up_request_id
+            end
             if params[:step_id]
               draft.steps.find(params[:step_id]).update!(attrs)
             else

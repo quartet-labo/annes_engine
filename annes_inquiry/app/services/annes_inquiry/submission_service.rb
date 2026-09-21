@@ -22,7 +22,7 @@ module AnnesInquiry
       @data = data = SubmissionToken.verify(@token, form: @form, identity: @identity)
       @version = data && @form.versions.find_by(id: data["version_id"])
       @input = Input.new(@version || @form.versions.published.first, raw_values: @raw_values, adapter: @adapter, context: @context, time_zone: @time_zone)
-      raise Conflict unless @version
+      raise Conflict unless @version && @form.reload.follow_up_request_id.nil?
       existing = find_existing
       return replay(existing) if existing
       return result(422) unless @input.valid?

@@ -7,3 +7,12 @@
 <% files.each do |attachment| %><p><%= link_to attachment.file.filename.to_s, attachment_admin_flow_run_path(@flow, @run, step_id: step.id, attachment_id: attachment.id, kind: step.submission ? "answer" : "draft") %></p><% end %>
 </section><% end %>
 <h2>通知</h2><ul><% @run.notification_requests.each do |notification| %><li><%= notification.event_key %>: <%= inquiry_notification_status(notification.status) %></li><% end %></ul>
+
+<% if @follow_ups %>
+<h2>追加質問・回答履歴</h2>
+<p><%= link_to "追加質問を準備", new_admin_flow_run_follow_up_path(@flow, @run) %></p>
+<ol><% @follow_ups.each do |request| %><li>
+<%= link_to "第#{request.number}回 #{request.title}", admin_flow_run_follow_up_path(@flow, @run, request) %> — <%= request.expired? ? "期限切れ" : request.status %>
+<% if request.response_run %><%= link_to "回答の詳細", admin_flow_run_path(request.response_run.flow, request.response_run) %><% end %>
+</li><% end %></ol><% end %>
+<% if @run.follow_up_request %><p><%= link_to "初回受付", admin_flow_run_path(@run.follow_up_request.root_run.flow, @run.follow_up_request.root_run) %></p><% end %>

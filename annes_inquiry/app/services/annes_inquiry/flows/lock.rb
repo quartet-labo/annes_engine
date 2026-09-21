@@ -1,14 +1,19 @@
 module AnnesInquiry
   module Flows
     class Lock
-      def self.call(run)
+      def self.call(run, extra_versions: [])
         completed = nil
         ApplicationRecord.transaction(requires_new: true) do
-          version = FlowRun.find(run.id).flow_version
-          Flow.find(version.flow_id).lock!
-          form_ids = FormVersion.where(id: version.steps.select(:form_version_id)).pluck(:form_id)
+          persisted = FlowRun.find(run.id)
+          follow_up = persisted.follow_up_request
+          root = follow_up ? follow_up.root_run : persisted
+          versions = [root.flow_version, persisted.flow_version, *extra_versions].uniq(&:id)
+          Flow.where(id: versions.map(&:flow_id)).order(:id).lock.load
+          form_ids = FormVersion.where(id: FlowStep.where(flow_version_id: versions.map(&:id)).select(:form_version_id)).pluck(:form_id)
           Form.where(id: form_ids).order(:id).lock.load
-          current = FlowRun.lock.find(run.id)
+          FlowRun.lock.find(root.id)
+          follow_up.lock! if follow_up
+          current = FlowRun.lock.find(persisted.id)
           completed = yield current
         end
         raise Conflict, "保存が取り消されました。" unless completed
@@ -16,7 +21,10 @@ module AnnesInquiry
       end
 
       def self.writable!(run)
-        raise Conflict, "このフローは現在編集できません。" unless run.in_progress? && !run.effective_expired? && run.flow.reload.enabled?
+        raise Conflict, "このフローは現在編集できません。" unless run.in_progress? && !run.effective_expired? && run.flow.reload.enabled? && run.adapter_flow.reload.enabled?
+        if request = run.follow_up_request
+          raise Conflict, "追加質問は取り消されたか期限を過ぎています。" unless request.issued? && !request.expired?
+        end
         raise Conflict, "フォームは停止中です。" if Form.where(id: FormVersion.where(id: run.flow_version.steps.select(:form_version_id)).select(:form_id), enabled: false).exists?
       end
     end

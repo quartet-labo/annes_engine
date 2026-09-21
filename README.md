@@ -67,7 +67,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "annes_access", "~> 1.0"
   gem "annes_audit", "~> 1.0"
   gem "annes_loyalty", "~> 1.0"
-  gem "annes_inquiry", "~> 0.1.0"
+  gem "annes_inquiry", "~> 0.2.0"
 end
 ```
 

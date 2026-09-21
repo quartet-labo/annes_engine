@@ -19,6 +19,7 @@ module AnnesInquiry
     def show
       @policy.authorize!(:view, run: @run)
       @steps = Flows::RouteEvaluator.call(@run)
+      @follow_ups = Flows::FollowUpReader.call(root: @run, context: @context) if @run.submitted? && !@run.follow_up_request
     end
 
     def resume
@@ -103,11 +104,12 @@ module AnnesInquiry
         else
           @flow = Flow.find_by!(key: params[:key])
         end
-        adapter = AnnesInquiry.configuration.flow_adapters[@flow.key]
+        raise Flows::Forbidden if !@run && @flow.follow_up_request_id
+        adapter = AnnesInquiry.configuration.flow_adapters[(@run ? @run.adapter_flow : @flow).key]
         raise Flows::Forbidden unless adapter&.respond_to?(:prepare_context)
         @context = adapter.prepare_context(self)
         return if performed?
-        @policy = Flows::AccessPolicy.new(flow: @flow, context: @context)
+        @policy = @run ? Flows::AccessPolicy.for_run(@run, @context) : Flows::AccessPolicy.new(flow: @flow, context: @context)
         @policy.authorize!(@run ? :view : :start, run: @run)
       end
 

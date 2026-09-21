@@ -26,13 +26,24 @@ class FlowUpgradeTest < ActiveSupport::TestCase
     blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("Original document"), filename: "original.txt", content_type: "text/plain")
     connection.execute("INSERT INTO active_storage_attachments (name, record_type, record_id, blob_id, created_at) VALUES ('file', 'AnnesInquiry::AnswerAttachment', 1, #{blob.id}, #{now})")
     migrations.drop(5).take(2).each { |path| migrate(path) }
-    flow = AnnesInquiry::Flow.create!(key: "linear", name: "Linear")
+    connection.execute("INSERT INTO annes_inquiry_flows (key, name, created_at, updated_at) VALUES ('linear', 'Linear', #{now}, #{now})")
+    flow = AnnesInquiry::Flow.find_by!(key: "linear")
     version = flow.versions.create!(number: 1, title: "Linear")
     step = version.steps.create!(key: "contact", title: "Contact", position: 0, form_version_id: 1)
     run = AnnesInquiry::FlowRun.create!(flow_version: version, owner_digest: "owner", context_digest: "context", start_key: SecureRandom.uuid, expires_at: 1.day.from_now)
     item = run.step_runs.create!(flow_step: step, flow_version_id: version.id, form_version_id: 1)
     item.draft_answers.create!(field_id: 1, form_version_id: 1, raw_value: "Saved before branching")
-    migrations.drop(7).each { |path| migrate(path) }
+    migrate(migrations.fetch(7))
+    target = version.steps.create!(key: "branch", title: "Branch", position: 1, form_version_id: 1)
+    mapping = target.value_mappings.create!(source_step: step, source_field_id: 1, target_field_id: 1)
+    connection.execute("INSERT INTO annes_inquiry_fields (id, form_version_id, key, label, value_type, widget, position, created_at, updated_at) VALUES (3, 1, 'flag', 'Flag', 'boolean', 'checkbox', 2, #{now}, #{now})")
+    condition = target.condition_groups.create!.conditions.create!(source_step: step, field_id: 3, operator: "eq", expected_value: "true")
+    migrations.drop(8).each { |path| migrate(path) }
+    AnnesInquiry::ApplicationRecord.descendants.each(&:reset_column_information)
+    assert_equal mapping.id, target.value_mappings.sole.id
+    assert_equal "true", condition.reload.expected_value
+    assert_nil flow.reload.follow_up_request_id
+    assert_equal 0, AnnesInquiry::FollowUpRequest.count
     assert_equal [item.id], AnnesInquiry::Flows::RouteEvaluator.call(run).map(&:id)
     assert_equal "Saved before branching", AnnesInquiry::Flows::RouteEvaluator.raw_values(item).fetch("name")
     assert_equal receipt, connection.select_value("SELECT receipt_id FROM annes_inquiry_submissions")
@@ -46,6 +57,7 @@ class FlowUpgradeTest < ActiveSupport::TestCase
     connection.schema_search_path = original_path
     connection.execute("DROP SCHEMA IF EXISTS #{schema} CASCADE") if schema
     connection.schema_cache.clear!
+    AnnesInquiry::ApplicationRecord.descendants.each(&:reset_column_information)
     ActiveRecord::Migration.verbose = verbosity
   end
 

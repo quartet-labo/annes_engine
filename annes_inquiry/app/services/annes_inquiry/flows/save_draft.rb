@@ -7,7 +7,7 @@ module AnnesInquiry
       def self.call(run:, step:, context:, token:, raw_values:, retained_attachments: {})
         Lock.call(run) do |current|
           owned_step = current.step_runs.find(step.id)
-          policy = AccessPolicy.new(flow: current.flow, context: context)
+          policy = AccessPolicy.for_run(current, context)
           policy.authorize!(:save, run: current, step: owned_step)
           Lock.writable!(current)
           OperationToken.verify!(token, run: current, action: :save, policy: policy, step: owned_step)
