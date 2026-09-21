@@ -11,7 +11,7 @@ module AnnesInquiry
     end
 
     def call
-      relation = Submission.all
+      relation = Submission.standalone
       versions = FormVersion.all
       versions = versions.where(form_id: @form_id) if @form_id
       versions = versions.where(id: @version_id) if @version_id

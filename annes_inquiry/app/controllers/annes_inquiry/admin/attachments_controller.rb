@@ -7,7 +7,7 @@ module AnnesInquiry
       include DefinitionErrors
 
       def show
-        submission = Submission.find(params[:submission_id])
+        submission = Submission.standalone.find(params[:submission_id])
         attachment = AnswerAttachment.where(answer_id: submission.answers.select(:id)).find(params[:id])
         return head :not_found unless attachment.file.attached?
         response.headers["Cache-Control"] = "private, no-store"

@@ -1,5 +1,6 @@
 module AnnesInquiry
   class Submission < ApplicationRecord
+    scope :standalone, -> { where.not(id: StepRun.where.not(submission_id: nil).select(:submission_id)) }
     belongs_to :form_version, class_name: "AnnesInquiry::FormVersion"
     has_many :answers, class_name: "AnnesInquiry::Answer", inverse_of: :submission, dependent: :restrict_with_exception
     has_many :notification_requests, class_name: "AnnesInquiry::NotificationRequest", inverse_of: :submission, dependent: :restrict_with_exception

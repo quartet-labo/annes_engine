@@ -6,7 +6,7 @@ module AnnesInquiry
       include DefinitionErrors
 
       def show
-        @submission = Submission.includes(form_version: { fields: :options }).find(params[:id])
+        @submission = Submission.standalone.includes(form_version: { fields: :options }).find(params[:id])
         @reader = AnswerReader.new(@submission)
         @host_link = AnnesInquiry.configuration.admin_submission_link&.call(self, @submission)
         @notifications = @submission.notification_requests.order(:id)

@@ -22,3 +22,18 @@ namespace :annes_inquiry do
     end
   end
 end
+
+namespace :annes_inquiry do
+  desc "Recover pending flow notifications (unknown delivery is never retried automatically)"
+  task recover_flow_notifications: :environment do
+    AnnesInquiry::Flows::NotificationDispatcher.recover!
+  end
+  desc "List expired/cancelled/submitted flow drafts; EXECUTE=true removes only draft references"
+  task cleanup_flow_drafts: :environment do
+    if ENV["EXECUTE"] == "true"
+      AnnesInquiry::Flows::DraftCleanup.call
+    else
+      AnnesInquiry::Flows::DraftCleanup.candidates.find_each { |run| puts "#{run.id} #{run.status} #{run.expires_at}" }
+    end
+  end
+end

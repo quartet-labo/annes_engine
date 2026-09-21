@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_21_001000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -94,6 +94,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
     t.index ["service_name", "key"], name: "inquiry_blob_deletion_key", unique: true
   end
 
+  create_table "annes_inquiry_draft_answer_values", force: :cascade do |t|
+    t.bigint "draft_answer_id", null: false
+    t.integer "position", null: false
+    t.text "raw_value", null: false
+    t.index ["draft_answer_id", "position"], name: "idx_on_draft_answer_id_position_60513644fa", unique: true
+    t.index ["draft_answer_id"], name: "index_annes_inquiry_draft_answer_values_on_draft_answer_id"
+  end
+
+  create_table "annes_inquiry_draft_answers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "field_id", null: false
+    t.bigint "form_version_id", null: false
+    t.text "raw_value"
+    t.bigint "step_run_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["step_run_id", "field_id"], name: "index_annes_inquiry_draft_answers_on_step_run_id_and_field_id", unique: true
+  end
+
+  create_table "annes_inquiry_draft_attachments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "field_id", null: false
+    t.bigint "form_version_id", null: false
+    t.integer "position", null: false
+    t.bigint "step_run_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["step_run_id", "field_id", "position"], name: "inquiry_draft_attachment_order", unique: true
+  end
+
   create_table "annes_inquiry_field_file_types", force: :cascade do |t|
     t.string "content_type"
     t.datetime "created_at", null: false
@@ -148,6 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
     t.index ["form_version_id", "key"], name: "inquiry_field_key", unique: true
     t.index ["form_version_id"], name: "index_annes_inquiry_fields_on_form_version_id"
     t.index ["id", "form_version_id", "value_type"], name: "inquiry_field_version_type", unique: true
+    t.index ["id", "form_version_id"], name: "inquiry_field_version", unique: true
     t.check_constraint "\"position\" >= 0", name: "inquiry_position_nonnegative"
     t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "inquiry_field_key_format"
     t.check_constraint "max_file_bytes > 0", name: "inquiry_max_file_bytes_positive"
@@ -162,6 +191,88 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
     t.check_constraint "min_selections <= max_selections", name: "inquiry_selections_bounds"
     t.check_constraint "min_selections >= 0", name: "inquiry_min_selections_nonnegative"
     t.check_constraint "value_type::text = ANY (ARRAY['text'::character varying::text, 'integer'::character varying::text, 'decimal'::character varying::text, 'boolean'::character varying::text, 'date'::character varying::text, 'datetime'::character varying::text, 'single_choice'::character varying::text, 'multiple_choice'::character varying::text, 'attachment'::character varying::text])", name: "inquiry_field_type"
+  end
+
+  create_table "annes_inquiry_flow_notification_requests", force: :cascade do |t|
+    t.integer "attempts", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.string "event_key", null: false
+    t.bigint "flow_run_id", null: false
+    t.text "last_error"
+    t.datetime "processing_started_at"
+    t.datetime "sent_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_run_id", "event_key"], name: "inquiry_flow_notification_event", unique: true
+    t.index ["flow_run_id"], name: "index_annes_inquiry_flow_notification_requests_on_flow_run_id"
+    t.check_constraint "(status::text = ANY (ARRAY['pending'::character varying, 'processing'::character varying, 'sent'::character varying, 'failed'::character varying, 'unknown'::character varying]::text[])) AND attempts >= 0", name: "inquiry_flow_notification_state"
+  end
+
+  create_table "annes_inquiry_flow_runs", force: :cascade do |t|
+    t.string "context_digest", limit: 64, null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.uuid "final_key"
+    t.bigint "flow_version_id", null: false
+    t.string "owner_digest", limit: 64, null: false
+    t.string "payload_digest", limit: 64
+    t.uuid "receipt_id", null: false
+    t.integer "revision", default: 0, null: false
+    t.uuid "start_key", null: false
+    t.string "status", default: "in_progress", null: false
+    t.datetime "submitted_at"
+    t.integer "submitted_revision"
+    t.integer "token_epoch", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_version_id", "owner_digest", "context_digest", "start_key"], name: "inquiry_flow_start_key", unique: true
+    t.index ["flow_version_id"], name: "index_annes_inquiry_flow_runs_on_flow_version_id"
+    t.index ["id", "flow_version_id"], name: "inquiry_run_version", unique: true
+    t.index ["receipt_id"], name: "index_annes_inquiry_flow_runs_on_receipt_id", unique: true
+    t.check_constraint "(status::text = ANY (ARRAY['in_progress'::character varying, 'submitted'::character varying, 'cancelled'::character varying, 'expired'::character varying]::text[])) AND revision >= 0 AND token_epoch >= 0", name: "inquiry_run_state"
+    t.check_constraint "status::text = 'submitted'::text AND submitted_at IS NOT NULL AND final_key IS NOT NULL AND payload_digest IS NOT NULL AND submitted_revision IS NOT NULL OR status::text <> 'submitted'::text AND submitted_at IS NULL AND final_key IS NULL AND payload_digest IS NULL AND submitted_revision IS NULL", name: "inquiry_run_receipt"
+  end
+
+  create_table "annes_inquiry_flow_steps", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "flow_version_id", null: false
+    t.bigint "form_version_id", null: false
+    t.string "key", null: false
+    t.integer "position", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_version_id", "key"], name: "index_annes_inquiry_flow_steps_on_flow_version_id_and_key", unique: true
+    t.index ["flow_version_id", "position"], name: "index_annes_inquiry_flow_steps_on_flow_version_id_and_position", unique: true
+    t.index ["flow_version_id"], name: "index_annes_inquiry_flow_steps_on_flow_version_id"
+    t.index ["form_version_id"], name: "index_annes_inquiry_flow_steps_on_form_version_id"
+    t.index ["id", "flow_version_id", "form_version_id"], name: "inquiry_flow_step_identity", unique: true
+    t.check_constraint "\"position\" >= 0 AND key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "inquiry_flow_step_key"
+  end
+
+  create_table "annes_inquiry_flow_versions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "flow_id", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.integer "number", null: false
+    t.datetime "published_at"
+    t.string "status", default: "draft", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_id", "number"], name: "index_annes_inquiry_flow_versions_on_flow_id_and_number", unique: true
+    t.index ["flow_id"], name: "index_annes_inquiry_flow_versions_on_flow_id"
+    t.index ["flow_id"], name: "inquiry_flow_one_draft", unique: true, where: "((status)::text = 'draft'::text)"
+    t.index ["flow_id"], name: "inquiry_flow_one_published", unique: true, where: "((status)::text = 'published'::text)"
+    t.check_constraint "number > 0 AND (status::text = ANY (ARRAY['draft'::character varying, 'published'::character varying, 'retired'::character varying]::text[]))", name: "inquiry_flow_version_state"
+  end
+
+  create_table "annes_inquiry_flows", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "enabled", default: true, null: false
+    t.string "key", null: false
+    t.integer "lock_version", default: 0, null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_annes_inquiry_flows_on_key", unique: true
+    t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "inquiry_flow_key"
   end
 
   create_table "annes_inquiry_form_versions", force: :cascade do |t|
@@ -210,6 +321,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
     t.check_constraint "(status::text = ANY (ARRAY['pending'::character varying::text, 'processing'::character varying::text, 'sent'::character varying::text, 'failed'::character varying::text, 'unknown'::character varying::text])) AND attempts >= 0", name: "inquiry_notification_state"
   end
 
+  create_table "annes_inquiry_step_runs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "flow_run_id", null: false
+    t.bigint "flow_step_id", null: false
+    t.bigint "flow_version_id", null: false
+    t.bigint "form_version_id", null: false
+    t.string "status", default: "draft", null: false
+    t.bigint "submission_id"
+    t.datetime "updated_at", null: false
+    t.index ["flow_run_id", "flow_step_id"], name: "index_annes_inquiry_step_runs_on_flow_run_id_and_flow_step_id", unique: true
+    t.index ["id", "form_version_id"], name: "inquiry_step_run_version", unique: true
+    t.index ["submission_id"], name: "index_annes_inquiry_step_runs_on_submission_id", unique: true
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying, 'complete'::character varying, 'inactive'::character varying]::text[])", name: "inquiry_step_run_state"
+  end
+
   create_table "annes_inquiry_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "form_version_id", null: false
@@ -225,6 +351,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
     t.index ["receipt_id"], name: "index_annes_inquiry_submissions_on_receipt_id", unique: true
   end
 
+  create_table "flow_intake_requests", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "customer_key", null: false
+    t.bigint "flow_run_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_run_id"], name: "index_flow_intake_requests_on_flow_run_id", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "annes_inquiry_answer_attachments", "annes_inquiry_answers", column: ["answer_id", "field_id", "value_type"], primary_key: ["id", "field_id", "value_type"], name: "inquiry_attachment_answer_fk"
@@ -232,10 +366,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_06_071000) do
   add_foreign_key "annes_inquiry_answer_options", "annes_inquiry_field_options", column: ["field_option_id", "field_id"], primary_key: ["id", "field_id"], name: "inquiry_selection_option_fk"
   add_foreign_key "annes_inquiry_answers", "annes_inquiry_fields", column: ["field_id", "form_version_id", "value_type"], primary_key: ["id", "form_version_id", "value_type"], name: "inquiry_answer_definition_fk"
   add_foreign_key "annes_inquiry_answers", "annes_inquiry_submissions", column: ["submission_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_answer_submission_fk"
+  add_foreign_key "annes_inquiry_draft_answer_values", "annes_inquiry_draft_answers", column: "draft_answer_id"
+  add_foreign_key "annes_inquiry_draft_answers", "annes_inquiry_fields", column: ["field_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_draft_field"
+  add_foreign_key "annes_inquiry_draft_answers", "annes_inquiry_step_runs", column: ["step_run_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_draft_step"
+  add_foreign_key "annes_inquiry_draft_attachments", "annes_inquiry_fields", column: ["field_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_draft_attachment_field"
+  add_foreign_key "annes_inquiry_draft_attachments", "annes_inquiry_step_runs", column: ["step_run_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_draft_attachment_step"
   add_foreign_key "annes_inquiry_field_file_types", "annes_inquiry_fields", column: "field_id"
   add_foreign_key "annes_inquiry_field_options", "annes_inquiry_fields", column: "field_id"
   add_foreign_key "annes_inquiry_fields", "annes_inquiry_form_versions", column: "form_version_id"
+  add_foreign_key "annes_inquiry_flow_notification_requests", "annes_inquiry_flow_runs", column: "flow_run_id"
+  add_foreign_key "annes_inquiry_flow_runs", "annes_inquiry_flow_versions", column: "flow_version_id"
+  add_foreign_key "annes_inquiry_flow_steps", "annes_inquiry_flow_versions", column: "flow_version_id"
+  add_foreign_key "annes_inquiry_flow_steps", "annes_inquiry_form_versions", column: "form_version_id"
+  add_foreign_key "annes_inquiry_flow_versions", "annes_inquiry_flows", column: "flow_id"
   add_foreign_key "annes_inquiry_form_versions", "annes_inquiry_forms", column: "form_id"
   add_foreign_key "annes_inquiry_notification_requests", "annes_inquiry_submissions", column: "submission_id"
+  add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_flow_runs", column: ["flow_run_id", "flow_version_id"], primary_key: ["id", "flow_version_id"], name: "inquiry_step_run_owner"
+  add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_flow_steps", column: ["flow_step_id", "flow_version_id", "form_version_id"], primary_key: ["id", "flow_version_id", "form_version_id"], name: "inquiry_step_run_definition"
+  add_foreign_key "annes_inquiry_step_runs", "annes_inquiry_submissions", column: ["submission_id", "form_version_id"], primary_key: ["id", "form_version_id"], name: "inquiry_step_submission"
   add_foreign_key "annes_inquiry_submissions", "annes_inquiry_form_versions", column: "form_version_id"
 end

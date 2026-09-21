@@ -64,7 +64,7 @@ module AnnesInquiry
 
     private
       def find_existing
-        Submission.find_by(form_version_id: @version.id, request_key: @data.fetch("request_key"))
+        Submission.standalone.find_by(form_version_id: @version.id, request_key: @data.fetch("request_key"))
       end
 
       def replay(submission, already_validated: false)

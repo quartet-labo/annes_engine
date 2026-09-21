@@ -1,7 +1,8 @@
 module AnnesInquiry
   class AnswerReader
     def initialize(submission)
-      @answers = submission.answers.includes(:field, options: :field_option, attachments: { file_attachment: :blob }).index_by { |answer| answer.field.key }
+      answers = submission.association(:answers).loaded? ? submission.answers : submission.answers.includes(:field, options: :field_option, attachments: { file_attachment: :blob })
+      @answers = answers.index_by { |answer| answer.field.key }
     end
 
     def [](key)

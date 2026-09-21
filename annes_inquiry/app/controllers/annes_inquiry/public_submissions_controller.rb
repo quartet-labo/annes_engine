@@ -45,7 +45,7 @@ module AnnesInquiry
 
     def completion
       return head :not_found unless Array(session[:inquiry_receipts]).include?(params[:receipt_id])
-      @submission = Submission.find_by!(receipt_id: params[:receipt_id])
+      @submission = Submission.standalone.find_by!(receipt_id: params[:receipt_id])
     end
 
     private
