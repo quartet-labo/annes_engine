@@ -14,7 +14,7 @@ class PackageSmokeTest < ActionDispatch::IntegrationTest
     assert_operator Gem.loaded_specs.fetch("json").version, :<, Gem::Version.new("3.0.0")
     assert_equal Pathname(ENV.fetch("INQUIRY_PACKAGE_PATH")).realpath, AnnesInquiry::Engine.root.realpath
     assert_not AnnesInquiry::Engine.root.join("test").exist?
-    assert_equal 5, Rails.root.join("db/migrate").glob("*.annes_inquiry.rb").size
+    assert_equal 7, Rails.root.join("db/migrate").glob("*.annes_inquiry.rb").size
     assert Rails.application.assets.load_path.find("annes_inquiry/forms.css")
 
     token = AnnesInquiry::SubmissionToken.issue(@version, identity: "package-client")
@@ -43,5 +43,58 @@ class PackageSmokeTest < ActionDispatch::IntegrationTest
     end
     assert_response :unprocessable_entity
     assert_select "[role=alert]", text: /使用できない文字/
+  end
+end
+
+class PackageFlowSmokeTest < ActiveSupport::TestCase
+  class Adapter
+    def identity(context) = "package-customer"
+    def context_key(context) = "package-request"
+    def authorize!(**options) = true
+    def run_expires_at(context) = 7.days.from_now
+    def persist!(run, answers, context)
+      FlowIntakeRequest.create!(flow_run_id: run.id, customer_key: identity(context))
+    end
+    def deliver(request) = :sent
+  end
+
+  test "shipped flow saves drafts resumes and persists one host request" do
+    flow = AnnesInquiry::Flow.create!(key: "package_flow", name: "Package flow")
+    version = flow.versions.create!(number: 1, title: "Package flow")
+    2.times do |index|
+      form = AnnesInquiry::Form.create!(key: "package_step_#{index}", name: "Step")
+      fv = form.versions.create!(number: 1, title: "Step")
+      fv.fields.create!(key: "name", label: "Name", required: true)
+      if index.zero?
+        file_field = fv.fields.create!(key: "document", label: "Document", value_type: "attachment", widget: "file", max_files: 1, max_file_bytes: 1000)
+        file_field.file_types.create!(extension: ".txt", content_type: "text/plain")
+      end
+      AnnesInquiry::Definitions::PublishVersion.call(fv, expected_lock_version: 0)
+      version.steps.create!(key: "step_#{index}", title: "Step", position: index, form_version: fv)
+    end
+    AnnesInquiry::Flows::Definitions::PublishVersion.call(version, expected_lock_version: 0)
+    AnnesInquiry.configuration.flow_adapters[flow.key] = Adapter.new
+    run = AnnesInquiry::Flows::StartRun.call(flow: flow, context: nil)
+    upload_file = Tempfile.new(["package-flow", ".txt"])
+    upload_file.write("retained package attachment"); upload_file.rewind
+    run.step_runs.order(:id).each_with_index do |step, index|
+      token = AnnesInquiry::Flows::OperationToken.issue(run: run.reload, step: step, context: nil, action: :save)
+      AnnesInquiry::Flows::SaveDraft.call(run: run, step: step, context: nil, token: token, raw_values: {"name" => "Customer"}.merge(index.zero? ? {"document" => [ActionDispatch::Http::UploadedFile.new(tempfile: upload_file, filename: "document.txt", type: "text/plain")]} : {}))
+      AnnesInquiry::Flows::ResumeRun.call(run: run, context: nil)
+      token = AnnesInquiry::Flows::OperationToken.issue(run: run.reload, step: step, context: nil, action: :complete)
+      AnnesInquiry::Flows::CompleteStep.call(run: run, step: step, context: nil, token: token)
+    end
+    retained_blob_id = run.step_runs.first.draft_attachments.sole.file.blob_id
+    token = AnnesInquiry::Flows::OperationToken.issue(run: run.reload, context: nil, action: :finalize)
+    2.times { AnnesInquiry::Flows::FinalizeRun.call(run: run, context: nil, token: token) }
+    assert_equal 1, FlowIntakeRequest.where(flow_run_id: run.id).count
+    assert_equal 1, run.notification_requests.count
+    assert_equal 2, run.step_runs.where.not(submission_id: nil).count
+    attachment = AnnesInquiry::AnswerAttachment.where(answer_id: run.step_runs.first.submission.answers.select(:id)).sole
+    assert_equal retained_blob_id, attachment.file.blob_id
+    assert_equal "retained package attachment", attachment.file.download
+  ensure
+    upload_file&.close!
+    AnnesInquiry.configuration.flow_adapters.clear
   end
 end

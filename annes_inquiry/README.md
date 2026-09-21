@@ -59,7 +59,7 @@ the published gem contains runtime code, migrations, assets, and package documen
 
 From the repository root, `ruby script/check_inquiry_package` builds the gem and
 tests its extracted contents in a fresh host. It resolves dependencies without
-the Engine's development lockfile, installs Active Storage and the five Engine
+the Engine's development lockfile, installs Active Storage and the Engine
 migrations, then checks CSS discovery, signed submissions, CSRF-protected public
 submission/completion, and invalid-input responses. This check runs in CI and
 does not publish or download the gem through GitHub Packages.
@@ -192,3 +192,73 @@ Engineのrootと `/admin/forms` は定義一覧、`/admin/versions/:id` は版�
 ### 添付清掃の再試行
 
 期限を過ぎた未参照BlobのDB削除と同じトランザクションで `annes_inquiry_blob_deletions` に削除要求を保存し、commit後にストレージを削除します。ストレージ障害やプロセス中断で残った要求は次の清掃実行で再試行し、ファイルと画像派生物の削除に成功した場合だけ要求を削除します。削除要求はJSONBを使わず、キー・サービス名・画像フラグを保持します。
+
+## 複数フォームの受付フロー（Unreleased）
+
+`Flow` / `FlowVersion` / `FlowStep` は公開済みのフォーム版を順に組み合わせます。
+定義の編集・clone・公開は `AnnesInquiry::Flows::Definitions` の各サービスを使います。
+管理画面の `/admin/flows` から作成、ステップ追加、プレビュー、公開、停止、進捗確認ができます。
+公開済みの内容は変更せず、次の下書きを作って公開します。
+
+```ruby
+flow = AnnesInquiry::Flow.create!(key: "consultation", name: "相談")
+draft = flow.versions.create!(number: 1, title: "相談内容")
+AnnesInquiry::Flows::Definitions::DraftEditor.call(draft, expected_lock_version: 0) do |version|
+  version.steps.create!(key: "contact", title: "連絡先", position: 0, form_version: contact_form.published_version)
+end
+AnnesInquiry::Flows::Definitions::PublishVersion.call(draft, expected_lock_version: draft.reload.lock_version)
+```
+
+ホストは `configuration.flow_adapters[flow.key]` にadapterを登録します。
+既存の単独フォームの `adapters[form.key]` はフローから呼びません。
+以下の必須契約を実装し、顧客・業務対象は認証済み情報から決定してください。
+
+| メソッド | 契約 |
+|---|---|
+| `prepare_context(controller)` | 標準画面で使う認証済みcontext。render/head/redirect時は処理を中断 |
+| `identity(context)` | 安定した本人識別文字列 |
+| `context_key(context)` | 対象業務・tenantを識別する安定した文字列 |
+| `authorize!(action:, run:, step:, context:)` | 許可時のみtrue。未登録・false・nilは拒否。開始時はrun/stepがnil |
+| `run_expires_at(context)` | 新規実行の有限の有効期限（未来のTime） |
+| `scope_runs(relation, context:)` | 許可されたrunのActiveRecord::Relation。管理一覧・詳細にも適用 |
+| `persist!(run, answers, context)` | 正式送信時に同じprimary DB接続で業務依頼を保存。外部API/メールは禁止 |
+
+任意の `validate_step(step, values, context)` は項目キーとエラー配列のHashを、
+`validate_flow(run, answers, context)` は全体エラー配列を返します。
+`deliver(notification_request)` はcommit後に呼ばれ、`:sent / :failed / :unknown` を返します。
+`answers` は `step_key => field_key => 型付き値` で、同名の項目を混同しません。
+添付は正式な `AnswerAttachment` の配列です。
+
+認可actionは `start / view / save / complete / finalize / resume / cancel / attachment`、
+管理は `admin_list / admin_view / admin_attachment` です。本人・contextの一致をEngineでも確認し、
+管理閲覧では管理認証に加えてadapterのscopeとaction認可を確認します。
+フローのSubmissionは旧単独フォームの管理一覧・詳細・添付経路には出しません。
+
+標準画面は `flow_endpoints_enabled = true` で有効化します（既定false）。
+`GET /flows/:key` で開始し、`/flow_runs/:id` から入力・確認・再開できます。
+ホスト独自controllerからも同じ `Flows::StartRun`、`SaveDraft`、`CompleteStep`、
+`ResumeRun`、`FinalizeRun`、`CancelRun` を呼べます。操作署名は
+`Flows::OperationToken.issue(run:, step: nil, action:, context:)` で発行します。
+署名は本人、業務context、実行、版、step、action、revisionに束縛され、既定2時間です。
+`SaveDraft.call` は保存済みstepとrevisionのResultを返します。保存後に完了する場合はそのrevisionを確認し、
+別タブで変更された回答を自動的に完了扱いにしないでください。
+
+下書きは不完全な文字列も保存できます。未知項目、不正形状、NUL、1値100,000 bytes超、
+1配列1,000値超は拒否します。正式送信前に全有効stepを再検証し、同一transactionで
+回答・ホスト保存・通知要求を作成します。確定署名の同一再送は元の受付を返します。
+保存transactionが失敗した場合の再試行ではpersist!を再実行するため、外部副作用を持たせないでください。
+
+開始時の版を固定し、フォーム改版による退役後も認可済みの実行内では継続できます。
+フローまたは構成フォームの停止中は更新・再開・確定できません。再有効化後も元の期限を使います。
+再開は必ず現在の本人認証・認可を確認し、署名期限切れを認可として使いません。
+取消・期限切れは終端状態、完了原本は変更禁止です。
+
+下書き添付は専用レコードに関連付けます。保持IDは実行・step・項目への所属を検証し、
+正式送信時は同じblobを正式回答に関連付けます。通常のActive Storage公開URLは使いません。
+`bin/rails annes_inquiry:cleanup_flow_drafts` は取消・期限切れ・確定後の下書き清掃候補を表示し、
+`EXECUTE=true` の明示で下書きだけを削除します。正式回答・通知・業務依頼は削除しません。
+未参照blobの実ストレージ削除は既存の猶予付き `cleanup_uploads` で行います。
+
+`bin/rails annes_inquiry:recover_flow_notifications` はpendingを処理し、中断したprocessingをunknownにします。
+unknown/failedは自動再送しません。外部配送のexactly-once成功は保証せず、外部履歴の確認はホストが担当します。
+独立dummyの `FlowIntakeRequest` とpackage hostは、Engineと異なるホストモデルへ同じDBで保存する例です。

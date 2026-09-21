@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Add versioned multi-form intake flows with authenticated draft/resume, retained attachments, and atomic finalization.
+- Add participant and admin flow screens, scoped answer access, and per-flow notification recovery.
+- Preserve standalone adapters; exclude flow receipts from standalone administration.
+
 ## 0.1.0
 
 - Extract the inquiry engine from anne-mark into this repository as an independent package.

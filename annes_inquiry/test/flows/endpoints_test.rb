@@ -73,7 +73,7 @@ class FlowEndpointsTest < ActionDispatch::IntegrationTest
     original = AnnesInquiry::Flows::SaveDraft.method(:call)
     intervening_save = ->(**options) do
       saved = original.call(**options)
-      other_token = AnnesInquiry::Flows::OperationToken.issue(run: @run.reload, step: step, action: :save, context: @context)
+      other_token = AnnesInquiry::Flows::OperationToken.issue(run: options.fetch(:run).reload, step: step, action: :save, context: options.fetch(:context))
       original.call(**options.merge(token: other_token, raw_values: {"name" => "Other tab"}))
       saved
     end
