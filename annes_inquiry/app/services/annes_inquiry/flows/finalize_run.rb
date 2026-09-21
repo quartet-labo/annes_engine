@@ -11,11 +11,12 @@ module AnnesInquiry
             next current
           end
           Lock.writable!(current)
-          steps = RouteEvaluator.call(current)
+          result = RouteEvaluator.evaluate(current)
+          steps = result.steps
           raise Conflict, "すべてのステップを確認してください。" unless steps.present? && steps.all?(&:complete?)
           payload = {}
           steps.each do |step|
-            DraftReader.with_input(step) do |input, blobs|
+            DraftReader.with_input(step, raw_values: result.raw_values.fetch(step.flow_step_id)) do |input, blobs|
               raise InvalidInput.new(input) unless input.valid?
               if policy.adapter.respond_to?(:validate_step)
                 (policy.adapter.validate_step(step, input.values, context) || {}).each { |key, messages| Array(messages).each { |message| input.errors.add(key, message) } }

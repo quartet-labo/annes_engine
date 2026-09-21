@@ -2,6 +2,8 @@
 
 ## Unreleased: flow intake
 
+条件・引継ぎを利用する更新では `bin/rails railties:install:migrations FROM=annes_inquiry` と `db:migrate` を実行してください。追加の `CreateAnnesInquiryFlowRules` は既存の直列フロー・下書き・正式回答を変更しません。条件のない既存フローは従来どおり動作します。
+
 Install the additional Engine migrations with `bin/rails railties:install:migrations FROM=annes_inquiry` and migrate normally. Existing five migrations and standalone receipts remain unchanged; no backfill is needed. Register a flow adapter and explicitly enable `flow_endpoints_enabled` only when using the new participant endpoints. Existing form adapters are not invoked for each flow step. Configure identity, context, authorization, run expiry and same-primary-DB persistence as described in README. Flow receipts appear in flow administration, not the standalone inbox. Schedule flow notification recovery and draft cleanup separately from existing standalone jobs.
 
 ## 0.1.0

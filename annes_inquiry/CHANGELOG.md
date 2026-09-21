@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- 条件グループによる複数分岐、読み取り専用の回答引継ぎ、経路変更時の再確認、管理editorと共通previewを追加。
+
 - Add versioned multi-form intake flows with authenticated draft/resume, retained attachments, and atomic finalization.
 - Add participant and admin flow screens, scoped answer access, and per-flow notification recovery.
 - Preserve standalone adapters; exclude flow receipts from standalone administration.

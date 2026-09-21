@@ -25,9 +25,18 @@ class FlowUpgradeTest < ActiveSupport::TestCase
     connection.execute("INSERT INTO annes_inquiry_notification_requests (submission_id, kind, status, attempts, created_at, updated_at) VALUES (#{submission_id}, 'received', 'unknown', 1, #{now}, #{now})")
     blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("Original document"), filename: "original.txt", content_type: "text/plain")
     connection.execute("INSERT INTO active_storage_attachments (name, record_type, record_id, blob_id, created_at) VALUES ('file', 'AnnesInquiry::AnswerAttachment', 1, #{blob.id}, #{now})")
-    migrations.drop(5).each { |path| migrate(path) }
+    migrations.drop(5).take(2).each { |path| migrate(path) }
+    flow = AnnesInquiry::Flow.create!(key: "linear", name: "Linear")
+    version = flow.versions.create!(number: 1, title: "Linear")
+    step = version.steps.create!(key: "contact", title: "Contact", position: 0, form_version_id: 1)
+    run = AnnesInquiry::FlowRun.create!(flow_version: version, owner_digest: "owner", context_digest: "context", start_key: SecureRandom.uuid, expires_at: 1.day.from_now)
+    item = run.step_runs.create!(flow_step: step, flow_version_id: version.id, form_version_id: 1)
+    item.draft_answers.create!(field_id: 1, form_version_id: 1, raw_value: "Saved before branching")
+    migrations.drop(7).each { |path| migrate(path) }
+    assert_equal [item.id], AnnesInquiry::Flows::RouteEvaluator.call(run).map(&:id)
+    assert_equal "Saved before branching", AnnesInquiry::Flows::RouteEvaluator.raw_values(item).fetch("name")
     assert_equal receipt, connection.select_value("SELECT receipt_id FROM annes_inquiry_submissions")
-    assert_equal 0, connection.select_value("SELECT count(*) FROM annes_inquiry_flow_runs")
+    assert_equal 1, connection.select_value("SELECT count(*) FROM annes_inquiry_flow_runs")
     reader = AnnesInquiry::AnswerReader.new(AnnesInquiry::Submission.find(submission_id))
     assert_equal "Original answer", reader["name"]
     assert_equal "Original document", reader["document"].sole.file.download

@@ -2,7 +2,9 @@
 <% if @input.errors.any? %><div role="alert"><%= @input.errors.full_messages.to_sentence %></div><% end %>
 <%= form_with url: save_flow_step_path(@run, step_id: @step.id), method: :patch, local: true, multipart: true, html: {novalidate: true} do %>
   <%= hidden_field_tag :token, @token %>
-  <%= render "annes_inquiry/forms/fields", version: @step.form_version, input: @input, scope: "inquiry" %>
+  <% mapped = @step.flow_step.value_mappings.includes(:target_field).map(&:target_field) %>
+  <% mapped.each do |field| %><p><strong><%= field.label %></strong>（前の回答から引継ぎ）: <%= Array(@input.raw_values[field.key]).join("、") %></p><% end %>
+  <%= render "annes_inquiry/forms/fields", version: @step.form_version, input: @input, scope: "inquiry", excluded_keys: mapped.map(&:key) %>
   <% @step.form_version.fields.where(value_type: "attachment").each do |field| %>
     <%= hidden_field_tag "retained[#{field.key}][]", "" %>
     <% @step.draft_attachments.where(field: field).each do |attachment| %>

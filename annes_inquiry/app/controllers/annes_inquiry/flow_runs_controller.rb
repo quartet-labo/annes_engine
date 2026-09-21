@@ -33,7 +33,7 @@ module AnnesInquiry
       path = Flows::RouteEvaluator.call(@run)
       index = path.index { |item| item.id == @step.id }
       raise Flows::Conflict unless index && path.take(index).all?(&:complete?)
-      @input = Input.new(@step.form_version, raw_values: Flows::DraftReader.call(@step))
+      @input = Input.new(@step.form_version, raw_values: Flows::RouteEvaluator.raw_values(@step))
       @token = Flows::OperationToken.issue(run: @run, step: @step, action: :save, context: @context)
     end
 
@@ -51,7 +51,7 @@ module AnnesInquiry
       end
       redirect_to flow_run_path(@run), notice: "保存しました。", status: :see_other
     rescue Flows::InvalidInput => error
-      @input = Input.new(@step.form_version, raw_values: raw)
+      @input = Input.new(@step.form_version, raw_values: Flows::RouteEvaluator.raw_values(@step).merge(raw))
       error.input.errors.each { |entry| @input.errors.add(entry.attribute, entry.message) }
       @token = Flows::OperationToken.issue(run: @run.reload, step: @step, action: :save, context: @context)
       render :step, status: :unprocessable_entity
@@ -60,9 +60,10 @@ module AnnesInquiry
     def review
       @policy.authorize!(:view, run: @run)
       Flows::Lock.writable!(@run)
-      @steps = Flows::RouteEvaluator.call(@run)
+      result = Flows::RouteEvaluator.evaluate(@run)
+      @steps = result.steps
       raise Flows::Conflict, "各ステップの入力を完了してください。" unless @steps.all?(&:complete?)
-      @answers = @steps.to_h { |step| [step.key, Flows::DraftReader.call(step)] }
+      @answers = @steps.to_h { |step| [step.key, result.raw_values.fetch(step.flow_step_id)] }
       @token = Flows::OperationToken.issue(run: @run, action: :finalize, context: @context)
     end
 

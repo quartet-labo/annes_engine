@@ -8,10 +8,11 @@ module AnnesInquiry
           policy.authorize!(:complete, run: current, step: item)
           Lock.writable!(current)
           OperationToken.verify!(token, run: current, action: :complete, policy: policy, step: item)
-          path = RouteEvaluator.call(current)
+          result = RouteEvaluator.evaluate(current)
+          path = result.steps
           index = path.index { |candidate| candidate.id == item.id }
           raise Conflict unless index && path.take(index).all?(&:complete?)
-          DraftReader.with_input(item) do |input, blobs|
+          DraftReader.with_input(item, raw_values: result.raw_values.fetch(item.flow_step_id)) do |input, blobs|
             raise InvalidInput.new(input) unless input.valid?
             if policy.adapter.respond_to?(:validate_step)
               messages = policy.adapter.validate_step(item, input.values, context)
@@ -20,6 +21,7 @@ module AnnesInquiry
             end
           end
           item.update!(status: "complete")
+          RouteEvaluator.reconcile!(current)
           current.update!(revision: current.revision + 1)
           item
         end

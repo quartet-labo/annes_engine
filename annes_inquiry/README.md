@@ -262,3 +262,22 @@ AnnesInquiry::Flows::Definitions::PublishVersion.call(draft, expected_lock_versi
 `bin/rails annes_inquiry:recover_flow_notifications` はpendingを処理し、中断したprocessingをunknownにします。
 unknown/failedは自動再送しません。外部配送のexactly-once成功は保証せず、外部履歴の確認はホストが担当します。
 独立dummyの `FlowIntakeRequest` とpackage hostは、Engineと異なるホストモデルへ同じDBで保存する例です。
+
+### 回答に応じた分岐と引継ぎ
+
+管理画面のフロー下書きで、ステップに条件グループと引継ぎを設定できます。
+条件は同じフローの前のステップに限り、boolean/single_choice の `eq`、
+multiple_choice の `contains` に対応します。boolean の比較値は `true` / `false`、
+選択肢は表示ラベルではなく保存用の `value` を指定します。
+グループ内は AND、グループ間は OR です。条件のないステップは常に対象になり、
+未完了・対象外のステップの回答は条件を成立させません。複数の任意ステップを同時に選択できます。
+
+引継ぎは元ステップ・元項目と先ステップ・先項目を明示します。同じ型の値のみ対応し、
+添付は対象外です。選択肢の引継ぎ先には元の選択肢をすべて用意してください。
+引継ぎ先は読み取り専用で、サーバー側で再計算・必須検証します。
+同じ項目キーを複数ステップで使用しても、host payload は `step_key → field_key` で区別されます。
+
+前の回答を変更すると後の入力済み状態が解除されます。対象外になった下書き・添付は
+保持されますが、確定回答・通知・host payload には含まれません。再び対象になった場合は
+再確認が必要です。管理詳細の「対象外」は正式回答ではありません。
+プレビューは同じ条件・引継ぎ評価器を使用し、回答を保存しません。

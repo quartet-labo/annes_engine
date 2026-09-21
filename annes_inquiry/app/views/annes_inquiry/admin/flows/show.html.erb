@@ -13,7 +13,9 @@
 <%= f.label :title, "タイトル", for: "step_#{step.id}_title" %><%= f.text_field :title, value: step.title, id: "step_#{step.id}_title" %>
 <%= f.label :position, "順番", for: "step_#{step.id}_position" %><%= f.number_field :position, value: step.position, id: "step_#{step.id}_position" %><%= f.submit "ステップを更新" %><% end %>
 <%= button_to "ステップを削除", edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, params: {lock_version: version.lock_version, remove_step_id: step.id} %>
-<% end %></li><% end %></ol>
+<% end %>
+<%= render "rules", version: version, step: step %>
+</li><% end %></ol>
 <% if version.draft? %>
 <%= form_with url: edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, local: true, scope: :step do |f| %>
 <%= hidden_field_tag :lock_version, version.lock_version %>

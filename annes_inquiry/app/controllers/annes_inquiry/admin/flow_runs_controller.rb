@@ -24,6 +24,7 @@ module AnnesInquiry
         load_run
         @steps = @run.step_runs.includes(:flow_step, form_version: :fields, draft_answers: [:field, :values], draft_attachments: {file_attachment: :blob}, submission: {answers: {attachments: {file_attachment: :blob}}})
         @answers = Flows::AnswerReader.call(run: @run, context: @context, action: :admin_view) if @run.submitted?
+        @draft_values = Flows::RouteEvaluator.evaluate(@run).raw_values unless @run.submitted?
       end
 
       def attachment

@@ -16,7 +16,10 @@ module AnnesInquiry
           raise Conflict, "前のステップを完了してください。" unless index && path.take(index).all?(&:complete?)
           fields = owned_step.form_version.fields.to_a
           validate_shape!(fields, raw_values, retained_attachments)
+          mapped = owned_step.flow_step.value_mappings.includes(:target_field).map { |mapping| mapping.target_field.key }
+          raise Conflict, "引継ぎ項目は編集できません。" if (raw_values.keys & mapped).any?
           fields.each do |field|
+            next if mapped.include?(field.key)
             if field.value_type == "attachment"
               SaveAttachments.call(owned_step, field, Array(raw_values[field.key]).reject { |v| v == "" }, retained_attachments[field.key])
               next
@@ -29,7 +32,8 @@ module AnnesInquiry
             answer.values.destroy_all
             Array(value).each_with_index { |item, position| answer.values.create!(raw_value: item, position: position) } if value.is_a?(Array)
           end
-          path.drop(index).each { |item| item.update!(status: "draft") }
+          current.step_runs.joins(:flow_step).where("annes_inquiry_flow_steps.position >= ?", owned_step.flow_step.position).each { |item| item.update!(status: "draft") }
+          RouteEvaluator.reconcile!(current)
           current.update!(revision: current.revision + 1)
           Result.new(step: owned_step.reload, revision: current.revision)
         end

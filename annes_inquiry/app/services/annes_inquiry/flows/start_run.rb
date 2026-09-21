@@ -24,6 +24,7 @@ module AnnesInquiry
           version.steps.each do |step|
             run.step_runs.create!(flow_step: step, flow_version_id: version.id, form_version_id: step.form_version_id)
           end
+          RouteEvaluator.reconcile!(run)
           run
         end
       end
