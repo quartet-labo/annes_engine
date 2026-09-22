@@ -2,6 +2,7 @@ require_relative "../../test_helper"
 
 class AnnesLoyalty::RewardRedemptionIssuerTest < AnnesLoyalty::TestCase
   test "issues a redemption token without storing the raw token" do
+    freeze_time
     member = create_member
     location = create_location(member.loyalty_program)
     reward = create_reward(program: member.loyalty_program, required_points: 20)
