@@ -15,6 +15,12 @@ AnnesIntake::Engine.routes.draw do
   get "runs/:id/steps/:step_id/attachments/:attachment_id", to: "runs#attachment", as: :flow_attachment
   namespace :admin do
     resources :runs, only: %i[index show] do
+      resources :follow_ups, only: %i[new create show] do
+        member do
+          post :issue
+          post :cancel
+        end
+      end
       get "steps/:step_id/attachments/:attachment_id", action: :attachment, on: :member, as: :attachment
     end
     resources :flows, only: %i[index create show update] do

@@ -3,6 +3,7 @@ module AnnesIntake
     class FieldsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include DefinitionErrors
       before_action :load_definition
 

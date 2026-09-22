@@ -5,5 +5,9 @@
   <nav><%= link_to "受付", admin_runs_path %> | <%= link_to "受付フロー", admin_flows_path %> | <%= link_to "質問テンプレート", admin_forms_path %></nav>
   <% if notice.present? %><p role="status"><%= notice %></p><% end %>
   <% if alert.present? %><p role="alert" class="intake-error"><%= alert %></p><% end %>
+  <% if @definition_context.is_a?(AnnesIntake::DefinitionPolicy::Context) %>
+    <% question = AnnesIntake::FollowUpRequest.find(@definition_context.follow_up_id) %>
+    <p>この受付専用の質問です。<%= link_to "追加質問へ戻る", admin_run_follow_up_path(question.root_run, question) %></p>
+  <% end %>
   <%= yield %>
 </main></body></html>

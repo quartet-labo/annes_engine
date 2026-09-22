@@ -6,7 +6,7 @@
 <% if @version.draft? %>
   <%= form_with model: @version, scope: :version, url: admin_version_path(@version), local: true do |f| %>
     <%= hidden_field_tag :lock_version, @version.lock_version %>
-    <% { title: "タイトル", description: "説明", submit_label: "送信ボタン", completion_message: "完了メッセージ" }.each do |key, label| %>
+    <% { title: "タイトル", description: "説明" }.each do |key, label| %>
       <p><%= f.label key, label %><%= f.text_area key, rows: 2 %></p>
     <% end %>
     <%= f.submit "表示設定を保存" %>
@@ -18,8 +18,8 @@
 <ul><% @version.fields.each do |field| %><li><%= link_to field.label, edit_admin_field_path(field) %></li><% end %></ul>
 
 <% if @version.draft? %>
-  <%= button_to "公開する", publish_admin_version_path(@version), params: { lock_version: @version.lock_version } %>
+  <% unless @version.form.follow_up_request %><%= button_to "公開する", publish_admin_version_path(@version), params: { lock_version: @version.lock_version } %><% end %>
   <%= button_to "下書きを削除", admin_version_path(@version), method: :delete, params: { lock_version: @version.lock_version } %>
 <% else %>
-  <%= button_to "複製して編集", duplicate_admin_version_path(@version) %>
+  <% unless @version.form.follow_up_request %><%= button_to "複製して編集", duplicate_admin_version_path(@version) %><% end %>
 <% end %>

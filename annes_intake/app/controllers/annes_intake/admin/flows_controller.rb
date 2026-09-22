@@ -3,6 +3,7 @@ module AnnesIntake
     class FlowsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include FlowErrors
       helper FlowHelper
 
@@ -19,9 +20,11 @@ module AnnesIntake
       end
       def update
         flow = definition_record(@definition_policy.scope(Flow.all).find(params[:id]))
+        DefinitionPolicy.lock(flow, context: @definition_context) do
         flow.with_lock do
           raise ActiveRecord::StaleObjectError.new(flow, "update") unless flow.lock_version == Integer(params[:lock_version], exception: false)
           flow.update!(params.require(:flow).permit(:name, :enabled))
+        end
         end
         redirect_to admin_flow_path(flow), status: :see_other
       end

@@ -1,9 +1,19 @@
 <h1>受付 <%= @run.receipt_id %></h1>
-<p>状態: <%= run_status(@run) %> / 定義版: <%= @run.flow_version.number %> / 期限: <%= @run.expires_at %></p>
+<% if @run.submitted_at %><p>受付日時: <%= intake_time(@run.submitted_at) %></p><% end %>
+<p>状態: <%= run_status(@run) %> / 定義版: <%= @run.flow_version.number %> / 期限: <%= intake_time(@run.expires_at) %></p>
 <% @steps.each do |step| %><section><h2><%= step.step.title %> — <%= step_status(step) %></h2>
 <% values = step.step_response ? @answers.fetch(step.key) : (@draft_values&.fetch(step.step_id, nil) || AnnesIntake::Flows::DraftReader.call(step)) %>
 <% step.form_version.fields.each do |field| %><p><strong><%= field.label %></strong>: <%= flow_value(values[field.key], field: field) %></p><% end %>
 <% files = step.step_response ? step.step_response.answers.flat_map { |answer| answer.attachments.to_a } : step.draft_attachments %>
 <% files.each do |attachment| %><p><%= link_to attachment.file.filename.to_s, attachment_admin_run_path(@run, step_id: step.id, attachment_id: attachment.id, kind: step.step_response ? "answer" : "draft") %></p><% end %>
 </section><% end %>
-<h2>通知</h2><ul><% @run.notification_requests.each do |notification| %><li><%= notification.event_key %>: <%= intake_notification_status(notification.status) %></li><% end %></ul>
+<h2>通知</h2><ul><% @run.notification_requests.each do |notification| %><li><%= intake_notification_event(notification) %>: <%= intake_notification_status(notification.status) %></li><% end %></ul>
+
+<% if @follow_ups %>
+<h2>追加質問・回答履歴</h2>
+<% if follow_up_allowed?(:admin_follow_up, @run) %><p><%= link_to "追加質問を準備", new_admin_run_follow_up_path(@run) %></p><% end %>
+<ol><% @follow_ups.each do |request| %><li>
+<%= link_to "第#{request.number}回 #{request.title}", admin_run_follow_up_path(@run, request) %> — <%= follow_up_status(request) %>（期限: <%= intake_time(request.due_at) %>）
+<% if request.response_run %><% if request.answered_at %><span>回答日時: <%= intake_time(request.answered_at) %></span><% end %><%= link_to "回答の詳細", admin_run_path(request.response_run) %><% end %>
+</li><% end %></ol><% end %>
+<% if @run.follow_up_request %><p><%= link_to "初回受付", admin_run_path(@run.follow_up_request.root_run) %></p><% end %>

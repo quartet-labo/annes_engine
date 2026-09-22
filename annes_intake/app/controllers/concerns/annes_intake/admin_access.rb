@@ -23,7 +23,8 @@ module AnnesIntake
           return
         end
         response.headers["Cache-Control"] = "private, no-store"
-        return if is_a?(AnnesIntake::Admin::RunsController)
+        @intake_admin_user = user
+        return if is_a?(AnnesIntake::Admin::RunsController) || is_a?(AnnesIntake::Admin::FollowUpsController)
         authorizer = config.definition_authorizer
         raise Flows::Forbidden unless authorizer&.respond_to?(:prepare_context)
         @definition_context = authorizer.prepare_context(self, admin: user)

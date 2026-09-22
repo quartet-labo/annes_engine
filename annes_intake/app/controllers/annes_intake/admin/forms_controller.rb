@@ -3,6 +3,7 @@ module AnnesIntake
     class FormsController < ActionController::Base
       protect_from_forgery with: :exception
       include AdminAccess
+      include ScopedDefinitionAccess
       include DefinitionErrors
 
       def index
@@ -40,10 +41,12 @@ module AnnesIntake
 
       def update
         @form = definition_record(@definition_policy.scope(Form.all).find(params[:id]))
+        DefinitionPolicy.lock(@form, context: @definition_context) do
         @form.with_lock do
           expected = Integer(params[:lock_version], exception: false)
           raise ActiveRecord::StaleObjectError.new(@form, "update") unless expected == @form.lock_version
           @form.update!(params.require(:form).permit(:name, :enabled))
+        end
         end
         redirect_to admin_form_path(@form), status: :see_other
       rescue ActiveRecord::RecordInvalid

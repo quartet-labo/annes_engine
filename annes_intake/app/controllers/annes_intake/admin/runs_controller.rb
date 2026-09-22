@@ -9,7 +9,7 @@ module AnnesIntake
 
       def index
         scope = Run.none
-        Flow.where(key: AnnesIntake.configuration.adapters.keys).order(:id).each do |flow|
+        Flow.templates.where(key: AnnesIntake.configuration.adapters.keys).order(:id).each do |flow|
           adapter = AnnesIntake.configuration.adapters.fetch(flow.key)
           raise Flows::Forbidden unless adapter.respond_to?(:prepare_context)
           context = adapter.prepare_context(self)
@@ -20,6 +20,7 @@ module AnnesIntake
           scope = scope.or(Run.where(id: policy.scope(relation).select(:id)))
         end
         scope = scope.joins(:flow_version).where(annes_intake_flow_versions: {flow_id: params[:flow_id]}) if params[:flow_id].present?
+        scope = scope.where.not(id: FollowUpRequest.where.not(response_run_id: nil).select(:response_run_id))
         scope = scope.where(status: params[:status]) if Run.statuses.key?(params[:status])
         %w[from to].each do |key|
           next if params[key].blank?
@@ -34,6 +35,7 @@ module AnnesIntake
       def show
         load_run
         @steps = @run.step_runs.where.not(status: "inactive").includes(:step, form_version: :fields, draft_answers: [:field, :values], draft_attachments: {file_attachment: :blob}, step_response: {answers: {attachments: {file_attachment: :blob}}})
+        @follow_ups = Flows::FollowUpReader.call(root: @run, context: @context, action: :admin_view) if @run.submitted? && !@run.follow_up_request
         @answers = Flows::AnswerReader.call(run: @run, context: @context, action: :admin_view) if @run.submitted?
         @draft_values = Flows::RouteEvaluator.evaluate(@run).raw_values unless @run.submitted?
       end
@@ -54,12 +56,13 @@ module AnnesIntake
 
       private
         def load_flow_context
-          @flow = Run.find(params[:id]).flow
-          adapter = AnnesIntake.configuration.adapters[@flow.key]
+          @context_run = Run.find(params[:id])
+          @flow = @context_run.flow
+          adapter = AnnesIntake.configuration.adapters[@context_run.adapter_flow.key]
           raise Flows::Forbidden unless adapter&.respond_to?(:prepare_context)
           @context = adapter.prepare_context(self)
           return if performed?
-          @policy = Flows::AccessPolicy.new(flow: @flow, context: @context)
+          @policy = Flows::AccessPolicy.for_run(@context_run, @context)
           @policy.authorize!(:admin_list)
         end
         def load_run
