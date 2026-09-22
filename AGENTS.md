@@ -9,6 +9,7 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
   invitations, bootstrap, event hooks, and Google OAuth.
 - `annes_access/`: lightweight role-based authorization.
 - `annes_admin/`: configurable administration screens for host models.
+- `annes_form_kit/`: database-free shared form schemas, validation and rendering; `bundle exec rake test` needs no database.
 - `annes_inquiry/`: configurable inquiry forms, typed answers, administration, and host adapters.
 - `annes_loyalty/`: loyalty programs, members, point ledger, rewards, and
   redemption workflows.

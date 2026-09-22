@@ -15,6 +15,7 @@ on:
           - annes_audit
           - annes_loyalty
           - annes_inquiry
+          - annes_form_kit
       version:
         description: Expected gem version to publish
         required: true

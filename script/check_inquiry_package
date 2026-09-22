@@ -22,6 +22,13 @@ end
 # Never reuse the Engine Gemfile/lockfile or host DATABASE_URL in this test.
 Bundler.with_unbundled_env do
   Dir.mktmpdir("annes-inquiry-package-") do |directory|
+    kit_file = File.join(directory, "annes_form_kit.gem")
+    kit_source = File.join(root, "annes_form_kit")
+    abort "Form kit build failed" unless system("gem", "build", "annes_form_kit.gemspec", "--output", kit_file, chdir: kit_source)
+    kit_package = Gem::Package.new(kit_file)
+    kit_path = File.join(directory, "form_kit")
+    kit_package.extract_files(kit_path)
+    File.write(File.join(kit_path, "annes_form_kit.gemspec"), kit_package.spec.to_ruby)
     package_file = File.join(directory, "annes_inquiry.gem")
     abort "Gem build failed" unless system("gem", "build", "annes_inquiry.gemspec", "--output", package_file, chdir: engine)
     package = Gem::Package.new(package_file)
@@ -43,8 +50,29 @@ Bundler.with_unbundled_env do
       "BUNDLE_FROZEN" => "false", "BUNDLE_DEPLOYMENT" => "false",
       "DATABASE_URL" => nil, "RAILS_ENV" => "test",
       "INQUIRY_PACKAGE_PATH" => package_path,
+      "FORM_KIT_PACKAGE_PATH" => kit_path,
       "INQUIRY_PACKAGE_DATABASE_URL" => database_url
     }
+    # This immutable main commit contains the released 0.1.0 contract; no release tag exists.
+    baseline = "3e85a38e804eac3b4e145c5c02065aeed32402a2"
+    archive = File.join(directory, "baseline.tar")
+    old_root = File.join(directory, "baseline")
+    FileUtils.mkdir_p(old_root)
+    abort "Baseline archive failed" unless system("git", "archive", "--format=tar", "--output", archive, baseline, "annes_inquiry", chdir: root)
+    abort "Baseline extraction failed" unless system("tar", "-xf", archive, "-C", old_root)
+    old_environment = environment.merge("INQUIRY_PACKAGE_PATH" => File.join(old_root, "annes_inquiry"))
+    [
+      ["bundle", "install"],
+      ["bundle", "exec", "ruby", "bin/rails", "active_storage:install"],
+      ["bundle", "exec", "ruby", "bin/rails", "railties:install:migrations", "FROM=annes_inquiry"],
+      ["bundle", "exec", "ruby", "bin/rails", "db:drop", "db:create", "db:migrate"],
+      ["bundle", "exec", "ruby", "upgrade.rb", "seed"]
+    ].each do |command|
+      abort "Baseline setup failed" unless system(old_environment, *command, chdir: host)
+    end
+    FileUtils.rm_f(File.join(host, "Gemfile.lock"))
+    abort "Update install failed" unless system(environment, "bundle", "install", chdir: host)
+    abort "Update verification failed" unless system(environment, "bundle", "exec", "ruby", "upgrade.rb", "verify", chdir: host)
     commands = [
       ["bundle", "install"],
       ["bundle", "exec", "ruby", "bin/rails", "active_storage:install"],

@@ -13,7 +13,7 @@ Configure GitHub Packages credentials as described in the [repository README](ht
 
 ```ruby
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "annes_inquiry", "~> 0.1.0"
+  gem "annes_inquiry", "~> 0.2.0"
 end
 ```
 
@@ -192,3 +192,17 @@ Engineのrootと `/admin/forms` は定義一覧、`/admin/versions/:id` は版�
 ### 添付清掃の再試行
 
 期限を過ぎた未参照BlobのDB削除と同じトランザクションで `annes_inquiry_blob_deletions` に削除要求を保存し、commit後にストレージを削除します。ストレージ障害やプロセス中断で残った要求は次の清掃実行で再試行し、ファイルと画像派生物の削除に成功した場合だけ要求を削除します。削除要求はJSONBを使わず、キー・サービス名・画像フラグを保持します。
+
+## Portable definitions
+
+Input conversion, validation and field partials use the automatically installed
+[annes_form_kit](../annes_form_kit/README.md) library. No additional configuration,
+routes or migrations are needed. Inquiry remains a standalone form engine.
+
+A host can authorize a published `FormVersion` using its own administration and
+record-level policy, then call `AnnesInquiry::Definitions::ExportSchema.call(version:)`.
+The result is a versioned JSON definition containing labels, fields, choices and
+constraints only. The service itself is not an authorization boundary and exposes
+no HTTP endpoint. A consuming application must authorize imports separately.
+The copied definition is independent: source changes or disabling the source do
+not synchronize to a copy. Answers and attachments are never exported.

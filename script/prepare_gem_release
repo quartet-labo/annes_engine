@@ -29,6 +29,9 @@ class GemReleasePreparation
       gemspec: "annes_audit.gemspec",
       tag_prefix: "annes_audit-v"
     },
+    "annes_form_kit" => {
+      path: "annes_form_kit", gemspec: "annes_form_kit.gemspec", tag_prefix: "annes_form_kit-v"
+    },
     "annes_inquiry" => {
       path: "annes_inquiry",
       gemspec: "annes_inquiry.gemspec",

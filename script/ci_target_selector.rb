@@ -20,11 +20,15 @@ class CiTargetSelector
 
   Selection = Data.define(:targets, :changed_paths, :full_run_reason) do
     def has_tests?
-      targets.any?
+      targets.any? { |target| target.database }
+    end
+
+    def has_form_kit?
+      targets.any? { |target| target.name == "annes_form_kit" }
     end
 
     def matrix
-      { include: targets.map(&:matrix_entry) }
+      { include: targets.select(&:database).map(&:matrix_entry) }
     end
 
     def summary(all_targets:)
@@ -68,7 +72,7 @@ class CiTargetSelector
     Target.new("annes_admin", "annes_admin", "annes_admin_test", "bundle exec rake test", []),
     Target.new("annes_access", "annes_access", "annes_access_test", "bundle exec rake test", []),
     Target.new("annes_audit", "annes_audit", "annes_audit_test", "bundle exec rake test", []),
-    Target.new("annes_inquiry", "annes_inquiry", "annes_inquiry_test", "COVERAGE=true bin/test --schema-round-trip", []),
+    Target.new("annes_inquiry", "annes_inquiry", "annes_inquiry_test", "COVERAGE=true bin/test --schema-round-trip", ["annes_form_kit"]),
     Target.new("annes_loyalty", "annes_loyalty", "annes_loyalty_test", "bundle exec rake test", []),
     Target.new(
       "customer_management",
@@ -90,7 +94,8 @@ class CiTargetSelector
       "anne_restaurant_loyalty_test",
       "bin/rails test",
       %w[annes_auth annes_admin annes_access annes_loyalty]
-    )
+    ),
+    Target.new("annes_form_kit", "annes_form_kit", nil, "bundle exec rake test", [])
   ].freeze
 
   DOCUMENTATION_PATHS = %w[

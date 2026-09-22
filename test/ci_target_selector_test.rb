@@ -155,6 +155,13 @@ class CiTargetSelectorTest < Minitest::Test
     assert_includes summary, "- `annes_access/lib/annes_access.rb`"
   end
 
+  def test_form_kit_changes_select_consumers_and_a_database_free_job
+    selection = select("annes_form_kit/lib/annes_form_kit.rb")
+    assert_equal %w[annes_inquiry annes_form_kit], names(selection)
+    assert selection.has_form_kit?
+    refute_includes selection.matrix[:include].map { |entry| entry[:module] }, "annes_form_kit"
+  end
+
   private
     def select(*paths)
       @selector.select(paths:)

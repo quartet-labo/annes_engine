@@ -62,6 +62,7 @@ jobs:
     outputs:
       matrix: ${{ steps.select.outputs.matrix }}
       has_tests: ${{ steps.select.outputs.has_tests }}
+      has_form_kit: ${{ steps.select.outputs.has_form_kit }}
 
     steps:
       - name: Checkout
@@ -139,6 +140,25 @@ jobs:
             --summary "$GITHUB_STEP_SUMMARY" \
             "$changed_paths"
 
+  form-kit:
+    name: Test / annes_form_kit
+    needs: changes
+    if: needs.changes.outputs.has_form_kit == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.9
+          bundler-cache: true
+          working-directory: annes_form_kit
+      - name: Test without a database
+        working-directory: annes_form_kit
+        run: bundle exec rake test
+      - name: Verify shipped form kit
+        run: ruby script/check_form_kit_package
+
   test:
     name: Test / ${{ matrix.module }}
     needs: changes
@@ -174,6 +194,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -236,6 +258,7 @@ jobs:
     needs:
       - changes
       - test
+      - form-kit
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -247,6 +270,8 @@ jobs:
           CHANGES_RESULT: ${{ needs.changes.result }}
           HAS_TESTS: ${{ needs.changes.outputs.has_tests }}
           TEST_RESULT: ${{ needs.test.result }}
+          HAS_FORM_KIT: ${{ needs.changes.outputs.has_form_kit }}
+          FORM_KIT_RESULT: ${{ needs.form-kit.result }}
         run: |
           set -euo pipefail
 
@@ -265,4 +290,8 @@ jobs:
             exit 1
           fi
 
+          if [[ "$HAS_FORM_KIT" == "true" && "$FORM_KIT_RESULT" != "success" ]]; then
+            echo "Form kit tests did not succeed: $FORM_KIT_RESULT"
+            exit 1
+          fi
           echo "Test selection and execution completed successfully."

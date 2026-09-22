@@ -19,6 +19,7 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`annes_access`](annes_access/README.md) - lightweight role-based authorization
 - [`annes_admin`](annes_admin/README.md) - configurable administration screens for host models
 - [`annes_audit`](annes_audit/README.md) - durable audit event persistence and notification mapping
+- [`annes_form_kit`](annes_form_kit/README.md) - database-free form schemas, input validation and field rendering
 - [`annes_inquiry`](annes_inquiry/README.md) - versioned inquiry forms, typed answers, attachments, administration, and host adapters
 - [`annes_loyalty`](annes_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
