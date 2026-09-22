@@ -1,5 +1,4 @@
-<% if field.widget == "textarea" %>
-  <%= text_area_tag name, value.is_a?(String) ? value : nil, **attributes, minlength: field.min_length, maxlength: field.max_length, rows: 5 %>
-<% else %>
-  <%= tag.input(**attributes, name: name, value: value.is_a?(String) ? value : nil, type: %w[text email tel].include?(field.widget) ? field.widget : "text", minlength: field.min_length, maxlength: field.max_length) %>
-<% end %>
+<%= render "annes_form_kit/fields/text", field: AnnesInquiry::Definitions::SchemaAdapter.field(field),
+  input: input, attributes: attributes, name: name, value: value,
+  option_ids: field.options.to_h { |option| [option.value, option.id] },
+  upload_selected: Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %>

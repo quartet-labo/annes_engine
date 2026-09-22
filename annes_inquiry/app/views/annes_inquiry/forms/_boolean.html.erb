@@ -1,11 +1,4 @@
-<% if field.widget == "checkbox" %>
-  <%= hidden_field_tag name, "false", id: nil %>
-  <%= check_box_tag name, "true", %w[true 1].include?(value), **attributes.merge(required: field.must_be_true) %>
-<% else %>
-  <div role="group" aria-label="<%= field.label %>">
-    <% { "true" => "はい", "false" => "いいえ" }.each do |answer, label| %>
-      <%= radio_button_tag name, answer, [answer, answer == "true" ? "1" : "0"].include?(value), **attributes.merge(id: "#{attributes[:id]}_#{answer}") %>
-      <%= label_tag "#{attributes[:id]}_#{answer}", label %>
-    <% end %>
-  </div>
-<% end %>
+<%= render "annes_form_kit/fields/boolean", field: AnnesInquiry::Definitions::SchemaAdapter.field(field),
+  input: input, attributes: attributes, name: name, value: value,
+  option_ids: field.options.to_h { |option| [option.value, option.id] },
+  upload_selected: Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %>
