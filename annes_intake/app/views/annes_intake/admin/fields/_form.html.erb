@@ -1,0 +1,23 @@
+<% @field.errors.full_messages.each do |message| %><p role="alert" class="intake-error"><%= message %></p><% end %>
+<%= form_with model: @field, scope: :field, url: @field.persisted? ? admin_field_path(@field) : admin_version_fields_path(@version), local: true do |f| %>
+  <%= hidden_field_tag :lock_version, @version.lock_version %>
+  <fieldset <%= "disabled" unless @version.draft? %>>
+    <details><summary>詳細設定</summary><p><%= f.label :key, "項目キー" %><%= f.text_field :key %></p></details>
+    <p><%= f.label :label, "ラベル" %><%= f.text_field :label, required: true %></p>
+    <p><%= f.label :value_type, "回答の種類" %><%= f.select :value_type, intake_type_options %></p>
+    <p class="intake-help">型を変える場合は入力形式も選んで保存してください。適用できない設定・選択肢・添付許可形式は削除されます。</p>
+    <p><%= f.label :widget, "入力形式" %><%= f.select :widget, intake_widget_options %></p>
+    <p><%= f.label :placeholder, "プレースホルダー" %><%= f.text_field :placeholder %></p>
+    <p><%= f.label :help_text, "入力の説明" %><%= f.text_area :help_text, rows: 2 %></p>
+    <p><%= f.check_box :required %><%= f.label :required, "必須" %></p>
+    <p><%= f.label :position, "表示順" %><%= f.number_field :position, min: 0 %></p>
+    <% if @field.value_type == "boolean" %><p><%= f.check_box :must_be_true %><%= f.label :must_be_true, "同意必須" %></p><% end %>
+    <% AnnesIntake::TypeRegistry::SETTINGS.fetch(@field.value_type, []).each do |key| %>
+      <p><%= f.label key, intake_setting_label(key) %>
+      <% if key == "normalizer_key" %><%= f.select key, AnnesIntake::TypeRegistry::NORMALIZERS, include_blank: "なし" %>
+      <% elsif key == "format_key" %><%= f.select key, AnnesIntake::TypeRegistry::FORMATS, include_blank: "なし" %>
+      <% else %><%= f.text_field key %><% end %></p>
+    <% end %>
+    <% if @version.draft? %><%= f.submit "項目を保存" %><% end %>
+  </fieldset>
+<% end %>

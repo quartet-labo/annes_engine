@@ -1,0 +1,7 @@
+<h1>受付一覧</h1>
+<%= form_with url: admin_runs_path, method: :get, local: true do %>
+<%= hidden_field_tag :flow_id, params[:flow_id] if params[:flow_id].present? %>
+<%= label_tag :status, "状態" %><%= select_tag :status, options_for_select([["入力中", "in_progress"], ["受付済み", "submitted"], ["取消済み", "cancelled"], ["期限切れ", "expired"]], params[:status]), include_blank: true %>
+<%= label_tag :from, "開始日" %><%= date_field_tag :from, params[:from] %><%= label_tag :to, "終了日" %><%= date_field_tag :to, params[:to] %><%= submit_tag "検索" %><% end %>
+<ul><% @runs.each do |run| %><li><%= link_to run.receipt_id, admin_run_path(run) %> — <%= run_status(run) %> / <%= run.flow_version.title %></li><% end %></ul>
+<% if @runs.size == 50 %><%= link_to "次のページ", admin_runs_path(flow_id: params[:flow_id], status: params[:status], from: params[:from], to: params[:to], page: [params[:page].to_i, 1].max + 1) %><% end %>

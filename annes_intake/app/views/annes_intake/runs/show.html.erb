@@ -1,0 +1,22 @@
+<h1><%= @run.submitted? ? "受付が完了しました" : @run.flow_version.title %></h1>
+<p>受付番号: <%= @run.receipt_id %></p>
+<% if @run.submitted? %>
+  <% answers = AnnesIntake::Flows::AnswerReader.call(run: @run, context: @context) %>
+  <% @steps.each do |step| %><section><h2><%= step.step.title %></h2>
+    <% step.form_version.fields.each do |field| %><p><strong><%= field.label %></strong>: <%= flow_value(answers.dig(step.key, field.key), field: field) %></p><% end %>
+    <% if step.step_response %><% AnnesIntake::AnswerAttachment.where(answer_id: step.step_response.answers.select(:id)).each do |attachment| %>
+      <p><%= link_to attachment.file.filename.to_s, flow_attachment_path(@run, step_id: step.id, attachment_id: attachment.id, kind: "answer") %></p>
+    <% end %><% end %>
+  </section><% end %>
+<% elsif @run.in_progress? && !@run.effective_expired? %>
+  <p>有効期限: <%= l @run.expires_at, format: :short %></p>
+  <ol><% permitted = true %><% @steps.each do |step| %>
+    <li><% if permitted %><%= link_to step.step.title, step_path(@run, step_id: step.id) %><% else %><%= step.step.title %><% end %> — <%= step_status(step) %></li>
+    <% permitted &&= step.complete? %>
+  <% end %></ol>
+  <% if @steps.all?(&:complete?) %><p><%= link_to "全体の回答を確認", review_run_path(@run) %></p><% end %>
+  <%= button_to "入力を再開", resume_run_path(@run) %>
+  <% if token = flow_operation_token(@run, :cancel, @context) %>
+    <%= button_to "入力を取り消す", cancel_run_path(@run), params: {token: token} %>
+  <% end %>
+<% else %><p>この入力は取り消されたか、有効期限を過ぎています。</p><% end %>

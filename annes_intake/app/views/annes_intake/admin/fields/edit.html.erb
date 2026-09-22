@@ -1,0 +1,8 @@
+<h1><%= @field.label %>の設定</h1>
+<p><%= link_to "版へ戻る", admin_version_path(@version) %></p>
+<%= render "form" %>
+<% if @version.draft? %>
+  <%= button_to "項目を削除", admin_field_path(@field), method: :delete, params: { lock_version: @version.lock_version } %>
+<% end %>
+  <% if @field.choice? %><%= render "options" %><% end %>
+  <% if @field.value_type == "attachment" %><%= render "file_types" %><% end %>

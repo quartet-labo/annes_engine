@@ -1,0 +1,32 @@
+module AnnesIntake
+  module FlowHelper
+    def flow_operation_token(run, action, context)
+      Flows::OperationToken.issue(run: run, action: action, context: context)
+    rescue Flows::Forbidden
+      nil
+    end
+
+    def intake_mapped_value(step, field)
+      @intake_mapped_values ||= Flows::RouteEvaluator.raw_values(step)
+      flow_value(ValueConverter.call(field, @intake_mapped_values[field.key]), field: field)
+    rescue ArgumentError
+      "未回答"
+    end
+
+    def flow_value(value, field:)
+      value = value.map { |item| item.respond_to?(:file) ? item.file.filename.to_s : item } if value.is_a?(Array)
+      AnnesFormKit::ValuePresenter.call(field: Definitions::SchemaAdapter.field(field), value: value, time_zone: Time.zone.name)
+    end
+
+    def run_status(run)
+      {"in_progress" => "入力中", "submitted" => "受付済み", "cancelled" => "取消済み", "expired" => "期限切れ"}.fetch(run.status)
+    end
+    def version_status(version)
+      {"draft" => "下書き", "published" => "公開中", "retired" => "過去の版"}.fetch(version.status)
+    end
+
+    def step_status(step)
+      {"draft" => "入力中", "complete" => "入力済み", "inactive" => "対象外"}.fetch(step.status)
+    end
+  end
+end
