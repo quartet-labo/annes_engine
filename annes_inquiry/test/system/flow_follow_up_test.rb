@@ -30,50 +30,50 @@ class FlowFollowUpSystemTest < ActionDispatch::SystemTestCase
 
   test "administrator customizes and issues a question and customer resumes answers without overwriting original" do
     visit "/inquiry/admin/flows/#{@flow.id}/runs/#{@root.id}"
-    click_link "追加質問を準備"
+    navigate { click_link "追加質問を準備" }
     fill_in "質問タイトル", with: "Additional details"
     check "この依頼専用に複製して編集する"
-    click_button "質問を準備"
+    navigate { click_button "質問を準備" }
     assert_selector "h1", text: "Additional details"
     request = @root.follow_up_requests.sole
     question_path = current_path
-    click_link "Part 0の項目を編集"
-    click_link "0: Name (name)"
+    navigate { click_link "Part 0の項目を編集" }
+    navigate { click_link "0: Name (name)" }
     fill_in "ラベル", with: "Additional name"
-    click_button "項目を保存"
+    navigate { click_button "項目を保存" }
     assert_field "ラベル", with: "Additional name"
     visit question_path
-    click_link "質問をプレビュー"
+    navigate { click_link "質問をプレビュー" }
     assert_field "Additional name"
     visit question_path
-    click_button "追加質問を発行"
+    navigate { click_button "追加質問を発行" }
     assert_current_path "/inquiry/admin/flows/#{@flow.id}/runs/#{@root.id}"
     assert_text "issued"
     visit "/inquiry/flow_runs/#{@root.id}"
     assert_text "Original"
     assert_text "回答待ち"
-    click_link "質問・回答を開く"
+    navigate { click_link "質問・回答を開く" }
     response_run = request.reload.response_run
-    click_link "Part 0"
+    navigate { click_link "Part 0" }
     fill_in "Additional name", with: "Extra"
-    click_button "途中保存"
+    navigate { click_button "途中保存" }
     assert_text "保存しました。"
-    click_button "再認可して再開"
+    navigate { click_button "再認可して再開" }
     assert_text "再開しました。"
-    click_link "Part 0"
+    navigate { click_link "Part 0" }
     assert_field "Additional name", with: "Extra"
-    click_button "保存して次へ"
+    navigate { click_button "保存して次へ" }
     assert_current_path "/inquiry/flow_runs/#{response_run.id}"
-    click_link "Part 1"
+    navigate { click_link "Part 1" }
     fill_in "Name", with: "More"
-    click_button "保存して次へ"
+    navigate { click_button "保存して次へ" }
     assert_current_path "/inquiry/flow_runs/#{response_run.id}"
-    click_link "全体の回答を確認"
+    navigate { click_link "全体の回答を確認" }
     assert_selector "h1", text: "回答を確認"
-    click_button "正式に送信する"
+    navigate { click_button "正式に送信する" }
     assert_selector "h1", text: "受付が完了しました"
     assert_text "Extra"
-    click_link "初回の受付・履歴"
+    navigate { click_link "初回の受付・履歴" }
     assert_selector "h1", text: "受付が完了しました"
     assert_text "Original"
     assert_text "回答済み"
@@ -84,18 +84,28 @@ class FlowFollowUpSystemTest < ActionDispatch::SystemTestCase
 
   test "template question can be cancelled and history shows its state" do
     visit "/inquiry/admin/flows/#{@flow.id}/runs/#{@root.id}"
-    click_link "追加質問を準備"
+    navigate { click_link "追加質問を準備" }
     fill_in "質問タイトル", with: "Template question"
-    click_button "質問を準備"
+    navigate { click_button "質問を準備" }
     assert_selector "h1", text: "Template question"
-    click_button "追加質問を発行"
+    navigate { click_button "追加質問を発行" }
     assert_current_path "/inquiry/admin/flows/#{@flow.id}/runs/#{@root.id}"
-    click_link "第1回 Template question"
-    click_button "追加質問を取り消す"
+    navigate { click_link "第1回 Template question" }
+    navigate { click_button "追加質問を取り消す" }
     assert_current_path "/inquiry/admin/flows/#{@flow.id}/runs/#{@root.id}"
     visit "/inquiry/flow_runs/#{@root.id}"
     assert_text "取消済み"
-    click_link "質問・回答を開く"
+    navigate { click_link "質問・回答を開く" }
     assert_text "取り消されたか、有効期限を過ぎています"
   end
+  private
+    def navigate
+      # Do not let an assertion match the old page (for example the edited
+      # input value) while its POST/redirect is still replacing the document.
+      page.execute_script("window.inquiryNavigationPending = true")
+      yield
+      Selenium::WebDriver::Wait.new(timeout: Capybara.default_max_wait_time).until do
+        page.evaluate_script("window.inquiryNavigationPending !== true && document.readyState === 'complete'")
+      end
+    end
 end

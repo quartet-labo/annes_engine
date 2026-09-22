@@ -93,6 +93,35 @@ class FlowFollowUpEndpointsTest < ActionDispatch::IntegrationTest
     assert_nil @followup.response_run_id
   end
 
+  test "GET and HEAD share viewing authorization while writes still need editing permission" do
+    post "#{@path}/issue", params: issue_params
+    assert_response :see_other
+    version = @followup.definition_version
+    field = version.steps.first.form_version.fields.first
+    paths = [
+      "/inquiry/admin/flows/#{version.flow_id}",
+      "/inquiry/admin/forms/#{field.form_version.form_id}",
+      "/inquiry/admin/versions/#{field.form_version_id}",
+      "/inquiry/admin/fields/#{field.id}/edit"
+    ]
+    @adapter.define_singleton_method(:authorize!) { |action:, **| action != :admin_follow_up }
+    paths.each do |path|
+      get path
+      assert_response :success
+      head path
+      assert_response :success
+      assert_empty response.body
+    end
+    patch "/inquiry/admin/fields/#{field.id}", params: {lock_version: field.form_version.lock_version, field: {label: "Changed"}}
+    assert_response :forbidden
+    assert_equal "Name", field.reload.label
+    @adapter.define_singleton_method(:authorize!) { |action:, **| action != :admin_view }
+    paths.each do |path|
+      head path
+      assert_response :forbidden
+    end
+  end
+
   private
     def issue_params
       {lock_version: @followup.reload.lock_version, definition_digest: AnnesInquiry::Flows::FollowUpDefinitionDigest.call(@followup)}

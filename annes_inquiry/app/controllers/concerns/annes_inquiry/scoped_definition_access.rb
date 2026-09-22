@@ -24,8 +24,10 @@ module AnnesInquiry
         policy = Flows::AccessPolicy.for_run(root, context)
         raise Flows::Forbidden unless policy.scope(FlowRun.where(id: root.id)).exists?
         policy.authorize!(:admin_view, run: root)
-        policy.authorize!(:admin_follow_up, run: root) unless request.get?
-        if !request.get? && !owner.follow_up_request.draft?
+        return if request.get? || request.head?
+
+        policy.authorize!(:admin_follow_up, run: root)
+        unless owner.follow_up_request.draft?
           raise Flows::Conflict, "発行済みの追加質問は変更できません。"
         end
       end
