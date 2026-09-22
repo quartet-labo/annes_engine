@@ -41,4 +41,16 @@ class StandalonePublicContractTest < ActiveSupport::TestCase
       assert_equal result.submission.id, replay.submission.id
     end
   end
+  test "enrichment may omit optional keys without changing persisted payload digest" do
+    form = AnnesInquiry::Form.create!(key: "omitted", name: "Omitted")
+    version = form.versions.create!(number: 1, title: "Omitted")
+    version.fields.create!(key: "name", label: "Name")
+    AnnesInquiry::Definitions::PublishVersion.call(version, expected_lock_version: 0)
+    adapter = Object.new
+    adapter.define_singleton_method(:enrich_input) { |values, _| values.except("name") }
+    input = AnnesInquiry::Input.new(version, raw_values: {"name" => "ignored"}, adapter: adapter)
+    assert input.valid?
+    assert_equal({}, input.values)
+  end
+
 end

@@ -17,6 +17,7 @@ Gem::Specification.new do |spec|
     Dir["{app,config,db,lib}/**/*", "README.md", "CHANGELOG.md", "UPGRADING.md", "MIT-LICENSE"].select { |path| File.file?(path) }
   end
   # Rails 8.1 passes positional JSON options, which JSON 3 no longer accepts.
+  spec.add_dependency "annes_form_kit", "~> 0.1.0"
   spec.add_dependency "json", "< 3"
   spec.add_dependency "rails", "~> 8.1.3", ">= 8.1.3.1"
 end

@@ -1,7 +1,18 @@
 PATH
+  remote: ../annes_form_kit
+  specs:
+    annes_form_kit (0.1.0)
+      actionview (~> 8.1.3, >= 8.1.3.1)
+      activemodel (~> 8.1.3, >= 8.1.3.1)
+      activesupport (~> 8.1.3, >= 8.1.3.1)
+      json (< 3)
+      marcel (~> 1.0)
+
+PATH
   remote: .
   specs:
-    annes_inquiry (0.1.0)
+    annes_inquiry (0.2.0)
+      annes_form_kit (~> 0.1.0)
       json (< 3)
       rails (~> 8.1.3, >= 8.1.3.1)
 
@@ -256,6 +267,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  annes_form_kit!
   annes_inquiry!
   brakeman
   capybara

@@ -1,4 +1,5 @@
 require "rails"
+require "annes_form_kit"
 require "annes_inquiry/version"
 require "annes_inquiry/configuration"
 require "annes_inquiry/type_registry"
