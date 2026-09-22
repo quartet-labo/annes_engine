@@ -1,0 +1,7 @@
+{
+  "20260906050000_create_annes_inquiry_definitions.rb": "316084cf96f62962d04f60576c46870a943b903eb7c29ce11e048fa53ec306d5",
+  "20260906060000_create_annes_inquiry_answers.rb": "27e58185ca8f1e0805ccd44af5db689fe82abf03d15d8350a4fcb71845e8d235",
+  "20260906061000_create_annes_inquiry_answer_relations.rb": "7f4974a8d5bbb454403c56eb57dc3263e0e745347df4d60dc7a60a4c8a9f8196",
+  "20260906070000_create_annes_inquiry_notification_requests.rb": "7227bf1a02302bd8f7839d0f88819669bda9bd5b7860582e0096a870ca28b416",
+  "20260906071000_create_annes_inquiry_blob_deletions.rb": "87f8ff2e40279e1a4c61f791b58e48e55eb433b88749065901a0deb99e8a0371"
+}
