@@ -11,6 +11,11 @@ class PackageIntakeAdapter
   def scope_runs(relation, context:) = relation.where(owner_digest: Digest::SHA256.hexdigest(context))
   def run_expires_at(context) = 1.day.from_now
   def persist!(run, answers, context) = PackageRequest.create!(run_id: run.id)
+  # The host scopes response runs and their root independently on every access.
+  def persist_follow_up!(request, run, answers, context)
+    original = PackageRequest.find_by!(run_id: request.root_run_id)
+    PackageFollowUp.create!(package_request: original, follow_up_request_id: request.id, run_id: run.id)
+  end
   def deliver(request) = :sent
 end
 AnnesIntake.configure do |config|

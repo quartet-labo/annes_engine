@@ -98,3 +98,41 @@ bundle exec brakeman --force-scan --no-pager
 ```
 
 リポジトリルートで`ruby script/check_intake_package`、`ruby script/check_forms_coexistence`を実行できます。専用の`annes_intake_package_test`と`forms_coexistence_test`だけを再作成します。
+
+## Follow-up questions and history
+
+初回の受付詳細から「追加質問を準備」を選び、公開済みの受付フロー、質問タイトル、回答期限を指定します。そのまま使う場合は公開版を固定します。「この依頼専用に複製して編集する」を選ぶと、フォーム・項目・条件・引継ぎを専用の下書きへコピーします。プレビュー後に明示的に発行すると、回答待ちとして初回受付の履歴に表示されます。
+
+専用定義は通常のテンプレート一覧・新規開始・clone/export/import経路に出しません。専用editorは初回受付の現在の閲覧・追加質問権限を毎回確認し、発行後の編集を拒否します。初回の定義、公開版、回答原本は変更しません。追加質問から更に追加質問を作ることはできません。
+
+初回フローのadapterに`admin_follow_up`、`admin_cancel_follow_up`の認可と、次のcallbackを実装してください。追加回答用フローに別のadapterを登録する必要はありません。
+
+```ruby
+def persist_follow_up!(request, run, answers, context)
+  original = BusinessRequest.find_by!(intake_run_id: request.root_run_id)
+  original.additional_answers.create!(intake_run_id: run.id,
+    follow_up_request_id: request.id, answers: answers)
+end
+```
+
+このcallbackはResponse・回答・質問のanswered状態・通知要求と同じtransaction内です。初回の`persist!`は呼びません。rollback時には全て戻るため、外部通信を行わずrun_id/request_idにDB一意制約を設けてください。
+
+`scope_runs`には許可した追加回答runも含めます。Engineはrootとresponseの両方のscope/actionを検証します。たとえばホストが受付権限と追加回答権限を別に管理する場合は、次のように許可済みIDのrelationを合成します。
+
+```ruby
+def scope_runs(relation, context:)
+  roots = context.user.visible_business_requests.select(:intake_run_id)
+  responses = context.user.visible_additional_answers.select(:intake_run_id)
+  relation.where(id: roots).or(relation.where(id: responses))
+end
+```
+
+回答前から追加runを許可するには、発行済みrequestとホストの案件権限をjoinしたrelationを使ってください。通知リンクは本人認証の代わりになりません。`prepare_context`でログインし、初回と同じidentity/contextを返します。初回Flow/Formまたは質問Flow/Formを停止した場合、発行・回答を拒否します。
+
+サービスは`FollowUps::Prepare(root:, version:, context:, definition_context:, request_key:, title:, due_at:, custom:)`、`Issue(request:, context:, definition_context:, expected_lock_version:, expected_definition_digest:)`、`Cancel(request:, context:)`です。definition_contextはテンプレート定義の認可用、contextは初回adapterの実行用です。省略時は同じcontextを用います。専用editorをサービスから使う場合は`DefinitionPolicy::Context.new(definition_context:, run_context:, follow_up_id:)`を渡してください。rootの権限検証は省略されません。
+
+Issueには画面で提示したrequest.lock_versionと`FollowUps::DefinitionDigest.call(request)`を送ります。途中で定義が変われば409です。発行・回答通知はそれぞれ`follow_up:<request_id>:issued`（rootの通知）、`answered`（response runの通知）となり、`notification.follow_up_request`から回次や期限を参照できます。通知はcommit後で、結果不明の配送を自動再試行しません。
+
+`FollowUps::Reader.call(root:, context:, action: :view)`は許可された回次を返します。利用者には未発行draftを返しません。`Flows::AnswerReader.call(run:, context:)`で初回と各追加runの回答を別々に読みます。正式な原本はそれぞれの`run.response`です。
+
+期限は操作時に評価し、再開で延長しません。未回答だけ取消でき、期限切れ・取消後も初回と確定済み回答は履歴に残します。`cleanup_drafts`は取消/期限切れの下書きを対象にし、正式回答が参照する添付は削除しません。管理一覧には追加runを重ねて表示せず、初回詳細に回次・日時・状態をまとめます。
