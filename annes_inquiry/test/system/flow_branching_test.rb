@@ -66,13 +66,24 @@ class FlowBranchingSystemTest < ActionDispatch::SystemTestCase
     fill_in "Name", with: "Preview"
     check "Option A"
     check "Option B"
-    click_button "入力を確認"
+    submit_preview
     assert_selector "h2", text: "Part 1"
     assert_selector "h2", text: "Other"
     assert_text "Name（引継ぎ）: Preview", count: 2
     uncheck "Option A"
-    click_button "入力を確認"
+    submit_preview
     assert_no_selector "h2", text: "Part 1"
     assert_selector "h2", text: "Other"
   end
+
+  private
+    def submit_preview
+      # POST renders the same URL. Wait for the old document to be replaced
+      # before Capybara reads nodes that Chrome may already have detached.
+      page.execute_script("window.inquiryPreviewPending = true")
+      click_button "入力を確認"
+      Selenium::WebDriver::Wait.new(timeout: Capybara.default_max_wait_time).until do
+        page.evaluate_script("window.inquiryPreviewPending !== true && document.readyState === 'complete'")
+      end
+    end
 end
