@@ -1,0 +1,7 @@
+test:
+  adapter: postgresql
+  database: annes_intake_test
+  pool: 10
+  <% if ENV["INTAKE_DATABASE_URL"].to_s != "" %>
+  url: <%= ENV.fetch("INTAKE_DATABASE_URL") %>
+  <% end %>

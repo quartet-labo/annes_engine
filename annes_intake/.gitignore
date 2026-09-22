@@ -1,0 +1,9 @@
+/.bundle/
+/coverage/
+/pkg/
+*.gem
+/test/dummy/log/
+/test/dummy/tmp/
+/test/dummy/storage/
+/test/package_host/log/
+/test/package_host/tmp/
