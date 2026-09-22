@@ -22,7 +22,7 @@ module AnnesIntake
       Result = Data.define(:run, :steps, :answers, :token)
       def self.call(run:, context:)
         Flows::Lock.call(run) do |current|
-          policy = Flows::AccessPolicy.new(flow: current.flow, context: context)
+          policy = Flows::AccessPolicy.for_run(current, context)
           policy.authorize!(:view, run: current)
           Flows::Lock.writable!(current)
           route = Flows::RouteEvaluator.evaluate(current)

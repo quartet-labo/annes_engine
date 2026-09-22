@@ -4,7 +4,7 @@ module AnnesIntake
       ACTIONS = %w[save complete finalize cancel].freeze
       def self.issue(run:, action:, context:, step: nil, expires_in: AnnesIntake.configuration.operation_token_ttl)
         raise ArgumentError unless ACTIONS.include?(action.to_s)
-        policy = AccessPolicy.new(flow: run.flow, context: context)
+        policy = AccessPolicy.for_run(run, context)
         policy.authorize!(action, run: run, step: step)
         raise ArgumentError unless expires_in.is_a?(Numeric) || expires_in.is_a?(ActiveSupport::Duration)
         raise ArgumentError unless expires_in.to_f.positive? && expires_in.to_f.finite?

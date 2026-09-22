@@ -20,7 +20,7 @@ module AnnesIntake
       end
       return unless claimed
 
-      adapter = AnnesIntake.configuration.adapters[request.run.flow.key]
+      adapter = AnnesIntake.configuration.adapters[request.run.adapter_flow.key]
       outcome = adapter&.respond_to?(:deliver) ? adapter.deliver(request) : :failed
       status = %i[sent failed unknown].include?(outcome) ? outcome.to_s : "unknown"
       request.update!(status: status, sent_at: status == "sent" ? Time.current : nil,

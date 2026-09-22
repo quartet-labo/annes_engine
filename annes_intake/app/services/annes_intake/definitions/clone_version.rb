@@ -3,6 +3,7 @@ module AnnesIntake
     class CloneVersion
       def self.call(version, context: nil)
         DefinitionPolicy.new(context: context).authorize!(version)
+        raise Flows::Forbidden if DefinitionPolicy.owner(version).follow_up_request_id
         form = Form.find(version.form_id)
         form.with_lock do
           source = form.versions.find(version.id)

@@ -3,11 +3,12 @@ module AnnesIntake
     class StartRun
       def self.call(flow:, context:, request_key: SecureRandom.uuid)
         raise Conflict unless request_key.is_a?(String) && request_key.match?(/\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z/)
+        raise Forbidden if flow.follow_up_request_id
         policy = AccessPolicy.new(flow: flow, context: context)
         policy.authorize!(:start)
         Flow.find(flow.id).with_lock do
           flow.reload
-          raise Conflict unless flow.enabled?
+          raise Conflict unless flow.enabled? && flow.follow_up_request_id.nil?
           version = flow.published_version or raise Conflict
           form_ids = FormVersion.where(id: version.steps.select(:form_version_id)).pluck(:form_id)
           forms = Form.where(id: form_ids).order(:id).lock.to_a

@@ -4,6 +4,7 @@ module AnnesIntake
       class CloneVersion
         def self.call(version, context: nil)
           DefinitionPolicy.new(context: context).authorize!(version)
+          raise Flows::Forbidden if DefinitionPolicy.owner(version).follow_up_request_id
           Flow.find(version.flow_id).with_lock do
             source = FlowVersion.find(version.id)
             raise Error, "公開済み版を複製してください。" if source.draft?

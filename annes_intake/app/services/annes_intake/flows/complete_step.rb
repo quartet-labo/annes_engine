@@ -5,7 +5,7 @@ module AnnesIntake
         Lock.call(run) do |current|
           raise Conflict if expected_revision && current.revision != expected_revision
           item = current.step_runs.find(step.id)
-          policy = AccessPolicy.new(flow: current.flow, context: context)
+          policy = AccessPolicy.for_run(current, context)
           policy.authorize!(:complete, run: current, step: item)
           Lock.writable!(current)
           OperationToken.verify!(token, run: current, action: :complete, policy: policy, step: item)

@@ -2,7 +2,7 @@ module AnnesIntake
   module Flows
     class AnswerReader
       def self.call(run:, context:, action: :view)
-        AccessPolicy.new(flow: run.flow, context: context).authorize!(action, run: run)
+        AccessPolicy.for_run(run, context).authorize!(action, run: run)
         raise Conflict unless run.submitted?
         run.step_runs.where.not(step_response_id: nil).includes(:step, form_version: :fields, step_response: { answers: [:field, { options: :field_option }, { attachments: { file_attachment: :blob } }] }).to_h do |step|
           reader = AnnesIntake::AnswerReader.new(step.step_response)

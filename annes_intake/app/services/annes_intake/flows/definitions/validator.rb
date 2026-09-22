@@ -6,6 +6,9 @@ module AnnesIntake
           raise Error, "ステップを追加してください。" if version.steps.empty?
           version.steps.includes(form_version: :form).each do |step|
             raise Error, "有効な公開フォーム版を選択してください。" unless step.form_version.published? && step.form_version.form.enabled?
+            unless step.form_version.form.follow_up_request_id == version.flow.follow_up_request_id
+              raise Error, "他の受付専用の質問は使用できません。"
+            end
             rules!(step)
           end
         end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_22_010100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,12 +232,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
   create_table "annes_intake_flows", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "enabled", default: true, null: false
+    t.bigint "follow_up_request_id"
     t.string "key", null: false
     t.integer "lock_version", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["follow_up_request_id"], name: "index_annes_intake_flows_on_follow_up_request_id"
     t.index ["key"], name: "index_annes_intake_flows_on_key", unique: true
     t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "intake_flow_key"
+  end
+
+  create_table "annes_intake_follow_up_requests", force: :cascade do |t|
+    t.datetime "answered_at"
+    t.datetime "created_at", null: false
+    t.boolean "custom", default: false, null: false
+    t.bigint "definition_version_id", null: false
+    t.datetime "due_at", null: false
+    t.datetime "issued_at"
+    t.integer "lock_version", default: 0, null: false
+    t.integer "number", null: false
+    t.uuid "request_key", null: false
+    t.bigint "response_run_id"
+    t.bigint "root_run_id", null: false
+    t.bigint "source_version_id", null: false
+    t.string "status", default: "draft", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["definition_version_id"], name: "index_annes_intake_follow_up_requests_on_definition_version_id"
+    t.index ["response_run_id"], name: "index_annes_intake_follow_up_requests_on_response_run_id", unique: true
+    t.index ["root_run_id", "number"], name: "intake_follow_up_number", unique: true
+    t.index ["root_run_id", "request_key"], name: "intake_follow_up_request_key", unique: true
+    t.index ["root_run_id"], name: "index_annes_intake_follow_up_requests_on_root_run_id"
+    t.index ["source_version_id"], name: "index_annes_intake_follow_up_requests_on_source_version_id"
+    t.check_constraint "(status::text = ANY (ARRAY['issued'::character varying::text, 'answered'::character varying::text])) AND response_run_id IS NOT NULL AND issued_at IS NOT NULL OR (status::text = ANY (ARRAY['draft'::character varying::text, 'cancelled'::character varying::text]))", name: "intake_follow_up_response"
+    t.check_constraint "number > 0 AND (status::text = ANY (ARRAY['draft'::character varying::text, 'issued'::character varying::text, 'answered'::character varying::text, 'cancelled'::character varying::text]))", name: "intake_follow_up_status"
+    t.check_constraint "response_run_id IS NULL OR response_run_id <> root_run_id", name: "intake_follow_up_distinct_run"
+    t.check_constraint "status::text <> 'draft'::text OR response_run_id IS NULL AND issued_at IS NULL", name: "intake_follow_up_draft"
+    t.check_constraint "status::text = 'answered'::text AND answered_at IS NOT NULL OR status::text <> 'answered'::text AND answered_at IS NULL", name: "intake_follow_up_answered_at"
   end
 
   create_table "annes_intake_form_versions", force: :cascade do |t|
@@ -262,10 +293,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
   create_table "annes_intake_forms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "enabled", default: true, null: false
+    t.bigint "follow_up_request_id"
     t.string "key", null: false
     t.integer "lock_version", default: 0, null: false
     t.string "name", null: false
     t.datetime "updated_at", null: false
+    t.index ["follow_up_request_id"], name: "index_annes_intake_forms_on_follow_up_request_id"
     t.index ["key"], name: "index_annes_intake_forms_on_key", unique: true
     t.check_constraint "key::text ~ '^[a-z][a-z0-9_]{0,63}$'::text", name: "intake_form_key"
   end
@@ -274,12 +307,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
     t.integer "attempts", default: 0, null: false
     t.datetime "created_at", null: false
     t.string "event_key", null: false
+    t.bigint "follow_up_request_id"
     t.text "last_error"
     t.datetime "processing_started_at"
     t.bigint "run_id", null: false
     t.datetime "sent_at"
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
+    t.index ["follow_up_request_id"], name: "idx_on_follow_up_request_id_7990cafa7b"
     t.index ["run_id", "event_key"], name: "intake_flow_notification_event", unique: true
     t.index ["run_id"], name: "index_annes_intake_notification_requests_on_run_id"
     t.check_constraint "(status::text = ANY (ARRAY['pending'::character varying::text, 'processing'::character varying::text, 'sent'::character varying::text, 'failed'::character varying::text, 'unknown'::character varying::text])) AND attempts >= 0", name: "intake_flow_notification_state"
@@ -385,6 +420,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
     t.index ["target_field_id"], name: "index_annes_intake_value_mappings_on_target_field_id"
   end
 
+  create_table "flow_follow_up_answers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "flow_intake_request_id", null: false
+    t.bigint "follow_up_request_id", null: false
+    t.bigint "run_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["flow_intake_request_id"], name: "index_flow_follow_up_answers_on_flow_intake_request_id"
+    t.index ["follow_up_request_id"], name: "index_flow_follow_up_answers_on_follow_up_request_id", unique: true
+    t.index ["run_id"], name: "index_flow_follow_up_answers_on_run_id", unique: true
+  end
+
   create_table "flow_intake_requests", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "customer_key", null: false
@@ -413,7 +459,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
   add_foreign_key "annes_intake_field_options", "annes_intake_fields", column: "field_id"
   add_foreign_key "annes_intake_fields", "annes_intake_form_versions", column: "form_version_id"
   add_foreign_key "annes_intake_flow_versions", "annes_intake_flows", column: "flow_id"
+  add_foreign_key "annes_intake_flows", "annes_intake_follow_up_requests", column: "follow_up_request_id"
+  add_foreign_key "annes_intake_follow_up_requests", "annes_intake_flow_versions", column: "definition_version_id"
+  add_foreign_key "annes_intake_follow_up_requests", "annes_intake_flow_versions", column: "source_version_id"
+  add_foreign_key "annes_intake_follow_up_requests", "annes_intake_runs", column: "response_run_id"
+  add_foreign_key "annes_intake_follow_up_requests", "annes_intake_runs", column: "root_run_id"
+  add_foreign_key "annes_intake_follow_up_requests", "annes_intake_runs", column: ["response_run_id", "definition_version_id"], primary_key: ["id", "flow_version_id"], name: "intake_follow_up_response_version"
   add_foreign_key "annes_intake_form_versions", "annes_intake_forms", column: "form_id"
+  add_foreign_key "annes_intake_forms", "annes_intake_follow_up_requests", column: "follow_up_request_id"
+  add_foreign_key "annes_intake_notification_requests", "annes_intake_follow_up_requests", column: "follow_up_request_id"
   add_foreign_key "annes_intake_notification_requests", "annes_intake_runs", column: "run_id"
   add_foreign_key "annes_intake_responses", "annes_intake_runs", column: "run_id"
   add_foreign_key "annes_intake_runs", "annes_intake_flow_versions", column: "flow_version_id"
@@ -431,4 +485,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_22_000000) do
   add_foreign_key "annes_intake_value_mappings", "annes_intake_fields", column: "target_field_id"
   add_foreign_key "annes_intake_value_mappings", "annes_intake_steps", column: "source_step_id"
   add_foreign_key "annes_intake_value_mappings", "annes_intake_steps", column: "step_id"
+  add_foreign_key "flow_follow_up_answers", "flow_intake_requests"
 end
