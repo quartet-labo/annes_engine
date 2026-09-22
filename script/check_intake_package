@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require_relative "forms_package_smoke"
+FormsPackageSmoke.run

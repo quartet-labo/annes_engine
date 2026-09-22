@@ -189,6 +189,9 @@ jobs:
       BUNDLE_RETRY: 3
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/${{ matrix.database }}
       RAILS_ENV: test
+      INTAKE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/annes_intake_test
+      INTAKE_PACKAGE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/annes_intake_package_test
+      FORMS_COEXISTENCE_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/forms_coexistence_test
       INQUIRY_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/annes_inquiry_test
 
     steps:
@@ -214,9 +217,32 @@ jobs:
         working-directory: annes_inquiry
         run: bin/test --prepare
 
+      - name: Prepare intake database
+        if: matrix.module == 'annes_intake'
+        working-directory: annes_intake
+        run: bin/test --prepare
+
       - name: Run tests
         working-directory: ${{ matrix.path }}
         run: ${{ matrix.test_command }}
+
+      - name: Validate intake browser, package and security
+        if: matrix.module == 'annes_intake'
+        run: |
+          cd annes_intake
+          bin/test --system
+          bundle exec brakeman --force-scan --no-pager
+          cd ..
+          ruby test/intake_package_smoke_test.rb
+          ruby script/check_intake_package
+
+      - name: Keep intake screenshots
+        if: failure() && matrix.module == 'annes_intake'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-intake-tests
+          path: annes_intake/test/dummy/tmp/screenshots
+          if-no-files-found: ignore
 
       - name: Run inquiry browser tests
         if: matrix.module == 'annes_inquiry'

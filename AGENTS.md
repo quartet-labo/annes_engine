@@ -10,6 +10,7 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
 - `annes_access/`: lightweight role-based authorization.
 - `annes_admin/`: configurable administration screens for host models.
 - `annes_form_kit/`: database-free shared form schemas, validation and rendering; `bundle exec rake test` needs no database.
+- `annes_intake/`: independent intake flows, drafts, branches and typed responses; depends only on FormKit among form engines.
 - `annes_inquiry/`: configurable inquiry forms, typed answers, administration, and host adapters.
 - `annes_loyalty/`: loyalty programs, members, point ledger, rewards, and
   redemption workflows.
@@ -44,6 +45,7 @@ Use Ruby 3.4.9, matching CI.
   - `cd annes_inquiry && bin/test --prepare && bundle exec rake test`
   - `cd annes_inquiry && bin/test --schema-round-trip && bin/test --system`
   - `ruby script/check_inquiry_package` (builds the gem; recreates only `annes_inquiry_package_test`)
+- Intake tests: `cd annes_intake && bin/test --prepare && bin/test --schema-round-trip && bin/test --system`; package: `ruby script/check_intake_package`, `ruby script/check_forms_coexistence`.
 - Example app tests:
   - `cd examples/customer_management && bin/rails test`
   - `cd examples/resavation_management && bin/rails test`

@@ -98,6 +98,15 @@ class PrepareGemReleaseTest < Minitest::Test
     end
   end
 
+  def test_prepares_intake_initial_release
+    Dir.mktmpdir do |directory|
+      notes = Pathname(directory).join("notes.md")
+      stdout, stderr, status = run_script("--gem", "annes_intake", "--version", "0.1.0", "--notes-file", notes.to_s)
+      assert status.success?, "#{stdout} #{stderr}"
+      assert_includes notes.read, "independent intake Engine"
+    end
+  end
+
   def test_rejects_a_version_that_does_not_match_the_gemspec
     stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 

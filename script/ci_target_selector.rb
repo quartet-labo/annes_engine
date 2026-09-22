@@ -95,6 +95,8 @@ class CiTargetSelector
       "bin/rails test",
       %w[annes_auth annes_admin annes_access annes_loyalty]
     ),
+    Target.new("annes_intake", "annes_intake", "annes_intake_test", "COVERAGE=true bin/test --schema-round-trip", ["annes_form_kit"]),
+    Target.new("forms_coexistence", "annes_intake", "forms_coexistence_test", "ruby ../script/check_forms_coexistence", %w[annes_form_kit annes_inquiry test/forms_coexistence_host]),
     Target.new("annes_form_kit", "annes_form_kit", nil, "bundle exec rake test", [])
   ].freeze
 
@@ -155,7 +157,7 @@ class CiTargetSelector
     end
 
     def shared_test_path?(path)
-      path.start_with?("test/") && !DOCUMENTATION_PATHS.include?(path)
+      path.start_with?("test/") && !path.start_with?("test/forms_coexistence_host/") && !DOCUMENTATION_PATHS.include?(path)
     end
 
     def documentation_path?(path)

@@ -1,0 +1,3 @@
+<h1>質問をコピー</h1>
+<p><%= @source.title %>を独立した下書きへコピーします。コピー元の変更は同期されません。</p>
+<%= form_with url: "/copy_question/#{@source.id}", local: true do %><%= submit_tag "下書きを作成" %><% end %>

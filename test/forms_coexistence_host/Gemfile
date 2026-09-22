@@ -1,0 +1,7 @@
+source "https://rubygems.org"
+gem "annes_form_kit", path: ENV.fetch("FORM_KIT_PACKAGE_PATH")
+gem "annes_intake", path: ENV.fetch("INTAKE_PACKAGE_PATH")
+gem "pg"
+gem "propshaft"
+gem "rack-test"
+gem "annes_inquiry", path: ENV.fetch("INQUIRY_PACKAGE_PATH")

@@ -14,7 +14,7 @@ class CiTargetSelectorTest < Minitest::Test
       "annes_admin/lib/annes_admin.rb" => %w[annes_admin customer_management reservation_management restaurant_loyalty],
       "annes_access/test/annes_access_test.rb" => %w[annes_access customer_management reservation_management restaurant_loyalty],
       "annes_audit/lib/annes_audit.rb" => %w[annes_audit],
-      "annes_inquiry/app/models/annes_inquiry/form.rb" => %w[annes_inquiry],
+      "annes_inquiry/app/models/annes_inquiry/form.rb" => %w[annes_inquiry forms_coexistence],
       "annes_loyalty/lib/annes_loyalty.rb" => %w[annes_loyalty restaurant_loyalty]
     }.each do |path, expected_names|
       selection = select(path)
@@ -22,6 +22,11 @@ class CiTargetSelectorTest < Minitest::Test
       assert_equal expected_names, names(selection)
       refute selection.full_run_reason
     end
+  end
+
+  def test_selects_intake_and_combined_host_without_inquiry_for_intake_changes
+    assert_equal %w[annes_intake forms_coexistence], names(select("annes_intake/app/models/annes_intake/run.rb"))
+    assert_equal %w[forms_coexistence], names(select("test/forms_coexistence_host/smoke.rb"))
   end
 
   def test_selects_multiple_changed_components
@@ -157,7 +162,7 @@ class CiTargetSelectorTest < Minitest::Test
 
   def test_form_kit_changes_select_consumers_and_a_database_free_job
     selection = select("annes_form_kit/lib/annes_form_kit.rb")
-    assert_equal %w[annes_inquiry annes_form_kit], names(selection)
+    assert_equal %w[annes_inquiry annes_intake forms_coexistence annes_form_kit], names(selection)
     assert selection.has_form_kit?
     refute_includes selection.matrix[:include].map { |entry| entry[:module] }, "annes_form_kit"
   end
