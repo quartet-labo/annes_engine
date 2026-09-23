@@ -19,3 +19,4 @@ Inquiryからの自動移行はありません。既存Inquiryホストの設定
 追加質問を利用するホストは初回adapterへ`persist_follow_up!`と`admin_follow_up/admin_cancel_follow_up`認可を追加し、`scope_runs`に許可したresponse runを含めてください。回答時はrootとresponse両方の権限を確認します。発行通知と回答通知は`follow_up_request`を伴います。通知の再送判断・宛先・ログイン導線はホスト側で扱います。
 
 専用定義は通常テンプレートと分離され、発行後は編集できません。サービスからの専用編集はREADMEの`DefinitionPolicy::Context`を利用します。未公開のIntake側`Definitions::ExportSchema`はcontext必須とし、専用定義の書き出しを拒否します。Inquiryの公開API・設定・migrationには変更ありません。
+管理画面でのフォーム・フロー作成では本体と初版も認可対象です。definition_authorizerは新規レコードを正しい所有scopeへ含めてください。子定義が閲覧範囲外のプレビューやフロー詳細は表示を拒否します。DB変更はありません。

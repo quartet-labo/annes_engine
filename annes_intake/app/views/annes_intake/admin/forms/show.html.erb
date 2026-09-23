@@ -9,7 +9,7 @@
 <% end %>
 <% end %>
 <h2>バージョン履歴</h2>
-<ul><% @form.versions.order(number: :desc).each do |version| %><li><%= link_to "版#{version.number}", admin_version_path(version) %> — <%= version_status(version) %></li><% end %></ul>
+<ul><% @definition_policy.scope(@form.versions).order(number: :desc).each do |version| %><li><%= link_to "版#{version.number}", admin_version_path(version) %> — <%= version_status(version) %></li><% end %></ul>
 
 <% unless @form.versions.exists? %><%= button_to "下書きを作成", draft_admin_form_path(@form) %><% end %>
 

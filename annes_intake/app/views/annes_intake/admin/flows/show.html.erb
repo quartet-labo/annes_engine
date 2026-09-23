@@ -9,7 +9,8 @@
 <p><%= f.label :name, "名前" %><%= f.text_field :name, value: @flow.name %></p>
 <p><%= f.check_box :enabled, checked: @flow.enabled? %><%= f.label :enabled, "受付を有効にする" %></p><%= f.submit "設定を保存" %><% end %>
 <% end %>
-<% @flow.versions.order(number: :desc).each do |version| %><section>
+<% @definition_policy.scope(@flow.versions).order(number: :desc).each do |version| %><section>
+<% authorize_definition_contents!(version) %>
 <h2>版 <%= version.number %>: <%= version.title %> (<%= version_status(version) %>)</h2>
 <p><%= link_to "プレビュー", preview_admin_flow_path(@flow, version_id: version.id) %></p>
 <ol><% version.steps.each do |step| %><li><%= step.title %> / <%= step.form_version.title %>

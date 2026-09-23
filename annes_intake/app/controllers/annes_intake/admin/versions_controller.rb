@@ -35,6 +35,7 @@ module AnnesIntake
 
       def preview
         @version = definition_record(@definition_policy.scope(FormVersion.all).find(params[:id]))
+        authorize_definition_contents!(@version)
         raw = params[:intake].is_a?(ActionController::Parameters) ? params[:intake].to_unsafe_h : (params[:intake] || {})
         @input = Input.new(@version, raw_values: raw)
         status = request.post? && !@input.valid? ? :unprocessable_entity : :ok

@@ -39,7 +39,7 @@ AnnesIntake.configure do |config|
 end
 ```
 
-定義authorizerは`prepare_context(controller, admin:)`、`scope_definitions(relation, context:)`、`authorize!(action:, record:, context:)`を実装します。作成時のrecordはnil、閲覧は`admin_view_definition`、変更・公開・取込は`admin_define`です。各定義モデルのrelationを同じモデルのrelationとして絞り込み、作成した定義も所有scopeへ含めてください。サービス単体で呼ぶ場合もcontextと認可が必要です。
+定義authorizerは`prepare_context(controller, admin:)`、`scope_definitions(relation, context:)`、`authorize!(action:, record:, context:)`を実装します。作成前はrecord=nilで確認し、フォーム・フローの新規作成時は保存した本体と初版も同一transaction内で認可します。閲覧は`admin_view_definition`、変更・公開・取込は`admin_define`です。各定義モデルのrelationを同じモデルのrelationとして絞り込み、作成した定義も所有scopeへ含めてください。サービス単体で呼ぶ場合もcontextと認可が必要です。
 
 受付adapterは次のメソッドを実装します。
 
@@ -136,3 +136,4 @@ Issueには画面で提示したrequest.lock_versionと`FollowUps::DefinitionDig
 `FollowUps::Reader.call(root:, context:, action: :view)`は許可された回次を返します。利用者には未発行draftを返しません。`Flows::AnswerReader.call(run:, context:)`で初回と各追加runの回答を別々に読みます。正式な原本はそれぞれの`run.response`です。
 
 期限は操作時に評価し、再開で延長しません。未回答だけ取消でき、期限切れ・取消後も初回と確定済み回答は履歴に残します。`cleanup_drafts`は取消/期限切れの下書きを対象にし、正式回答が参照する添付は削除しません。管理一覧には追加runを重ねて表示せず、初回詳細に回次・日時・状態をまとめます。回答者向け受付詳細の「追加質問・回答履歴」は、閲覧できる追加質問がある場合だけ表示します。
+管理画面の版履歴・項目一覧にも各モデルのscopeを適用します。フォーム全体を描画するプレビューやフローの詳細・条件設定は、参照する版・項目に閲覧権限がない場合は表示を拒否します。

@@ -15,7 +15,7 @@
 <% else %>
   <p>公開した版は閲覧のみです。編集するときは複製してください。</p>
 <% end %>
-<ul><% @version.fields.each do |field| %><li><%= link_to field.label, edit_admin_field_path(field) %></li><% end %></ul>
+<ul><% @definition_policy.scope(@version.fields).each do |field| %><li><%= link_to field.label, edit_admin_field_path(field) %></li><% end %></ul>
 
 <% if @version.draft? %>
   <% unless @version.form.follow_up_request %><%= button_to "公開する", publish_admin_version_path(@version), params: { lock_version: @version.lock_version } %><% end %>
