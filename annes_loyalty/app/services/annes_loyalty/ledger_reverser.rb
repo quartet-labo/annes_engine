@@ -40,7 +40,13 @@ module AnnesLoyalty
       def apply_balance_change!
         delta = -ledger_entry.points_delta
         if delta.negative?
-          PointLotConsumer.call(member:, points: delta.abs)
+          PointLotConsumer.call(
+            member:,
+            points: delta.abs,
+            include_expired: true,
+            preferred_lot_id: earned_lot_metadata["loyalty_point_lot_id"],
+            preferred_expires_on: earned_lot_expiration
+          )
         else
           restore_consumed_lots!(delta) || create_fallback_lot!(delta)
         end
@@ -114,6 +120,20 @@ module AnnesLoyalty
 
       def ledger_metadata
         @ledger_metadata ||= ledger_entry.metadata || {}
+      end
+
+      def earned_lot_metadata
+        @earned_lot_metadata ||= (ledger_metadata["earned_lot"] || ledger_metadata[:earned_lot] || {}).stringify_keys
+      end
+
+      def earned_lot_expiration
+        stored_expiration = earned_lot_metadata["expires_on"]
+        return Date.iso8601(stored_expiration) if stored_expiration.present?
+
+        zone = ActiveSupport::TimeZone[ledger_entry.loyalty_location&.time_zone] || Time.zone
+        ledger_entry.occurred_at.in_time_zone(zone).to_date.advance(
+          months: member.loyalty_program.default_expiration_months
+        )
       end
   end
 end

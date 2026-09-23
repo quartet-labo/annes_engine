@@ -13,7 +13,7 @@ PATH
 PATH
   remote: ../../annes_auth
   specs:
-    annes_auth (1.0.1)
+    annes_auth (1.0.2)
       bcrypt (~> 3.1.7)
       json (< 3)
       omniauth (~> 2.1)

@@ -8,7 +8,7 @@
 
   <h1>会員カード</h1>
   <p>会員番号: <%= loyalty_member.member_key %></p>
-  <p>現在ポイント: <%= points_label(@balance.cached_balance) %></p>
+  <p>現在ポイント: <%= points_label(@balance.available_points) %></p>
   <div class="qr-payload"><%= @member_qr_payload %></div>
   <p>キャンペーン情報は次フェーズで表示します。</p>
 </main>

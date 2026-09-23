@@ -17,7 +17,7 @@ class PrepareGemReleaseTest < Minitest::Test
 
       stdout, stderr, status = run_script(
         "--gem", "annes_auth",
-        "--version", "1.0.1",
+        "--version", "1.0.2",
         "--notes-file", notes_file.to_s,
         "--github-output", github_output.to_s
       )
@@ -26,13 +26,14 @@ class PrepareGemReleaseTest < Minitest::Test
       assert_includes github_output.read, "gem=annes_auth\n"
       assert_includes github_output.read, "path=annes_auth\n"
       assert_includes github_output.read, "gemspec=annes_auth.gemspec\n"
-      assert_includes github_output.read, "version=1.0.1\n"
-      assert_includes github_output.read, "tag_name=annes_auth-v1.0.1\n"
+      assert_includes github_output.read, "version=1.0.2\n"
+      assert_includes github_output.read, "tag_name=annes_auth-v1.0.2\n"
       assert_includes github_output.read, "notes_file=#{notes_file}\n"
 
       notes = notes_file.read
-      assert_includes notes, "Require `json < 3` at runtime"
-      refute_includes notes, "## 1.0.1"
+      assert_includes notes, "Reject Google sign-in for existing accounts"
+      refute_includes notes, "## 1.0.2"
+      refute_includes notes, "Require `json < 3` at runtime"
       refute_includes notes, "Rename the gem"
       refute_includes notes, "## 1.0.0"
       refute_includes notes, "## 0.3.3"
@@ -89,12 +90,27 @@ class PrepareGemReleaseTest < Minitest::Test
     Dir.mktmpdir do |directory|
       notes_file = Pathname(directory).join("notes.md")
       stdout, stderr, status = run_script(
-        "--gem", "annes_inquiry", "--version", "0.1.0", "--notes-file", notes_file.to_s
+        "--gem", "annes_inquiry", "--version", "0.1.1", "--notes-file", notes_file.to_s
       )
       assert status.success?, "#{stdout}\n#{stderr}"
       assert_includes stdout, "path=annes_inquiry\n"
-      assert_includes stdout, "tag_name=annes_inquiry-v0.1.0\n"
-      assert_includes notes_file.read, "Extract the inquiry engine"
+      assert_includes stdout, "tag_name=annes_inquiry-v0.1.1\n"
+      assert_includes notes_file.read, "Upload attachments only after"
+      refute_includes notes_file.read, "Extract the inquiry engine"
+    end
+  end
+
+  def test_prepares_release_outputs_for_annes_loyalty
+    Dir.mktmpdir do |directory|
+      notes_file = Pathname(directory).join("notes.md")
+      stdout, stderr, status = run_script(
+        "--gem", "annes_loyalty", "--version", "1.0.1", "--notes-file", notes_file.to_s
+      )
+
+      assert status.success?, "#{stdout}\n#{stderr}"
+      assert_includes stdout, "tag_name=annes_loyalty-v1.0.1\n"
+      assert_includes notes_file.read, "Exclude expired point lots"
+      refute_includes notes_file.read, "Rename the gem"
     end
   end
 
@@ -102,7 +118,7 @@ class PrepareGemReleaseTest < Minitest::Test
     stdout, stderr, status = run_script("--gem", "annes_auth", "--version", "9.9.9")
 
     refute status.success?, stdout
-    assert_includes stderr, "does not match annes_auth gemspec version 1.0.1"
+    assert_includes stderr, "does not match annes_auth gemspec version 1.0.2"
   end
 
   def test_rejects_an_unknown_gem

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.0.2
+
+- Reject Google sign-in for existing accounts whose email has not been verified,
+  preventing a Google identity from activating an unverified password account.
+- Serialize password reset completion per account and recheck token validity
+  while holding the account lock.
+
 ## 1.0.1
 
 - Require `json < 3` at runtime to prevent Rails 8.1 JSON decoding errors that

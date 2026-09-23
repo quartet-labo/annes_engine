@@ -30,15 +30,16 @@ module AnnesAuth
 
         if (identity = identity_class.includes(:account).find_by(provider: PROVIDER, uid:))
           return failure(:disabled_account) if identity.account.disabled?
+          return failure(:unverified_account) unless identity.account.email_verified?
 
           identity.update!(email:)
-          identity.account.verify_email! unless identity.account.email_verified?
           return success(identity.account, identity)
         end
 
         account = account_class.find_by(email:)
         return create_account if account.blank?
         return failure(:disabled_account) if account.disabled?
+        return failure(:unverified_account) unless account.email_verified?
 
         link_existing_account(account)
       rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
@@ -87,7 +88,6 @@ module AnnesAuth
           return failure(:identity_conflict) if existing_provider_identity.present?
 
           account_class.transaction do
-            account.verify_email! unless account.email_verified?
             identity = account.account_identities.create!(provider: PROVIDER, uid:, email:)
 
             success(account, identity)

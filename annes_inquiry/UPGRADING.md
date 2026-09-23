@@ -1,5 +1,12 @@
 # Upgrading AnnesInquiry
 
+## 0.1.0 -> 0.1.1
+
+Update the gem and run host submission tests. Attachments are uploaded after
+the form lock is acquired and replay/publication checks pass. No migration or
+adapter API change is required. Uploads of different forms can still proceed
+concurrently; submissions for one form are serialized through its lock.
+
 ## 0.1.0
 
 This is the first GitHub Packages release of the former local

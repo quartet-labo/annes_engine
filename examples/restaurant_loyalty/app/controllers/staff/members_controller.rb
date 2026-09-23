@@ -7,6 +7,9 @@ module Staff
       @members = AnnesLoyalty::LoyaltyMember.includes(:owner)
         .order(:member_key)
       @members = @members.where("member_key ILIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(@query)}%") if @query.present?
+      @lot_balances = AnnesLoyalty::LoyaltyPointLot.spendable
+        .where(loyalty_member_id: @members.map(&:id))
+        .group(:loyalty_member_id).sum(:remaining_points)
     end
 
     def show

@@ -31,6 +31,9 @@ Open <http://localhost:3000>.
 
 Seed users:
 
+- Demo seeds run only in development and test. Production boot requires a
+  nonblank `SECRET_KEY_BASE`; keep it stable and rotate it with a planned
+  session invalidation.
 - Admin: `admin@example.com` / `password-1234`
 
 ## Authorization Matrix
