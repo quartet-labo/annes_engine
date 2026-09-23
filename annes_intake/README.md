@@ -39,7 +39,7 @@ AnnesIntake.configure do |config|
 end
 ```
 
-定義authorizerは`prepare_context(controller, admin:)`、`scope_definitions(relation, context:)`、`authorize!(action:, record:, context:)`を実装します。作成時のrecordはnil、閲覧は`admin_view_definition`、変更・公開・取込は`admin_define`です。各定義モデルのrelationを同じモデルのrelationとして絞り込み、作成した定義も所有scopeへ含めてください。サービス単体で呼ぶ場合もcontextと認可が必要です。
+定義authorizerは`prepare_context(controller, admin:)`、`scope_definitions(relation, context:)`、`authorize!(action:, record:, context:)`を実装します。作成前はrecord=nilで確認し、フォーム・フローの新規作成時は保存した本体と初版も同一transaction内で認可します。閲覧は`admin_view_definition`、変更・公開・取込は`admin_define`です。各定義モデルのrelationを同じモデルのrelationとして絞り込み、作成した定義も所有scopeへ含めてください。サービス単体で呼ぶ場合もcontextと認可が必要です。
 
 受付adapterは次のメソッドを実装します。
 
@@ -98,3 +98,5 @@ bundle exec brakeman --force-scan --no-pager
 ```
 
 リポジトリルートで`ruby script/check_intake_package`、`ruby script/check_forms_coexistence`を実行できます。専用の`annes_intake_package_test`と`forms_coexistence_test`だけを再作成します。
+
+管理画面の版履歴・項目一覧にも各モデルのscopeを適用します。フォーム全体を描画するプレビューやフローの詳細・条件設定は、参照する版・項目に閲覧権限がない場合は表示を拒否します。

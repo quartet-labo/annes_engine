@@ -10,8 +10,12 @@ module AnnesIntake
         @flows = @definition_policy.scope(Flow.all).order(:id)
       end
       def create
-        flow = Flow.create!(params.require(:flow).permit(:key, :name))
-        flow.versions.create!(number: 1, title: flow.name)
+        flow = nil
+        Flow.transaction do
+          flow = Flow.create!(params.require(:flow).permit(:key, :name))
+          definition_record(flow)
+          definition_record(flow.versions.create!(number: 1, title: flow.name))
+        end
         redirect_to admin_flow_path(flow), status: :see_other
       end
       def show
@@ -75,6 +79,7 @@ module AnnesIntake
       end
       def preview
         load_version
+        authorize_definition_contents!(@version)
         raw = params.fetch(:answers, {})
         raw = raw.to_unsafe_h if raw.respond_to?(:to_unsafe_h)
         result = Flows::RouteEvaluator.preview(@version, raw)

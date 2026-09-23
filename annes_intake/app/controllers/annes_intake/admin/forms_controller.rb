@@ -17,7 +17,8 @@ module AnnesIntake
         @form = Form.new(params.require(:form).permit(:key, :name))
         Form.transaction do
           @form.save!
-          @form.versions.create!(number: 1, title: @form.name)
+          definition_record(@form)
+          definition_record(@form.versions.create!(number: 1, title: @form.name))
         end
         redirect_to admin_form_path(@form), status: :see_other
       rescue ActiveRecord::RecordInvalid

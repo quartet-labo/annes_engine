@@ -6,10 +6,21 @@ module AnnesIntake
       include FlowErrors
       before_action :require_intake_administration
       helper AnnesIntake::FormHelper, AnnesIntake::FlowHelper
+      helper_method :authorize_definition_contents!
       layout "annes_intake/admin"
     end
 
     private
+      # Aggregate screens must not render a partial schema or evaluate hidden fields.
+      def authorize_definition_contents!(version)
+        @definition_policy.authorize!(version, action: :admin_view_definition)
+        if version.is_a?(FlowVersion)
+          version.steps.each { |step| authorize_definition_contents!(step.form_version) }
+        else
+          version.fields.each { |field| @definition_policy.authorize!(field, action: :admin_view_definition) }
+        end
+      end
+
       def definition_record(record)
         @definition_policy.authorize!(record, action: request.get? || request.head? ? :admin_view_definition : :admin_define)
         record
