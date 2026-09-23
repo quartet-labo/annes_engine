@@ -13,6 +13,7 @@ module AnnesLoyalty
     validate :remaining_points_not_greater_than_original
 
     scope :open, -> { where(status: "open").where("remaining_points > 0") }
+    scope :spendable, -> { open.where("expires_on >= ?", Date.current) }
     scope :expiring_first, -> { order(:expires_on, :id) }
 
     STATUSES.each do |status_name|

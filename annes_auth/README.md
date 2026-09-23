@@ -430,6 +430,11 @@ AnnesAuth only processes the Google callback when
 in AnnesAuth, the callback redirects back to login without creating or signing in
 an account.
 
+Google sign-in links an existing account only after that account's email is
+verified. An unverified password account must complete email verification
+before Google login can be linked. Password reset tokens are rechecked under
+an account lock when the new password is saved.
+
 ## License and Support
 
 AnnesAuth is available under the

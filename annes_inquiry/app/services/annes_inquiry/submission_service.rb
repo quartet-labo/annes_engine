@@ -27,13 +27,13 @@ module AnnesInquiry
       return replay(existing) if existing
       return result(422) unless @input.valid?
       digest = payload_digest
-      blobs = AnswerWriter.upload_files(@input.values)
       submission = nil
       form = Form.find(@form.id)
       completed = form.with_lock(requires_new: true) do
         existing = find_existing
         raise ReplayFound.new(existing) if existing
         raise Conflict unless form.enabled? && @version.reload.published?
+        blobs = AnswerWriter.upload_files(@input.values)
         submission = Submission.create!(form_version: @version, request_key: data.fetch("request_key"), payload_digest: digest)
         AnswerWriter.call(submission, @input.values, blobs: blobs)
         @adapter.persist!(submission, @input.values, @context) if @adapter&.respond_to?(:persist!)

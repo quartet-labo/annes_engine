@@ -51,6 +51,30 @@ class AnnesAuth::PasswordResetsSecurityTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/auth/login"
   end
 
+  test "rejects a token consumed after the initial lookup" do
+    password_reset_token, plain_token = CustomerAccountPasswordResetToken.issue_for(@account)
+    original_lookup = CustomerAccountPasswordResetToken.method(:lookup)
+
+    CustomerAccountPasswordResetToken.define_singleton_method(:lookup) do |token|
+      result = original_lookup.call(token)
+      password_reset_token.update_column(:used_at, Time.current)
+      result
+    end
+    begin
+      patch "/auth/password_reset", params: {
+        token: plain_token,
+        password: "attacker-new-password",
+        password_confirmation: "attacker-new-password"
+      }
+    ensure
+      CustomerAccountPasswordResetToken.define_singleton_method(:lookup, original_lookup)
+    end
+
+    assert_redirected_to "/auth/password_reset/new"
+    assert @account.reload.authenticate("password-123")
+    assert_not @account.authenticate("attacker-new-password")
+  end
+
   private
     def sign_in
       post "/auth/account_session", params: { email: @account.email, password: "password-123" }

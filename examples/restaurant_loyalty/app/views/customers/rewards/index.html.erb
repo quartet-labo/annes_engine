@@ -7,7 +7,7 @@
   </nav>
 
   <h1>特典</h1>
-  <p>現在ポイント: <%= points_label(@balance.cached_balance) %></p>
+  <p>現在ポイント: <%= points_label(@balance.available_points) %></p>
 
   <% if @redemption_error.present? %>
     <p><%= @redemption_error %></p>
@@ -18,10 +18,10 @@
       <li>
         <strong><%= reward.name %></strong>
         <span><%= points_label(reward.required_points) %></span>
-        <% if @balance.cached_balance >= reward.required_points %>
+        <% if @balance.available_points >= reward.required_points %>
           <%= button_to "交換", customer_reward_redemption_path(reward, customer_query) %>
         <% else %>
-          <span>あと <%= points_label(reward.required_points - @balance.cached_balance) %></span>
+          <span>あと <%= points_label(reward.required_points - @balance.available_points) %></span>
         <% end %>
       </li>
     <% end %>

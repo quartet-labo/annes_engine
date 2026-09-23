@@ -1,4 +1,5 @@
 require "test_helper"
+require "timeout"
 
 class UploadRollbackTest < ActiveSupport::TestCase
   self.use_transactional_tests = false
@@ -70,6 +71,49 @@ class UploadRollbackTest < ActiveSupport::TestCase
       assert_equal 409, AnnesInquiry::SubmissionService.call(**options).status
     end
     assert_equal "original content", attachment.file.download
+  end
+
+  test "concurrent replay uploads only the winning attachment" do
+    second_file = Tempfile.new("inquiry-concurrent")
+    second_file.write("original content")
+    second_file.rewind
+    second_upload = ActionDispatch::Http::UploadedFile.new(tempfile: second_file, filename: "file.txt")
+    token = AnnesInquiry::SubmissionToken.issue(@version, identity: "sender")
+    entered, release, uploads = Queue.new, Queue.new, Queue.new
+    adapter = Object.new
+    adapter.define_singleton_method(:validate_input) { |_values, _context| entered << true; release.pop; {} }
+    original_upload = AnnesInquiry::AnswerWriter.method(:upload_files)
+    options = { form: @form, token: token, identity: "sender", adapter: adapter }
+
+    AnnesInquiry::AnswerWriter.define_singleton_method(:upload_files) do |values|
+      uploads << true
+      original_upload.call(values)
+    end
+    begin
+      initial_blob_count = ActiveStorage::Blob.uncached { ActiveStorage::Blob.count }
+      threads = [ @upload, second_upload ].map do |upload|
+        Thread.new do
+          ActiveRecord::Base.connection_pool.with_connection do
+            AnnesInquiry::SubmissionService.call(**options, raw_values: { "files" => [ upload ] })
+          end
+        end
+      end
+      2.times { Timeout.timeout(10) { entered.pop } }
+      2.times { release << true }
+      results = threads.map { |thread| Timeout.timeout(10) { thread.value } }
+      assert results.all?(&:success?)
+      assert_equal 1, results.map { |result| result.submission.id }.uniq.size
+      assert_equal initial_blob_count + 1, ActiveStorage::Blob.uncached { ActiveStorage::Blob.count }
+    ensure
+      threads&.each { |thread| thread.kill if thread.alive? }
+      AnnesInquiry::AnswerWriter.define_singleton_method(:upload_files, original_upload)
+    end
+
+    assert_equal 1, uploads.size
+    attachment = AnnesInquiry::Submission.where(form_version: @version).sole.answers.first.attachments.first
+    @blob_key = attachment.file.blob.key
+  ensure
+    second_file&.close!
   end
 
   private

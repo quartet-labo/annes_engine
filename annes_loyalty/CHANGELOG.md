@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.0.1
+
+- Exclude expired point lots from spendable balances, reward availability,
+  customer displays, and reward redemption.
+- Match earn reversals to their original point lot, with an expiration-date
+  fallback for older ledger entries, while preserving reversal of expired lots.
+
 ## 1.0.0
 
 - Rename the gem from `anne_loyalty` to `annes_loyalty` and the Ruby namespace

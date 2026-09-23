@@ -35,8 +35,8 @@ module AnnesLoyalty
         quote = EarnQuote.call(member:, location:, amount_cents:, occurred_at:, context: {})
         return zero_earn_result(quote) if quote.total_points.zero?
 
-        entry = create_ledger_entry!(quote)
-        create_point_lot!(quote.total_points)
+        lot = create_point_lot!(quote.total_points)
+        entry = create_ledger_entry!(quote, lot:)
         update_member_balance!(quote.total_points)
         entry
       end
@@ -64,7 +64,7 @@ module AnnesLoyalty
         )
       end
 
-      def create_ledger_entry!(quote)
+      def create_ledger_entry!(quote, lot:)
         member.loyalty_ledger_entries.create!(
           loyalty_location: location,
           entry_type: "earn",
@@ -72,7 +72,16 @@ module AnnesLoyalty
           source_type: source.type,
           source_key: source.key,
           occurred_at: occurred_at || Time.current,
-          metadata: AuditMetadata.build(actor:, metadata: metadata.merge("quote" => quote.to_h))
+          metadata: AuditMetadata.build(
+            actor:,
+            metadata: metadata.merge(
+              "quote" => quote.to_h,
+              "earned_lot" => {
+                "loyalty_point_lot_id" => lot.id.to_s,
+                "expires_on" => lot.expires_on.iso8601
+              }
+            )
+          )
         )
       end
 
