@@ -91,6 +91,26 @@ class DefinitionAccessTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "stale rule references cannot expose fields after changing a step form version" do
+    source_version = AnnesIntake::Definitions::CloneVersion.call(@version.steps.first.form_version)
+    flag = source_version.fields.create!(key: "flag", label: "Hidden flag", value_type: "boolean", widget: "checkbox")
+    AnnesIntake::Definitions::PublishVersion.call(source_version, expected_lock_version: source_version.reload.lock_version)
+    draft = AnnesIntake::Flows::Definitions::CloneVersion.call(@version)
+    source, target = draft.steps.order(:position).to_a
+    source.update!(form_version: source_version)
+    source_field = source_version.fields.find_by!(key: "name")
+    target.value_mappings.create!(source_step: source, source_field: source_field, target_field: target.form_version.fields.first)
+    target.condition_groups.create!.conditions.create!(source_step: source, field: flag, operator: "eq", expected_value: "true")
+    source.update!(form_version: target.form_version)
+    [flag, source_field, source_version].each do |hidden|
+      @authorizer.excluded_class, @authorizer.excluded_id = hidden.class, hidden.id
+      get "/intake/admin/flows/#{@flow.id}"
+      assert_response :not_found
+      get "/intake/admin/flows/#{@flow.id}/versions/#{draft.id}/preview"
+      assert_response :not_found
+    end
+  end
+
   test "referenced form version scopes also protect aggregate flow rendering" do
     @authorizer.excluded_class = AnnesIntake::FormVersion
     @authorizer.excluded_id = @version.steps.first.form_version_id
