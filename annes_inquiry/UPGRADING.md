@@ -6,7 +6,8 @@ Update the gem requirement to `~> 0.2.0` and run Bundler. The new dependency
 `annes_form_kit ~> 0.1.0` is resolved automatically from the same package source.
 No additional mount, initializer, adapter or database migration is required.
 Existing data, HTML field names/IDs, view overrides, public URLs and submission
-tokens remain compatible. Keep the five existing migration sources unchanged.
+tokens remain compatible. Attachment inputs remain multipart UploadedFile objects;
+passing a FormKit UploadSource directly returns a validation error without reading its IO. Keep the five existing migration sources unchanged.
 The form kit is a library with no database or routes, not another engine to configure.
 
 Publish `annes_form_kit` before this version of Inquiry. The new optional definition

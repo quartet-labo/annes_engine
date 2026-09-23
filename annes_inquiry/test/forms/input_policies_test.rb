@@ -38,6 +38,27 @@ class InputPoliciesTest < ActiveSupport::TestCase
     assert_not parse("files" => [ upload("hello", "fake.png") ]).valid?
   end
 
+  test "shared upload sources are rejected without reading IO including enriched attachments" do
+    field = @version.fields.create!(key: "files", label: "Files", value_type: "attachment", widget: "file", max_files: 2, max_file_bytes: 10)
+    field.file_types.create!(extension: ".txt", content_type: "text/plain")
+    source = AnnesFormKit::UploadSource.new(io: -> { raise "Unsupported sources must not be read" }, filename: "note.txt")
+    valid_file = upload("hello", "note.txt")
+    assert_no_difference("ActiveStorage::Blob.count") do
+      [[source], [valid_file, source]].each do |files|
+        input = parse("files" => files)
+        assert_not input.valid?
+        assert_equal ["はファイルを選択してください"], input.errors[:files]
+        assert_empty input.values["files"]
+      end
+      input = AnnesInquiry::Input.new(@version, raw_values: {}, enrichment_values: {"files" => [source]})
+      assert_not input.valid?
+      assert_equal ["はファイルを選択してください"], input.errors[:files]
+      input = parse("files" => [valid_file])
+      assert input.valid?, input.errors.full_messages.inspect
+      assert_same valid_file, input.values["files"].first.upload
+    end
+  end
+
   test "excess attachment count rejects the input before inspecting any file" do
     field = @version.fields.create!(key: "files", label: "Files", value_type: "attachment", widget: "file", max_files: 1, max_file_bytes: 10)
     field.file_types.create!(extension: ".txt", content_type: "text/plain")
