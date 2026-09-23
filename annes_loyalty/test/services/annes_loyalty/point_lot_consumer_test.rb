@@ -45,4 +45,25 @@ class AnnesLoyalty::PointLotConsumerTest < AnnesLoyalty::TestCase
       AnnesLoyalty::PointLotConsumer.call(member:, points: 1)
     end
   end
+
+  test "ignores expired lots while including lots expiring today" do
+    member = create_member
+    expired = AnnesLoyalty::LoyaltyPointLot.create!(
+      loyalty_member: member, original_points: 20, remaining_points: 20,
+      expires_on: Date.yesterday, status: "open"
+    )
+    today = AnnesLoyalty::LoyaltyPointLot.create!(
+      loyalty_member: member, original_points: 10, remaining_points: 10,
+      expires_on: Date.current, status: "open"
+    )
+
+    assert_raises(AnnesLoyalty::InsufficientPointsError) do
+      AnnesLoyalty::PointLotConsumer.call(member:, points: 11)
+    end
+    consumed = AnnesLoyalty::PointLotConsumer.call(member:, points: 10)
+
+    assert_equal 20, expired.reload.remaining_points
+    assert_equal 0, today.reload.remaining_points
+    assert_equal [today.id.to_s], consumed.map { |entry| entry.fetch("loyalty_point_lot_id") }
+  end
 end

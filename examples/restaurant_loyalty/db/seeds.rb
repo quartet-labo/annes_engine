@@ -1,3 +1,5 @@
+raise "Demo seeds are available only in development and test" unless Rails.env.development? || Rails.env.test?
+
 seed_password = "password-1234"
 customer_access_code = "123456"
 role_permissions = {

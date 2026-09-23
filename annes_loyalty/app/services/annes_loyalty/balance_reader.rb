@@ -1,5 +1,9 @@
 module AnnesLoyalty
-  Balance = Data.define(:cached_balance, :lot_balance, :consistent)
+  Balance = Data.define(:cached_balance, :lot_balance, :consistent) do
+    def available_points
+      [cached_balance, lot_balance].min
+    end
+  end
 
   class BalanceReader
     def self.call(member:)
@@ -12,7 +16,7 @@ module AnnesLoyalty
 
     def call
       member.reload
-      lot_balance = member.loyalty_point_lots.open.sum(:remaining_points)
+      lot_balance = member.loyalty_point_lots.spendable.sum(:remaining_points)
 
       Balance.new(
         cached_balance: member.cached_balance,

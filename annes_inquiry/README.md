@@ -147,13 +147,15 @@ JavaScriptに依存せず全widgetを使用できます。数値・日付・日�
 
 ## 受付・重複防止・通知
 
+添付アップロードはフォームロック取得後の重複・公開版チェックを通過してから行います。同じ送信キーの競合で負けた側はblobを作りません。
+
 `SubmissionToken.issue(version, identity: trusted_identity)` で2時間有効の送信情報を作り、`SubmissionService.call(form:, token:, identity:, raw_values:, adapter:, context:, time_zone:)` へ渡します。結果は `success?`、`submission`、`input.errors`、`status`、`replayed?` を持ちます。identityはホストがセッション/ログイン情報から決定し、クライアント入力のIDを使わないでください。
 
 公開中の版だけで新規受付できます。署名不正・期限切れ・本人不一致・旧版は409、入力エラーは422です。同じ送信キー・同内容は200で元の受付を返し、内容変更は409です。保存済み受付は版の退役後も有効な署名と本人確認を経て再取得できます。選択配列・値・ファイル内容チェックサム・identity・ホストの業務コンテキストから安定したdigestを作ります。
 
 アダプターの `enrichment_keys(context)` は認証情報から補完するキーを返します。再POSTではそのキーに限り保存時の回答を使い、現在のプロフィール変更で重複判定が変わらないようにします。`digest_context(context)` は業務に影響する安定したID等のHashを返します。クライアント入力項目とリピート元などは今回の値と比較します。検証メソッドは副作用を持たせないでください。
 
-入力検証とアップロードはフォームロックの外側で行います。フォーム行のロック取得後に版と重複を再確認し、受付・回答・アダプターの `persist!`・通知要求を同じprimary DB接続で保存します。ホストは `prepare_context(controller)` で権限を検証してからServiceを呼びます。標準公開controllerは、このフックが `head`・`render`・`redirect_to` でレスポンスを確定した場合、入力検証・受付保存・通知処理へ進みません。ホスト独自controllerが同じフックを使う場合も、拒否レスポンス後に処理を続行しないでください。保存アダプターでメール/APIを実行しないでください。
+入力検証はフォームロックの外側で行います。フォーム行のロック取得後に版と重複を再確認し、添付アップロード・受付・回答・アダプターの `persist!`・通知要求を同じprimary DB接続で保存します。ホストは `prepare_context(controller)` で権限を検証してからServiceを呼びます。標準公開controllerは、このフックが `head`・`render`・`redirect_to` でレスポンスを確定した場合、入力検証・受付保存・通知処理へ進みません。ホスト独自controllerが同じフックを使う場合も、拒否レスポンス後に処理を続行しないでください。保存アダプターでメール/APIを実行しないでください。
 
 標準公開controllerは `public_endpoints_enabled = true` のときだけ使用できます。`GET/POST forms/:key` と `GET complete/:receipt_id` を提供し、CSRF保護とセッション本人確認を併用します。完了画面は同じセッションで送信した最近20件だけ閲覧できます。ホスト固有URLはこのcontrollerを使わずServiceへ接続できます。
 

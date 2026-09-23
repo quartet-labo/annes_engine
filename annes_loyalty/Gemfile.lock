@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    annes_loyalty (1.0.0)
+    annes_loyalty (1.0.1)
       rails (>= 8.1.0, < 8.2)
 
 GEM

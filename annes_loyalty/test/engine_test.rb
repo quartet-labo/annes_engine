@@ -7,7 +7,7 @@ class AnnesLoyalty::EngineTest < AnnesLoyalty::TestCase
   end
 
   test "exposes only the AnnesLoyalty public package contract" do
-    assert_equal "1.0.0", AnnesLoyalty::VERSION
+    assert_equal "1.0.1", AnnesLoyalty::VERSION
     refute Object.const_defined?(:AnneLoyalty)
     assert_raises(LoadError) { require "anne_loyalty" }
   end

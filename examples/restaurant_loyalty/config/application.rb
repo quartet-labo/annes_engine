@@ -22,6 +22,10 @@ module RestaurantLoyalty
     config.time_zone = "Tokyo"
     config.i18n.default_locale = :ja
     config.hosts.clear
-    config.secret_key_base = ENV.fetch("SECRET_KEY_BASE", "restaurant-loyalty-sample-secret-key-base")
+    secret_key_base = ENV["SECRET_KEY_BASE"].presence
+    if secret_key_base.blank? && !Rails.env.development? && !Rails.env.test?
+      raise "SECRET_KEY_BASE is required outside development and test"
+    end
+    config.secret_key_base = secret_key_base || "restaurant-loyalty-sample-secret-key-base"
   end
 end
