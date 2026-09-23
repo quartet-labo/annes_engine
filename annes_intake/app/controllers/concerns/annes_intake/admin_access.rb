@@ -15,7 +15,15 @@ module AnnesIntake
       def authorize_definition_contents!(version)
         @definition_policy.authorize!(version, action: :admin_view_definition)
         if version.is_a?(FlowVersion)
-          version.steps.each { |step| authorize_definition_contents!(step.form_version) }
+          version.steps.each do |step|
+            authorize_definition_contents!(step.form_version)
+            referenced_fields = step.condition_groups.flat_map { |group| group.conditions.map(&:field) }
+            referenced_fields.concat(step.value_mappings.flat_map { |mapping| [mapping.source_field, mapping.target_field] })
+            referenced_fields.uniq(&:id).each do |field|
+              @definition_policy.authorize!(field.form_version, action: :admin_view_definition)
+              @definition_policy.authorize!(field, action: :admin_view_definition)
+            end
+          end
         else
           version.fields.each { |field| @definition_policy.authorize!(field, action: :admin_view_definition) }
         end
