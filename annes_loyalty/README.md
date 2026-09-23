@@ -114,6 +114,10 @@ logic outside the engine.
 - `balance_for(member:).available_points` reports the lower of cached and
   spendable lot balances. Use it for reward availability and customer displays.
 - `reverse!` adds a reverse ledger entry instead of mutating the original entry.
+  Earn entries record their point-lot ID and expiration date so reversal first
+  consumes the points from that earning. Older earn entries without this
+  metadata use their earning date and current program expiration policy to
+  prioritize lots with the matching expiration date.
 
 ## Demo App
 

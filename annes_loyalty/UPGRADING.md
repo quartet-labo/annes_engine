@@ -11,6 +11,12 @@ expiration process; check any host displays or reports that use cached balance
 directly. Use `balance_for(member:).available_points` for spendable displays
 and reward eligibility. No migration is required.
 
+New earn ledger entries record their point-lot ID and expiration date in
+metadata. Existing entries need no backfill; reversals without that metadata
+prioritize lots using the earning date and the program's current expiration
+policy. If the policy changed since an older earning, review its reversal
+manually before applying it.
+
 ## 0.1.x -> 1.0.0
 
 Replace `anne_loyalty` with `annes_loyalty`, replace `AnneLoyalty` with

@@ -6,7 +6,8 @@
 
 - Exclude expired point lots from spendable balances, reward availability,
   customer displays, and reward redemption.
-- Preserve reversal of historical earned points, including expired lots.
+- Match earn reversals to their original point lot, with an expiration-date
+  fallback for older ledger entries, while preserving reversal of expired lots.
 
 ## 1.0.0
 

@@ -95,4 +95,47 @@ class AnnesLoyalty::LedgerReverserTest < AnnesLoyalty::TestCase
     assert_equal 0, new_lot.reload.remaining_points
     assert_equal 0, AnnesLoyalty.balance_for(member:).available_points
   end
+
+  test "reversing an expired historical earn preserves newer spendable points" do
+    member = create_member
+    location = create_location(member.loyalty_program)
+    old_entry = AnnesLoyalty.earn!(
+      member:, location:, amount_cents: 1_000,
+      source: { type: "Receipt", key: "expired-earn" }, occurred_at: 14.months.ago
+    )
+    expired_lot = member.loyalty_point_lots.order(:id).last
+    AnnesLoyalty.earn!(
+      member:, location:, amount_cents: 1_000, source: { type: "Receipt", key: "valid-earn" }
+    )
+    valid_lot = member.loyalty_point_lots.order(:id).last
+    old_entry.update!(metadata: old_entry.metadata.except("earned_lot"))
+    assert_operator expired_lot.expires_on, :<, Date.current
+    assert_equal 10, AnnesLoyalty.balance_for(member:).available_points
+
+    AnnesLoyalty.reverse!(ledger_entry: old_entry, reason: "old receipt voided")
+
+    assert_equal 0, expired_lot.reload.remaining_points
+    assert_equal 10, valid_lot.reload.remaining_points
+    assert_equal 10, member.reload.cached_balance
+    assert_equal 10, AnnesLoyalty.balance_for(member:).available_points
+  end
+
+  test "reversing a new earn consumes its recorded lot before another valid lot" do
+    member = create_member
+    location = create_location(member.loyalty_program)
+    AnnesLoyalty.earn!(
+      member:, location:, amount_cents: 1_000, source: { type: "Receipt", key: "earlier-valid" }
+    )
+    earlier_lot = member.loyalty_point_lots.order(:id).last
+    new_entry = AnnesLoyalty.earn!(
+      member:, location:, amount_cents: 1_000, source: { type: "Receipt", key: "later-valid" }
+    )
+    new_lot = member.loyalty_point_lots.order(:id).last
+
+    AnnesLoyalty.reverse!(ledger_entry: new_entry, reason: "new receipt voided")
+
+    assert_equal 10, earlier_lot.reload.remaining_points
+    assert_equal 0, new_lot.reload.remaining_points
+    assert_equal 10, AnnesLoyalty.balance_for(member:).available_points
+  end
 end
