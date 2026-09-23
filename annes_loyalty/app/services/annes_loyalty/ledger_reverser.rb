@@ -40,7 +40,7 @@ module AnnesLoyalty
       def apply_balance_change!
         delta = -ledger_entry.points_delta
         if delta.negative?
-          PointLotConsumer.call(member:, points: delta.abs)
+          PointLotConsumer.call(member:, points: delta.abs, include_expired: true)
         else
           restore_consumed_lots!(delta) || create_fallback_lot!(delta)
         end

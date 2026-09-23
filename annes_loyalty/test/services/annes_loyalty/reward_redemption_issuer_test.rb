@@ -34,4 +34,18 @@ class AnnesLoyalty::RewardRedemptionIssuerTest < AnnesLoyalty::TestCase
       AnnesLoyalty.redeem_reward!(member:, reward:)
     end
   end
+
+  test "expired cached points do not make a reward affordable" do
+    member = create_member
+    reward = create_reward(program: member.loyalty_program, required_points: 10)
+    member.loyalty_point_lots.create!(
+      original_points: 20, remaining_points: 20, expires_on: Date.yesterday, status: "open"
+    )
+    member.update!(cached_balance: 20)
+
+    assert_not AnnesLoyalty::LoyaltyReward.affordable_for(member).exists?(reward.id)
+    assert_raises(AnnesLoyalty::InsufficientPointsError) do
+      AnnesLoyalty.redeem_reward!(member:, reward:)
+    end
+  end
 end

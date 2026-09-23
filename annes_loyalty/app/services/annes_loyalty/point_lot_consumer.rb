@@ -1,12 +1,13 @@
 module AnnesLoyalty
   class PointLotConsumer
-    def self.call(member:, points:)
-      new(member:, points:).call
+    def self.call(member:, points:, include_expired: false)
+      new(member:, points:, include_expired:).call
     end
 
-    def initialize(member:, points:)
+    def initialize(member:, points:, include_expired: false)
       @member = member
       @points = points.to_i
+      @include_expired = include_expired
     end
 
     def call
@@ -33,10 +34,15 @@ module AnnesLoyalty
     end
 
     private
-      attr_reader :member, :points
+      attr_reader :member, :points, :include_expired
 
       def lots
-        @lots ||= member.loyalty_point_lots.open.expiring_first.lock.to_a
+        @lots ||= if include_expired
+          all_lots = member.loyalty_point_lots.open.expiring_first.lock.to_a
+          all_lots.partition { |lot| lot.expires_on >= Date.current }.flatten(1)
+        else
+          member.loyalty_point_lots.spendable.expiring_first.lock.to_a
+        end
       end
 
       def available_points

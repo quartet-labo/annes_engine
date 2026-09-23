@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 1.0.1
+
+- Exclude expired point lots from spendable balances, reward availability,
+  customer displays, and reward redemption.
+- Preserve reversal of historical earned points, including expired lots.
+
 ## 1.0.0
 
 - Rename the gem from `anne_loyalty` to `annes_loyalty` and the Ruby namespace

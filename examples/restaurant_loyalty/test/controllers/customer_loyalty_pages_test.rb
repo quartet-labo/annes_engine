@@ -106,6 +106,21 @@ class CustomerLoyaltyPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "あと 15 pt"
   end
 
+  test "expired points are neither displayed nor offered for exchange" do
+    @member.loyalty_point_lots.update_all(expires_on: Date.yesterday)
+    sign_in_customer(@customer)
+
+    get customer_rewards_path
+
+    assert_response :success
+    assert_includes response.body, "現在ポイント: 0 pt"
+    assert_includes response.body, "あと 20 pt"
+    assert_not_includes response.body, ">交換</button>"
+
+    post customer_reward_redemption_path(@coffee)
+    assert_response :unprocessable_content
+  end
+
   test "customer can issue a redemption token" do
     sign_in_customer(@customer)
     post customer_reward_redemption_path(@coffee)

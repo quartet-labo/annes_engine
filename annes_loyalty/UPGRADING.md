@@ -2,6 +2,15 @@
 
 AnnesLoyalty is in initial development.
 
+## 1.0.0 -> 1.0.1
+
+Update the gem and run host reward tests. Expired open lots no longer count as
+spendable or fund reward redemption before the expiration batch runs. Existing
+expired lots and cached balances are unchanged until the host runs its normal
+expiration process; check any host displays or reports that use cached balance
+directly. Use `balance_for(member:).available_points` for spendable displays
+and reward eligibility. No migration is required.
+
 ## 0.1.x -> 1.0.0
 
 Replace `anne_loyalty` with `annes_loyalty`, replace `AnneLoyalty` with

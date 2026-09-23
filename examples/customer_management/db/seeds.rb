@@ -1,3 +1,5 @@
+raise "Demo seeds are available only in development and test" unless Rails.env.development? || Rails.env.test?
+
 admin = Account.find_or_initialize_by(email: "admin@example.com")
 admin.assign_attributes(
   name: "Sample Admin",

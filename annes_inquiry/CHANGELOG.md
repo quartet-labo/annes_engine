@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Upload attachments only after the locked submission replay and publication
+  checks, so a concurrent replay does not leave an unattached blob.
+
 ## 0.1.0
 
 - Extract the inquiry engine from anne-mark into this repository as an independent package.

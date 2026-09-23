@@ -13,7 +13,7 @@ module AnnesLoyalty
     validates :valid_minutes, numericality: { only_integer: true, greater_than: 0 }
 
     scope :active, -> { where(active: true) }
-    scope :affordable_for, ->(member) { where("required_points <= ?", member.cached_balance) }
+    scope :affordable_for, ->(member) { where("required_points <= ?", BalanceReader.call(member:).available_points) }
 
     def display_name
       name
