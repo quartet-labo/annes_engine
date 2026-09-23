@@ -43,8 +43,9 @@ class InputPoliciesTest < ActiveSupport::TestCase
     field.file_types.create!(extension: ".txt", content_type: "text/plain")
     source = AnnesFormKit::UploadSource.new(io: -> { raise "Unsupported sources must not be read" }, filename: "note.txt")
     valid_file = upload("hello", "note.txt")
+    shared_file = AnnesFormKit::UploadSource.new(io: -> { valid_file.tempfile }, filename: "note.txt")
     assert_no_difference("ActiveStorage::Blob.count") do
-      [[source], [valid_file, source]].each do |files|
+      [[shared_file], [source], [valid_file, source]].each do |files|
         input = parse("files" => files)
         assert_not input.valid?
         assert_equal ["はファイルを選択してください"], input.errors[:files]
