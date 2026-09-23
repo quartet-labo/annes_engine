@@ -20,3 +20,5 @@ Inquiryからの自動移行はありません。既存Inquiryホストの設定
 
 専用定義は通常テンプレートと分離され、発行後は編集できません。サービスからの専用編集はREADMEの`DefinitionPolicy::Context`を利用します。未公開のIntake側`Definitions::ExportSchema`はcontext必須とし、専用定義の書き出しを拒否します。Inquiryの公開API・設定・migrationには変更ありません。
 管理画面でのフォーム・フロー作成では本体と初版も認可対象です。definition_authorizerは新規レコードを正しい所有scopeへ含めてください。子定義が閲覧範囲外のプレビューやフロー詳細は表示を拒否します。DB変更はありません。
+
+追加質問の発行HTTPリクエストでもdefinition_authorizer.prepare_contextを呼びます。準備時だけでなく発行時にも元テンプレート・参照フォーム版の閲覧権限が必要です。案件専用コピーの編集・発行権限確認も引き続き行います。

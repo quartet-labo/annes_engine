@@ -15,6 +15,10 @@ module AnnesIntake
           raise Conflict, "質問の定義が更新されました。再度プレビューしてください。" unless expected_definition_digest == FollowUpDefinitionDigest.call(current)
           raise Conflict unless root.flow.enabled?
           raise Conflict if root.flow_version.steps.any? { |step| !step.form_version.form.enabled? }
+          definition_policy = DefinitionPolicy.new(context: definition_context)
+          source = current.source_version
+          definition_policy.authorize!(source, action: :admin_view_definition)
+          source.steps.each { |step| definition_policy.authorize!(step.form_version, action: :admin_view_definition) }
           version = current.definition_version
           private_context = DefinitionPolicy::Context.new(definition_context: definition_context, run_context: context, follow_up_id: current.id)
           if current.custom?

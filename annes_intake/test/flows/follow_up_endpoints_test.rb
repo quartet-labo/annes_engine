@@ -143,6 +143,25 @@ class FlowFollowUpEndpointsTest < ActionDispatch::IntegrationTest
     assert_equal 3, version.reload.steps.count
   end
 
+  test "issue prepares separate definition context and stops when its hook redirects" do
+    original_authorizer = AnnesIntake.configuration.definition_authorizer
+    authorizer = TestDefinitionAuthorizer.new
+    authorizer.define_singleton_method(:prepare_context) { |controller, admin:| controller.redirect_to("/definition-login") }
+    AnnesIntake.configuration.definition_authorizer = authorizer
+    assert_no_difference(["AnnesIntake::Run.count", "AnnesIntake::NotificationRequest.count"]) do
+      post "#{@path}/issue", params: issue_params
+      assert_redirected_to "/definition-login"
+    end
+    assert @followup.reload.draft?
+    authorizer.define_singleton_method(:prepare_context) { |controller, admin:| :definition_admin }
+    authorizer.define_singleton_method(:authorize!) { |action:, record:, context:| context == :definition_admin }
+    post "#{@path}/issue", params: issue_params
+    assert_response :see_other
+    assert @followup.reload.issued?
+  ensure
+    AnnesIntake.configuration.definition_authorizer = original_authorizer
+  end
+
   private
     def issue_params
       {lock_version: @followup.reload.lock_version, definition_digest: AnnesIntake::Flows::FollowUpDefinitionDigest.call(@followup)}

@@ -32,6 +32,8 @@ module AnnesIntake
       end
 
       def issue
+        load_template_context
+        return if performed?
         request = @root.follow_up_requests.find(params[:id])
         Flows::IssueFollowUp.call(request: request, context: @context, expected_lock_version: params[:lock_version], expected_definition_digest: params[:definition_digest], definition_context: @definition_context)
         redirect_to admin_run_path(@root), status: :see_other

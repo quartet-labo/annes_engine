@@ -172,6 +172,59 @@ class FlowFollowUpTest < ActiveSupport::TestCase
     assert_nil request.response_run_id
   end
 
+  test "first issue reauthorizes source versions for both template and custom questions" do
+    original_authorizer = AnnesIntake.configuration.definition_authorizer
+    [false, true].each do |custom|
+      [AnnesIntake::FlowVersion, AnnesIntake::FormVersion].each do |denied_class|
+        request = prepare(custom: custom)
+        [:scope, :action].each do |mode|
+          authorizer = TestDefinitionAuthorizer.new
+          authorizer.define_singleton_method(:scope_definitions) do |relation, context:|
+            mode == :scope && relation.klass == denied_class ? relation.none : relation
+          end
+          authorizer.define_singleton_method(:authorize!) do |action:, record:, context:|
+            !(mode == :action && record.is_a?(denied_class))
+          end
+          AnnesIntake.configuration.definition_authorizer = authorizer
+          assert_no_difference(["AnnesIntake::Run.count", "AnnesIntake::NotificationRequest.count"]) do
+            assert_raises(mode == :scope ? ActiveRecord::RecordNotFound : AnnesIntake::Flows::Forbidden) { issue(request) }
+          end
+          assert request.reload.draft?
+          assert_nil request.response_run_id
+          if custom
+            assert request.definition_version.reload.draft?
+            assert request.definition_version.steps.all? { |step| step.form_version.draft? }
+          end
+          AnnesIntake.configuration.definition_authorizer = original_authorizer
+        end
+        assert issue(request)
+      end
+    end
+  ensure
+    AnnesIntake.configuration.definition_authorizer = original_authorizer
+  end
+
+  test "issue preserves explicit definition context retired pins and issued retries" do
+    original_authorizer = AnnesIntake.configuration.definition_authorizer
+    request = prepare
+    replacement = AnnesIntake::Flows::Definitions::CloneVersion.call(@template)
+    AnnesIntake::Flows::Definitions::PublishVersion.call(replacement, expected_lock_version: replacement.reload.lock_version)
+    @template.steps.each do |step|
+      replacement_form = AnnesIntake::Definitions::CloneVersion.call(step.form_version)
+      AnnesIntake::Definitions::PublishVersion.call(replacement_form, expected_lock_version: replacement_form.reload.lock_version)
+    end
+    assert @template.reload.retired?
+    authorizer = TestDefinitionAuthorizer.new
+    authorizer.define_singleton_method(:authorize!) { |action:, record:, context:| context == :definition_admin }
+    AnnesIntake.configuration.definition_authorizer = authorizer
+    run = AnnesIntake::FollowUps::Issue.call(request: request, context: @context, definition_context: :definition_admin,
+      expected_lock_version: request.reload.lock_version, expected_definition_digest: AnnesIntake::FollowUps::DefinitionDigest.call(request))
+    assert request.reload.issued?
+    assert_equal run.id, issue(request).id
+  ensure
+    AnnesIntake.configuration.definition_authorizer = original_authorizer
+  end
+
   private
     def prepare(custom: false)
       AnnesIntake::Flows::PrepareFollowUp.call(root: @root, version: @template, context: @context, request_key: SecureRandom.uuid, title: "Additional questions", due_at: 2.days.from_now, custom: custom)

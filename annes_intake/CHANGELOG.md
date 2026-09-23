@@ -14,3 +14,5 @@
 - 初回adapterの`persist_follow_up!`へ原子的に保存し、各回のResponse原本を独立して保持。
 - root/responseのscope確認、専用定義の編集境界、発行時digest競合検知、並行操作の直列化を追加。
 - Plan5の配布gemから追加migrationだけで更新し、既存回答・添付を保持する検証を追加。
+
+- 追加質問の初回発行時に元テンプレートと参照フォーム版の閲覧権限を再確認する。
