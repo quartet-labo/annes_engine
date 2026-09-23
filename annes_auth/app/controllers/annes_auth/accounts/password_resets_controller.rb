@@ -42,18 +42,24 @@ module AnnesAuth
 
         password_reset_token = lookup.password_reset_token
         @account = password_reset_token.account
-        @account.assign_attributes(password_reset_params)
-        @account.errors.add(:password, :blank) if password_reset_params[:password].blank?
+        reset_account_session = current_account_session if current_account_session&.account == @account
+        outcome = @account.with_lock do
+          current_token = password_reset_token_class.find_by(id: password_reset_token.id)
+          next :invalid_token unless current_token && !current_token.used? && !current_token.expired?
 
-        if @account.errors.none? && @account.valid?
-          reset_account_session = current_account_session if current_account_session&.account == @account
+          attributes = password_reset_params
+          @account.assign_attributes(attributes)
+          @account.errors.add(:password, :blank) if attributes[:password].blank?
+          next :invalid_password unless @account.errors.none? && @account.valid?
 
-          AnnesAuth.configuration.account_class.transaction do
-            @account.save!
-            password_reset_token_class.expire_active_for(@account)
-            @account.account_sessions.destroy_all
-          end
+          @account.save!
+          password_reset_token_class.expire_active_for(@account)
+          @account.account_sessions.destroy_all
+          :success
+        end
 
+        case outcome
+        when :success
           clear_current_account_session_cookie if reset_account_session
           AnnesAuth::AccountEvent.emit(
             :password_reset_completed,
@@ -63,8 +69,10 @@ module AnnesAuth
             auth_method: :password_reset
           )
           redirect_to auth_route(:account_login_path), notice: "パスワードを再設定しました。"
-        else
+        when :invalid_password
           render :edit, status: :unprocessable_entity
+        else
+          redirect_invalid_token
         end
       end
 

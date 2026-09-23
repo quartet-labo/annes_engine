@@ -7,7 +7,7 @@
 
   <h1><%= @member.member_key %></h1>
   <p><%= @member.owner&.display_name %></p>
-  <p>現在ポイント: <%= @balance.cached_balance %> pt</p>
+  <p>現在ポイント: <%= @balance.available_points %> pt</p>
 
   <h2>最近の履歴</h2>
   <ul>

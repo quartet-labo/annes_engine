@@ -24,7 +24,7 @@
         <tr>
           <td><%= link_to member.member_key, staff_member_path(member.member_key) %></td>
           <td><%= member.owner&.display_name %></td>
-          <td><%= member.cached_balance %> pt</td>
+          <td><%= [member.cached_balance, @lot_balances.fetch(member.id, 0)].min %> pt</td>
         </tr>
       <% end %>
     </tbody>

@@ -14,6 +14,13 @@ Publish `annes_form_kit` before this version of Inquiry. The new optional defini
 export API does not export answers, ownership, adapters, database IDs or attachments;
 callers must authorize the source before invoking it. It has no HTTP endpoint.
 
+## 0.1.0 -> 0.1.1
+
+Update the gem and run host submission tests. Attachments are uploaded after
+the form lock is acquired and replay/publication checks pass. No migration or
+adapter API change is required. Uploads of different forms can still proceed
+concurrently; submissions for one form are serialized through its lock.
+
 ## 0.1.0
 
 This is the first GitHub Packages release of the former local

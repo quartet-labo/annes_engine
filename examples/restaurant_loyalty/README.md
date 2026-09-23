@@ -58,6 +58,8 @@ CIなど複数アプリで共通化する場合は`DATABASE_URL`も利用でき�
 
 以下はローカル開発・動作確認専用の固定資格情報です。本番環境では使用しないでください。
 
+seedはdevelopment/testでのみ実行できます。本番などでは空でない`SECRET_KEY_BASE`が起動時に必要です。値の変更は既存セッションと未利用の特典トークンを無効にするため、計画して行ってください。
+
 | Role | Email | Password | 主な権限 |
 | --- | --- | --- | --- |
 | admin | `admin@example.com` | `password-1234` | program、location、rewardの管理、会員閲覧、付与、利用確定 |

@@ -20,6 +20,13 @@ for actions the host app must perform.
 If a release has no manual steps, no action is needed beyond updating the gem
 and running tests.
 
+## 1.0.1 -> 1.0.2
+
+Update the gem and run the host authentication tests. Google login no longer
+links or verifies an existing account with an unverified email. Users with such
+accounts must verify their email through the existing verification flow before
+linking Google. No migration or configuration change is required.
+
 ## 1.0.0 -> 1.0.1
 
 Run `bundle update annes_auth json` to resolve the new `json < 3` runtime

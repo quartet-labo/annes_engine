@@ -27,6 +27,10 @@ class AnnesLoyalty::PointEarnerTest < AnnesLoyalty::TestCase
     assert_equal 20, lot.original_points
     assert_equal 20, lot.remaining_points
     assert_equal Date.new(2027, 7, 26), lot.expires_on
+    assert_equal(
+      { "loyalty_point_lot_id" => lot.id.to_s, "expires_on" => lot.expires_on.iso8601 },
+      entry.metadata.fetch("earned_lot")
+    )
     assert_equal "staff@example.com", entry.metadata.fetch("actor_label")
     assert_equal "127.0.0.1", entry.metadata.fetch("ip")
   end

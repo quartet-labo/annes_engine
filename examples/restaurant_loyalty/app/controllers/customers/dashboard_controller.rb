@@ -4,7 +4,7 @@ module Customers
       @balance = AnnesLoyalty.balance_for(member: loyalty_member)
       @next_reward = AnnesLoyalty::LoyaltyReward.active
         .where(loyalty_program: loyalty_member.loyalty_program)
-        .where("required_points > ?", @balance.cached_balance)
+        .where("required_points > ?", @balance.available_points)
         .order(:required_points, :id)
         .first
       @affordable_rewards = AnnesLoyalty::LoyaltyReward.active

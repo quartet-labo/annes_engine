@@ -109,7 +109,15 @@ logic outside the engine.
 - `redeem_reward!` issues a raw token once and stores only its HMAC digest.
 - `confirm_redemption!` validates token status, expiry, location, and balance
   before writing the redeem ledger entry.
+- Spendable balance and point consumption exclude lots whose `expires_on` is
+  before the current date. Lots expiring today remain spendable.
+- `balance_for(member:).available_points` reports the lower of cached and
+  spendable lot balances. Use it for reward availability and customer displays.
 - `reverse!` adds a reverse ledger entry instead of mutating the original entry.
+  Earn entries record their point-lot ID and expiration date so reversal first
+  consumes the points from that earning. Older earn entries without this
+  metadata use their earning date and current program expiration policy to
+  prioritize lots with the matching expiration date.
 
 ## Demo App
 
