@@ -2,6 +2,8 @@
 
 ## 0.1.0
 
+- 回答者向け受付詳細では、追加質問がない場合に空の履歴見出しを表示しない。
+
 - Introduce an independent intake Engine with owned forms, versioned flows, branches and read-only value mappings.
 - Add authorized drafts, attachment retention, resume and atomic response finalization.
 - Provide standalone and combined installation checks and explicit portable schema import.

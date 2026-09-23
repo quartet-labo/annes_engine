@@ -22,7 +22,7 @@
   <% end %>
 <% else %><p>この入力は取り消されたか、有効期限を過ぎています。</p><% end %>
 
-<% if @follow_ups %><h2>追加質問・回答履歴</h2><ol>
+<% if @follow_ups.present? %><h2>追加質問・回答履歴</h2><ol>
 <% @follow_ups.each do |request| %><li>第<%= request.number %>回: <%= request.title %> — <%= follow_up_status(request) %>（期限: <%= intake_time(request.due_at) %>）
 <% if request.response_run %><% if request.answered_at %><span>回答日時: <%= intake_time(request.answered_at) %></span><% end %><%= link_to "質問・回答を開く", run_path(request.response_run) %><% end %>
 </li><% end %></ol><% end %>
