@@ -14,7 +14,9 @@ class MitLicenseComplianceTest < Minitest::Test
     "annes_auth" => "annes_auth.gemspec",
     "annes_access" => "annes_access.gemspec",
     "annes_admin" => "annes_admin.gemspec",
-    "annes_inquiry" => "annes_inquiry.gemspec"
+    "annes_inquiry" => "annes_inquiry.gemspec",
+    "annes_form_kit" => "annes_form_kit.gemspec",
+    "annes_intake" => "annes_intake.gemspec"
   }.freeze
   EXPECTED_LICENSE = <<~LICENSE
     Copyright (c) 2026 Quartet Labo LLC.

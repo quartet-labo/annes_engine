@@ -1,0 +1,8 @@
+<h1>プレビュー: <%= @version.title %></h1><p>回答と添付は保存されません。</p>
+<%= form_with url: preview_admin_flow_path(@flow, version_id: @version.id), local: true, multipart: true, html: {novalidate: true} do %>
+<% @steps.each do |step| %><section><h2><%= step.title %></h2>
+<% if @inputs.fetch(step.key).errors.any? %><div role="alert"><%= intake_error_messages(@inputs.fetch(step.key)).to_sentence %></div><% end %>
+<% mapped = step.value_mappings.includes(:target_field).map(&:target_field) %>
+<% mapped.each do |field| %><p><%= field.label %>（引継ぎ）: <%= Array(@inputs.fetch(step.key).raw_values[field.key]).join("、") %></p><% end %>
+<%= render "annes_intake/forms/fields", version: step.form_version, input: @inputs.fetch(step.key), scope: "answers[#{step.key}]", excluded_keys: mapped.map(&:key) %>
+</section><% end %><%= submit_tag "入力を確認" %><% end %>

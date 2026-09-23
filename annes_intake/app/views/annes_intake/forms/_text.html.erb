@@ -1,0 +1,4 @@
+<%= render "annes_form_kit/fields/text", field: AnnesIntake::Definitions::SchemaAdapter.field(field),
+  input: input, attributes: attributes, name: name, value: value,
+  option_ids: field.options.to_h { |option| [option.value, option.value] },
+  upload_selected: Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %>

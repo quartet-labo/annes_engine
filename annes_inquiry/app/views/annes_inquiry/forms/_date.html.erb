@@ -1,5 +1,4 @@
-<% if input.errors[field.key].any? %>
-  <%= text_field_tag name, value.is_a?(String) ? value : nil, **attributes %>
-<% else %>
-  <%= date_field_tag name, value.is_a?(String) ? value : nil, **attributes, min: field.min_date, max: field.max_date %>
-<% end %>
+<%= render "annes_form_kit/fields/date", field: AnnesInquiry::Definitions::SchemaAdapter.field(field),
+  input: input, attributes: attributes, name: name, value: value,
+  option_ids: field.options.to_h { |option| [option.value, option.id] },
+  upload_selected: Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %>

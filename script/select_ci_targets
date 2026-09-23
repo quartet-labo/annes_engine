@@ -38,6 +38,7 @@ if options[:github_output]
   File.open(options[:github_output], "a") do |output|
     output.puts "matrix=#{JSON.generate(selection.matrix)}"
     output.puts "has_tests=#{selection.has_tests?}"
+    output.puts "has_form_kit=#{selection.has_form_kit?}"
   end
 end
 

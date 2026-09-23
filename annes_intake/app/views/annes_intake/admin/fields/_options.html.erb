@@ -1,0 +1,17 @@
+<% unless @version.draft? %>
+  <ul><% @field.options.each do |option| %><li><%= option.label + " (" + option.value + ")" %></li><% end %></ul>
+<% else %>
+<h2>選択肢</h2>
+<% options = @field.options.to_a.select(&:persisted?) %>
+<% if @edited_option&.persisted? %><% options = options.map { |option| option.id == @edited_option.id ? @edited_option : option } %><% end %>
+<% options << (@edited_option&.new_record? ? @edited_option : @field.options.new) %>
+<% options.each do |option| %>
+  <% option.errors.full_messages.each do |message| %><p role="alert"><%= message %></p><% end %>
+  <%= form_with model: option, scope: :option, namespace: "option_#{option.id || 'new'}", url: option.persisted? ? update_option_admin_field_path(@field, child_id: option.id) : options_admin_field_path(@field), local: true do |f| %>
+    <%= hidden_field_tag :lock_version, @version.lock_version %>
+    <% { value: "選択値", label: "表示名", position: "順番" }.each do |key, label| %><p><%= f.label key, label %><%= f.text_field key %></p><% end %>
+    <%= f.submit option.persisted? ? "選択肢を更新" : "選択肢を追加" %>
+  <% end %>
+  <% if option.persisted? %><%= button_to "選択肢を削除", remove_option_admin_field_path(@field, child_id: option.id), method: :delete, params: { lock_version: @version.lock_version } %><% end %>
+<% end %>
+<% end %>

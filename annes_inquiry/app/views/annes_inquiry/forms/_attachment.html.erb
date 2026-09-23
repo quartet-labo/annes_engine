@@ -1,2 +1,4 @@
-<%= file_field_tag "#{name}[]", **attributes, multiple: true, accept: field.file_types.map(&:extension).join(",") %>
-<% if Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %><p class="inquiry-help">ファイルをもう一度選択してください。</p><% end %>
+<%= render "annes_form_kit/fields/attachment", field: AnnesInquiry::Definitions::SchemaAdapter.field(field),
+  input: input, attributes: attributes, name: name, value: value,
+  option_ids: field.options.to_h { |option| [option.value, option.id] },
+  upload_selected: Array(value).any? { |item| item.is_a?(ActionDispatch::Http::UploadedFile) } %>

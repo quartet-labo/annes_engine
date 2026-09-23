@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+require "bundler"
+require "tmpdir"
+require "rubygems/package"
+require "rbconfig"
+root = File.expand_path("..", __dir__)
+Bundler.with_unbundled_env do
+  Dir.mktmpdir("annes-form-kit-package-") do |directory|
+    gem_file = File.join(directory, "kit.gem")
+    abort "Form kit build failed" unless system("gem", "build", "annes_form_kit.gemspec", "--output", gem_file, chdir: File.join(root, "annes_form_kit"))
+    package = Gem::Package.new(gem_file)
+    path = File.join(directory, "package")
+    package.extract_files(path)
+    File.write(File.join(path, "annes_form_kit.gemspec"), package.spec.to_ruby)
+    File.write(File.join(directory, "Gemfile"), "source \"https://rubygems.org\"\ngem \"annes_form_kit\", path: #{path.inspect}\ngem \"minitest\"\n")
+    env = {"BUNDLE_GEMFILE" => File.join(directory, "Gemfile"), "BUNDLE_APP_CONFIG" => File.join(directory, "config"), "BUNDLE_PATH" => File.join(directory, "bundle"), "BUNDLE_FROZEN" => "false", "BUNDLE_DEPLOYMENT" => "false", "DATABASE_URL" => nil}
+    abort "Missing field templates" unless File.file?(File.join(path, "views/annes_form_kit/fields/_text.html.erb"))
+    abort "Library must not contain migrations" if package.spec.files.any? { |file| file.start_with?("db/") }
+    abort "Package install failed" unless system(env, "bundle", "install", chdir: directory)
+    abort "Package tests failed" unless system(env, "bundle", "exec", RbConfig.ruby, File.join(root, "annes_form_kit/test/contract_test.rb"), chdir: directory)
+  end
+end

@@ -1,0 +1,29 @@
+<h1><%= @run.submitted? ? "受付が完了しました" : @run.flow_version.title %></h1>
+<% if @run.submitted_at %><p>受付日時: <%= intake_time(@run.submitted_at) %></p><% end %>
+<p>受付番号: <%= @run.receipt_id %></p>
+<% if @run.submitted? %>
+  <% answers = AnnesIntake::Flows::AnswerReader.call(run: @run, context: @context) %>
+  <% @steps.each do |step| %><section><h2><%= step.step.title %></h2>
+    <% step.form_version.fields.each do |field| %><p><strong><%= field.label %></strong>: <%= flow_value(answers.dig(step.key, field.key), field: field) %></p><% end %>
+    <% if step.step_response %><% AnnesIntake::AnswerAttachment.where(answer_id: step.step_response.answers.select(:id)).each do |attachment| %>
+      <p><%= link_to attachment.file.filename.to_s, flow_attachment_path(@run, step_id: step.id, attachment_id: attachment.id, kind: "answer") %></p>
+    <% end %><% end %>
+  </section><% end %>
+<% elsif @run.in_progress? && !@run.effective_expired? %>
+  <p>有効期限: <%= intake_time(@run.expires_at) %></p>
+  <ol><% permitted = true %><% @steps.each do |step| %>
+    <li><% if permitted %><%= link_to step.step.title, step_path(@run, step_id: step.id) %><% else %><%= step.step.title %><% end %> — <%= step_status(step) %></li>
+    <% permitted &&= step.complete? %>
+  <% end %></ol>
+  <% if @steps.all?(&:complete?) %><p><%= link_to "全体の回答を確認", review_run_path(@run) %></p><% end %>
+  <%= button_to "入力を再開", resume_run_path(@run) %>
+  <% if token = flow_operation_token(@run, :cancel, @context) %>
+    <%= button_to "入力を取り消す", cancel_run_path(@run), params: {token: token} %>
+  <% end %>
+<% else %><p>この入力は取り消されたか、有効期限を過ぎています。</p><% end %>
+
+<% if @follow_ups.present? %><h2>追加質問・回答履歴</h2><ol>
+<% @follow_ups.each do |request| %><li>第<%= request.number %>回: <%= request.title %> — <%= follow_up_status(request) %>（期限: <%= intake_time(request.due_at) %>）
+<% if request.response_run %><% if request.answered_at %><span>回答日時: <%= intake_time(request.answered_at) %></span><% end %><%= link_to "質問・回答を開く", run_path(request.response_run) %><% end %>
+</li><% end %></ol><% end %>
+<% if @run.follow_up_request %><p>追加質問 第<%= @run.follow_up_request.number %>回</p><p><%= link_to "初回の受付・履歴", run_path(@run.follow_up_request.root_run) %></p><% end %>

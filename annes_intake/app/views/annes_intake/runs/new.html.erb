@@ -1,0 +1,4 @@
+<h1><%= @flow.name %></h1>
+<%= form_with url: start_flow_path(@flow.key), local: true do %>
+  <%= hidden_field_tag :request_key, @start_key %><%= submit_tag "入力を始める" %>
+<% end %>

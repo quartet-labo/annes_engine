@@ -13,7 +13,7 @@ Configure GitHub Packages credentials as described in the [repository README](ht
 
 ```ruby
 source "https://rubygems.pkg.github.com/quartet-labo" do
-  gem "annes_inquiry", "~> 0.1.0"
+  gem "annes_inquiry", "~> 0.2.0"
 end
 ```
 
@@ -137,7 +137,7 @@ Active Storageはホスト側でインストールしてください（dummyに�
 
 テキスト項目のNUL文字は正規化前に拒否し、アダプター補完値にも同じ検証を適用します。DBへ保存せず項目エラーを返し、受付サービスと標準公開POSTは422になります。通常の改行は許可します。
 
-添付はmultipartのUploadedFileだけを受け付けます。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
+添付はmultipartのUploadedFileだけを受け付けます。FormKitの`UploadSource`を直接渡した場合も、例外ではなく添付の検証エラーを返します。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
 
 ホストのcontrollerで `helper AnnesInquiry::FormHelper` を指定し、`annes_inquiry/forms/form` に `version`、`input`、`scope`、`submit_url` を渡すとフォームを表示できます。既存のform内では `annes_inquiry/forms/fields` を利用し、`excluded_keys` で認証済み補完項目などの表示を省略できます（必須検証は省略しません）。CSSは `stylesheet_link_tag "annes_inquiry/forms"` で読み込みます。ホストの同一パスのpartialを配置するとRails標準のview探索で差し替えられます。ラベル・説明・選択肢・入力値はエスケープして表示します。
 
@@ -194,3 +194,17 @@ Engineのrootと `/admin/forms` は定義一覧、`/admin/versions/:id` は版�
 ### 添付清掃の再試行
 
 期限を過ぎた未参照BlobのDB削除と同じトランザクションで `annes_inquiry_blob_deletions` に削除要求を保存し、commit後にストレージを削除します。ストレージ障害やプロセス中断で残った要求は次の清掃実行で再試行し、ファイルと画像派生物の削除に成功した場合だけ要求を削除します。削除要求はJSONBを使わず、キー・サービス名・画像フラグを保持します。
+
+## Portable definitions
+
+Input conversion, validation and field partials use the automatically installed
+[annes_form_kit](../annes_form_kit/README.md) library. No additional configuration,
+routes or migrations are needed. Inquiry remains a standalone form engine.
+
+A host can authorize a published `FormVersion` using its own administration and
+record-level policy, then call `AnnesInquiry::Definitions::ExportSchema.call(version:)`.
+The result is a versioned JSON definition containing labels, fields, choices and
+constraints only. The service itself is not an authorization boundary and exposes
+no HTTP endpoint. A consuming application must authorize imports separately.
+The copied definition is independent: source changes or disabling the source do
+not synchronize to a copy. Answers and attachments are never exported.

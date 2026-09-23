@@ -1,0 +1,29 @@
+<div class="flow-rules">
+<% step.condition_groups.each_with_index do |group, group_index| %>
+<p>条件グループ <%= group_index + 1 %>（グループ内すべて一致、グループ間はいずれか一致）</p>
+<ul><% group.conditions.includes(:source_step, :field).each do |condition| %><li><%= condition.source_step.title %> / <%= condition.field.label %> <%= condition.operator == "contains" ? "を含む" : "が一致" %>: <%= flow_value(condition.field.value_type == "boolean" ? condition.expected_value == "true" : condition.expected_value, field: condition.field) %></li><% end %></ul>
+<% if version.draft? %><%= button_to "条件グループを削除", edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, params: {lock_version: version.lock_version, rule_step_id: step.id, remove_group_id: group.id} %><% end %>
+<% end %>
+<% step.value_mappings.includes(:source_step, :source_field, :target_field).each do |mapping| %>
+<p>引継ぎ: <%= mapping.source_step.title %> / <%= mapping.source_field.label %> → <%= mapping.target_field.label %></p>
+<% if version.draft? %><%= button_to "引継ぎを削除", edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, params: {lock_version: version.lock_version, rule_step_id: step.id, remove_mapping_id: mapping.id} %><% end %>
+<% end %>
+<% sources = version.steps.select { |source| source.position < step.position } %>
+<% if version.draft? && sources.any? %>
+<details><summary>条件・引継ぎの設定: <%= step.title %></summary>
+<%= form_with url: edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, local: true, scope: :condition do |f| %>
+<%= hidden_field_tag :lock_version, version.lock_version %><%= hidden_field_tag :rule_step_id, step.id %>
+<p><%= label_tag "group_#{step.id}", "条件グループ" %><%= select_tag :group_id, options_for_select([["新規グループ（OR）", ""]] + step.condition_groups.each_with_index.map { |group, index| ["グループ #{index + 1} に追加（AND）", group.id] }), id: "group_#{step.id}" %></p>
+<p><%= f.label :source_step_id, "参照ステップ" %><%= f.select :source_step_id, sources.map { |source| [source.title, source.id] } %></p>
+<p><%= f.label :field_id, "参照項目" %><%= f.select :field_id, sources.flat_map { |source| source.form_version.fields.where(value_type: %w[boolean single_choice multiple_choice]).map { |field| ["#{source.title} / #{field.label}", field.id] } } %></p>
+<p><%= f.label :operator, "演算子" %><%= f.select :operator, [["等しい", "eq"], ["含む", "contains"]] %></p>
+<p><%= f.label :expected_value, "回答の選択肢" %><%= f.select :expected_value, sources.flat_map { |source| source.form_version.fields.select { |field| %w[boolean single_choice multiple_choice].include?(field.value_type) }.flat_map { |field| field.value_type == "boolean" ? [["#{source.title} / #{field.label}: はい", "true"], ["#{source.title} / #{field.label}: いいえ", "false"]] : field.options.map { |option| ["#{source.title} / #{field.label}: #{option.label}", option.value] } } } %></p>
+<%= f.submit "条件を追加" %><% end %>
+<%= form_with url: edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, local: true, scope: :mapping do |f| %>
+<%= hidden_field_tag :lock_version, version.lock_version %><%= hidden_field_tag :rule_step_id, step.id %>
+<p><%= f.label :source_step_id, "引継ぎ元ステップ" %><%= f.select :source_step_id, sources.map { |source| [source.title, source.id] } %></p>
+<p><%= f.label :source_field_id, "引継ぎ元項目" %><%= f.select :source_field_id, sources.flat_map { |source| source.form_version.fields.where.not(value_type: "attachment").map { |field| ["#{source.title} / #{field.label}", field.id] } } %></p>
+<p><%= f.label :target_field_id, "引継ぎ先項目" %><%= f.select :target_field_id, step.form_version.fields.where.not(value_type: "attachment").map { |field| [field.label, field.id] } %></p>
+<%= f.submit "引継ぎを追加" %><% end %>
+</details><% end %>
+</div>

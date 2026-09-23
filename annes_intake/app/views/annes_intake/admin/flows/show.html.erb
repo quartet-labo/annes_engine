@@ -1,0 +1,36 @@
+<h1><%= @flow.name %></h1>
+<% unless @flow.follow_up_request %>
+<details><summary>連携設定</summary><p>受付キー: <code><%= @flow.key %></code></p></details>
+<p><%= link_to "進行・受付一覧", admin_runs_path(flow_id: @flow.id) %></p>
+<% end %>
+<% if !@flow.follow_up_request || @flow.follow_up_request.draft? %>
+<%= form_with url: admin_flow_path(@flow), method: :patch, scope: :flow, local: true do |f| %>
+<%= hidden_field_tag :lock_version, @flow.lock_version %>
+<p><%= f.label :name, "名前" %><%= f.text_field :name, value: @flow.name %></p>
+<p><%= f.check_box :enabled, checked: @flow.enabled? %><%= f.label :enabled, "受付を有効にする" %></p><%= f.submit "設定を保存" %><% end %>
+<% end %>
+<% @definition_policy.scope(@flow.versions).order(number: :desc).each do |version| %><section>
+<% authorize_definition_contents!(version) %>
+<h2>版 <%= version.number %>: <%= version.title %> (<%= version_status(version) %>)</h2>
+<p><%= link_to "プレビュー", preview_admin_flow_path(@flow, version_id: version.id) %></p>
+<ol><% version.steps.each do |step| %><li><%= step.title %> / <%= step.form_version.title %>
+<% if version.draft? %>
+<%= form_with url: edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, local: true, scope: :step do |f| %>
+<%= hidden_field_tag :lock_version, version.lock_version %><%= hidden_field_tag :step_id, step.id %>
+<%= f.label :title, "タイトル", for: "step_#{step.id}_title" %><%= f.text_field :title, value: step.title, id: "step_#{step.id}_title" %>
+<%= f.label :position, "順番", for: "step_#{step.id}_position" %><%= f.number_field :position, value: step.position, id: "step_#{step.id}_position" %><%= f.submit "ステップを更新" %><% end %>
+<%= button_to "ステップを削除", edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, params: {lock_version: version.lock_version, remove_step_id: step.id} %>
+<% end %>
+<%= render "rules", version: version, step: step %>
+</li><% end %></ol>
+<% if version.draft? %>
+<%= form_with url: edit_version_admin_flow_path(@flow, version_id: version.id), method: :patch, local: true, scope: :step do |f| %>
+<%= hidden_field_tag :lock_version, version.lock_version %>
+<details><summary>詳細設定</summary><p><%= f.label :key, "ステップキー" %><%= f.text_field :key %></p></details>
+<p><%= f.label :title, "ステップ名" %><%= f.text_field :title, required: true %></p>
+<p><%= f.label :position, "順番" %><%= f.number_field :position, value: (version.steps.maximum(:position) || -1) + 1 %></p>
+<p><%= f.label :form_version_id, "質問テンプレート" %><%= f.select :form_version_id, @definition_policy.scope(@flow.follow_up_request ? AnnesIntake::FormVersion.where(status: %w[draft published]) : AnnesIntake::FormVersion.published).includes(:form).map { |v| ["#{v.form.name} / #{v.number}", v.id] } %></p>
+<%= f.submit "ステップを追加" %><% end %>
+<% unless @flow.follow_up_request %><%= button_to "公開する", publish_admin_flow_path(@flow, version_id: version.id), params: {lock_version: version.lock_version} %><% end %>
+<% elsif !@flow.follow_up_request && !@flow.versions.draft.exists? %><%= button_to "次の下書きを作る", duplicate_admin_flow_path(@flow, version_id: version.id) %><% end %>
+</section><% end %>

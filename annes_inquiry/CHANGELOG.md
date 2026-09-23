@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0
+
+- Reject shared UploadSource objects at the Inquiry attachment boundary with a validation error instead of raising KeyError.
+
+- Extract database-free input validation, schemas and field rendering into `annes_form_kit`.
+- Preserve standalone routes, database migrations, adapters, tokens and view overrides.
+- Add `Definitions::ExportSchema.call(version:)` for portable published form definitions.
+
 ## 0.1.1
 
 - Upload attachments only after the locked submission replay and publication

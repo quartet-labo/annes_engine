@@ -90,12 +90,12 @@ class PrepareGemReleaseTest < Minitest::Test
     Dir.mktmpdir do |directory|
       notes_file = Pathname(directory).join("notes.md")
       stdout, stderr, status = run_script(
-        "--gem", "annes_inquiry", "--version", "0.1.1", "--notes-file", notes_file.to_s
+        "--gem", "annes_inquiry", "--version", "0.2.0", "--notes-file", notes_file.to_s
       )
       assert status.success?, "#{stdout}\n#{stderr}"
       assert_includes stdout, "path=annes_inquiry\n"
-      assert_includes stdout, "tag_name=annes_inquiry-v0.1.1\n"
-      assert_includes notes_file.read, "Upload attachments only after"
+      assert_includes stdout, "tag_name=annes_inquiry-v0.2.0\n"
+      assert_includes notes_file.read, "Extract database-free input validation"
       refute_includes notes_file.read, "Extract the inquiry engine"
     end
   end
@@ -111,6 +111,15 @@ class PrepareGemReleaseTest < Minitest::Test
       assert_includes stdout, "tag_name=annes_loyalty-v1.0.1\n"
       assert_includes notes_file.read, "Exclude expired point lots"
       refute_includes notes_file.read, "Rename the gem"
+    end
+  end
+
+  def test_prepares_intake_initial_release
+    Dir.mktmpdir do |directory|
+      notes = Pathname(directory).join("notes.md")
+      stdout, stderr, status = run_script("--gem", "annes_intake", "--version", "0.1.0", "--notes-file", notes.to_s)
+      assert status.success?, "#{stdout} #{stderr}"
+      assert_includes notes.read, "independent intake Engine"
     end
   end
 

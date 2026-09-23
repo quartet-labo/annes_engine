@@ -19,6 +19,8 @@ by Quartet Labo LLC. guide the project roadmap.
 - [`annes_access`](annes_access/README.md) - lightweight role-based authorization
 - [`annes_admin`](annes_admin/README.md) - configurable administration screens for host models
 - [`annes_audit`](annes_audit/README.md) - durable audit event persistence and notification mapping
+- [`annes_form_kit`](annes_form_kit/README.md) - database-free form schemas, input validation and field rendering
+- [`annes_intake`](annes_intake/README.md) - independent multi-step intake, branches, resumable drafts and atomic responses
 - [`annes_inquiry`](annes_inquiry/README.md) - versioned inquiry forms, typed answers, attachments, administration, and host adapters
 - [`annes_loyalty`](annes_loyalty/README.md) - reusable loyalty points, rewards, ledger, and redemption token workflows
 - [`examples/customer_management`](examples/customer_management/README.md) - sample Rails host app integrating all three engines
@@ -67,7 +69,7 @@ source "https://rubygems.pkg.github.com/quartet-labo" do
   gem "annes_access", "~> 1.0"
   gem "annes_audit", "~> 1.0"
   gem "annes_loyalty", "~> 1.0"
-  gem "annes_inquiry", "~> 0.1.0"
+  gem "annes_inquiry", "~> 0.2.0"
 end
 ```
 
@@ -144,7 +146,7 @@ target gem's `UPGRADING.md` instead of leaving the guide ambiguous.
 
 To publish, run the `Publish Gems` workflow manually through its
 `workflow_dispatch` trigger. Select the main ref (`main`), set `gem` to one of
-`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, `annes_loyalty`, or `annes_inquiry`, and
+`annes_auth`, `annes_admin`, `annes_access`, `annes_audit`, `annes_loyalty`, `annes_inquiry`, `annes_form_kit`, or `annes_intake`, and
 set `version` to the exact gemspec version you intend to publish.
 
 Use one workflow run per gem. For releases that bump multiple engines together,
