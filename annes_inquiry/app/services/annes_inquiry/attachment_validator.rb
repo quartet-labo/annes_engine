@@ -2,9 +2,12 @@ module AnnesInquiry
   class AttachmentValidator
     Upload = Data.define(:upload, :checksum, :byte_size, :filename, :content_type)
     def self.call(field, files, errors)
+      unless files.all? { |file| file.is_a?(ActionDispatch::Http::UploadedFile) }
+        errors.add(field.key, "はファイルを選択してください")
+        return []
+      end
       originals = {}
       sources = files.map do |file|
-        next file unless file.is_a?(ActionDispatch::Http::UploadedFile)
         source = AnnesFormKit::UploadSource.new(io: -> { file.tempfile }, filename: file.original_filename)
         originals[source.object_id] = file
         source

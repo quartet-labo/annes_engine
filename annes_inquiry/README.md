@@ -137,7 +137,7 @@ Active Storageはホスト側でインストールしてください（dummyに�
 
 テキスト項目のNUL文字は正規化前に拒否し、アダプター補完値にも同じ検証を適用します。DBへ保存せず項目エラーを返し、受付サービスと標準公開POSTは422になります。通常の改行は許可します。
 
-添付はmultipartのUploadedFileだけを受け付けます。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
+添付はmultipartのUploadedFileだけを受け付けます。FormKitの`UploadSource`を直接渡した場合も、例外ではなく添付の検証エラーを返します。件数がmax_filesを超える場合は件数エラーを返し、各ファイルのMIME判定・テキスト検査・チェックサム計算を行いません。選択数・許可拡張子・内容から判定したMIME（互換性のある形式はファイル名でCSV・Office等へ細分化）・ファイルの実サイズを検証し、内容のSHA-256を計算します。検証だけではblobも受付も保存しません。
 
 ホストのcontrollerで `helper AnnesInquiry::FormHelper` を指定し、`annes_inquiry/forms/form` に `version`、`input`、`scope`、`submit_url` を渡すとフォームを表示できます。既存のform内では `annes_inquiry/forms/fields` を利用し、`excluded_keys` で認証済み補完項目などの表示を省略できます（必須検証は省略しません）。CSSは `stylesheet_link_tag "annes_inquiry/forms"` で読み込みます。ホストの同一パスのpartialを配置するとRails標準のview探索で差し替えられます。ラベル・説明・選択肢・入力値はエスケープして表示します。
 
