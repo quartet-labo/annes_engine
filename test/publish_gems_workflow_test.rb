@@ -57,7 +57,9 @@ class PublishGemsWorkflowTest < Minitest::Test
   end
 
   def test_checkout_uses_node_24_compatible_action
-    assert_equal "actions/checkout@v7", workflow_step("Checkout").fetch("uses")
+    checkout = workflow_step("Checkout").fetch("uses")
+    assert_match %r{\Aactions/checkout@[0-9a-f]{40}\z}, checkout
+    assert_match /uses: #{Regexp.escape(checkout)} # v7\.\d+\.\d+\s*$/, workflow_source
   end
 
   def test_publish_job_checks_remote_tag_before_publishing

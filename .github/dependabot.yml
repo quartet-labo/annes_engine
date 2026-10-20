@@ -1,0 +1,23 @@
+version: 2
+
+updates:
+  - package-ecosystem: bundler
+    directories:
+      - /annes_access
+      - /annes_admin
+      - /annes_audit
+      - /annes_auth
+      - /annes_form_kit
+      - /annes_inquiry
+      - /annes_intake
+      - /annes_loyalty
+      - /examples/customer_management
+      - /examples/resavation_management
+      - /examples/restaurant_loyalty
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
