@@ -30,6 +30,9 @@ jobs:
       - name: Verify public project policies
         run: ruby test/public_project_policy_test.rb
 
+      - name: Check dummy log hygiene
+        run: ruby test/dummy_log_hygiene_test.rb
+
       - name: Test package release contracts
         run: |
           ruby test/prepare_gem_release_test.rb
