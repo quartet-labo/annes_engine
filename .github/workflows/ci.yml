@@ -241,7 +241,7 @@ jobs:
 
       - name: Keep intake screenshots
         if: failure() && matrix.module == 'annes_intake'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: screenshots-intake-tests
           path: annes_intake/test/dummy/tmp/screenshots
@@ -267,7 +267,7 @@ jobs:
 
       - name: Keep inquiry screenshots
         if: failure() && matrix.module == 'annes_inquiry'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: screenshots-inquiry-tests
           path: annes_inquiry/test/dummy/tmp/screenshots
@@ -275,7 +275,7 @@ jobs:
 
       - name: Upload inquiry coverage
         if: matrix.module == 'annes_inquiry'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-inquiry-tests
           path: annes_inquiry/coverage
