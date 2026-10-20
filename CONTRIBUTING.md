@@ -20,6 +20,16 @@ Do not include vulnerability details in a public issue. Follow the
 [security policy](SECURITY.md) and use the private reporting channel described
 there.
 
+## Generated Test Logs
+
+Keep generated files under `annes_*/test/dummy/log/` out of Git; only `.keep`
+placeholders belong there. Preserve each dummy application's ignore rules when
+moving or renaming it. Run `ruby test/dummy_log_hygiene_test.rb` before committing
+test infrastructure changes. CI checks the tracked paths as well as the audit
+and loyalty dummy apps' ignore rules, so force-added logs are detected too.
+If a log may contain sensitive information, use the private security reporting
+channel rather than posting its contents in an issue or pull request.
+
 This policy may be revised before external code contributions are accepted. A
 future contribution process may require a Developer Certificate of Origin or a
 Contributor License Agreement.
