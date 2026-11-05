@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Raise the minimum Rails version to 8.1.4.1 for the Rails security update.
+
 ## 1.0.0
 
 - Rename the published gem from `anne_audit` to `annes_audit` and the public

@@ -1,5 +1,10 @@
 # Upgrading AnnesLoyalty
 
+## Unreleased
+
+Update the host application to Rails 8.1.4.1 or later within the 8.1 series
+before upgrading this gem.
+
 AnnesLoyalty is in initial development.
 
 ## 1.0.0 -> 1.0.1

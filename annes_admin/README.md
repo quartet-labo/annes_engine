@@ -7,7 +7,7 @@ The engine does not own application domain models. Host applications register re
 ## Requirements
 
 - Ruby 3.4 or newer
-- Rails 8.1
+- Rails 8.1.4.1 or later in the 8.1 series
 
 ## Documentation
 

@@ -27,6 +27,8 @@ forwarding, tamper-proof storage, or analytics dashboards.
 
 ## Installation
 
+Use Rails 8.1.4.1 or later in the 8.1 series.
+
 Add the gem to the host application.
 
 ```ruby

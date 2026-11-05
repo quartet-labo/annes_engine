@@ -4,7 +4,7 @@
 
 ## Installation
 
-Ruby 3.4.9、Rails 8.1.3.1以降の8.1系列、PostgreSQLを使用します。`annes_form_kit ~> 0.1.0`を依存解決します。Inquiryは不要です。
+Ruby 3.4.9、Rails 8.1.4.1以降の8.1系列、PostgreSQLを使用します。`annes_form_kit ~> 0.1.0`を依存解決します。Inquiryは不要です。
 
 ```ruby
 # Gemfile — GitHub Packagesの認証設定はリポジトリREADMEを参照

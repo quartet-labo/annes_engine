@@ -1,5 +1,9 @@
 # Upgrading AnnesIntake
 
+## Unreleased
+
+更新前にホストアプリを Rails 8.1.4.1 以降の 8.1 系列へ更新してください。
+
 ## 0.1.0
 
 初回導入です。FormKit 0.1.0を先に公開してからIntakeをPublish Gemsで公開してください。タグの手動pushは不要です。

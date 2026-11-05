@@ -12,7 +12,7 @@ This engine is developed in the `quartet-labo/annes_engine` monorepo under
 ## Requirements
 
 - Ruby 3.4 or newer
-- Rails 8.1
+- Rails 8.1.4.1 or later in the 8.1 series
 - JSON gem below 3.0 (enforced by the gem's runtime dependencies). JSON 3.0's
   keyword-only parsing options are incompatible with the Rails 8.1 JSON decoder.
 

@@ -16,9 +16,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir.chdir(__dir__) do
     Dir["{lib,views}/**/*", "README.md", "CHANGELOG.md", "UPGRADING.md", "MIT-LICENSE"].select { |path| File.file?(path) }
   end
-  spec.add_dependency "activesupport", "~> 8.1.3", ">= 8.1.3.1"
-  spec.add_dependency "activemodel", "~> 8.1.3", ">= 8.1.3.1"
-  spec.add_dependency "actionview", "~> 8.1.3", ">= 8.1.3.1"
+  spec.add_dependency "activesupport", "~> 8.1.4", ">= 8.1.4.1"
+  spec.add_dependency "activemodel", "~> 8.1.4", ">= 8.1.4.1"
+  spec.add_dependency "actionview", "~> 8.1.4", ">= 8.1.4.1"
   spec.add_dependency "marcel", "~> 1.0"
   spec.add_dependency "json", "< 3"
 end

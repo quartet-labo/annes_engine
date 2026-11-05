@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Raise the minimum Rails version to 8.1.4.1 for the Rails security update.
+
 ## 0.2.0
 
 - Reject shared UploadSource objects at the Inquiry attachment boundary with a validation error instead of raising KeyError.

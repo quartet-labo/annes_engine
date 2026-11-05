@@ -1,5 +1,10 @@
 # AnnesAudit Upgrade Guide
 
+## Unreleased
+
+Update the host application to Rails 8.1.4.1 or later within the 8.1 series
+before upgrading this gem.
+
 ## 0.1.x -> 1.0.0
 
 This is a breaking package and namespace migration.

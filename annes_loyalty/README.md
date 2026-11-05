@@ -7,7 +7,7 @@ The engine owns point consistency: programs, locations, members, append-only led
 ## Requirements
 
 - Ruby 3.4 or newer
-- Rails 8.1
+- Rails 8.1.4.1 or later in the 8.1 series
 - PostgreSQL
 
 ## Local Development
