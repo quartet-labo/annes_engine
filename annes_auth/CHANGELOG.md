@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Raise the minimum Rails version to 8.1.4.1 for the Rails security update.
+
 ## 1.0.2
 
 - Reject Google sign-in for existing accounts whose email has not been verified,

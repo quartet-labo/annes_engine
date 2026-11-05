@@ -1,5 +1,10 @@
 # AnnesAuth Upgrade Guide
 
+## Unreleased
+
+Update the host application to Rails 8.1.4.1 or later within the 8.1 series
+before upgrading this gem.
+
 This guide lists manual steps required when upgrading AnnesAuth in a host
 application. Use `CHANGELOG.md` for the full list of code changes; use this file
 for actions the host app must perform.

@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     Dir["{app,config,db,docs,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end
 
-  spec.add_dependency "rails", ">= 8.1.0", "< 8.2"
+  spec.add_dependency "rails", ">= 8.1.4.1", "< 8.2"
   # Rails 8.1's JSON decoder passes options as a positional hash.
   spec.add_dependency "json", "< 3"
   spec.add_dependency "bcrypt", "~> 3.1.7"

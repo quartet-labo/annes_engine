@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
     Dir["{app,config,db,docs,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end
 
-  spec.add_dependency "rails", ">= 8.1.0", "< 8.2"
+  spec.add_dependency "rails", ">= 8.1.4.1", "< 8.2"
 
   spec.add_development_dependency "pg", "~> 1.1"
 end

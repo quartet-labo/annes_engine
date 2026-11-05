@@ -1,5 +1,10 @@
 # Upgrading AnnesInquiry
 
+## Unreleased
+
+Update the host application to Rails 8.1.4.1 or later within the 8.1 series
+before upgrading this gem.
+
 ## 0.2.0
 
 Update the gem requirement to `~> 0.2.0` and run Bundler. The new dependency

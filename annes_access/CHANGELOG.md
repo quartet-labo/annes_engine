@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Raise the minimum Rails version to 8.1.4.1 for the Rails security update.
+
 ## 1.0.0
 
 - Rename the gem from `anne_access` to `annes_access` and the Ruby namespace from `AnneAccess` to `AnnesAccess`.

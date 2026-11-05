@@ -41,6 +41,8 @@ Import/export do not authorize records; the consuming application must do so.
 
 ## Development and publishing
 
+Action View, Active Model, and Active Support require 8.1.4.1 or later in the 8.1 series.
+
 Use Ruby 3.4.9: `bundle install` then `bundle exec rake test`. No database is needed.
 From the repository root run `ruby script/check_form_kit_package` to test the built
 package. Publish through **Publish Gems** before publishing dependent engines.

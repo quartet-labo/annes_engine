@@ -6,7 +6,7 @@ It has no dependency on other Annes engines or host domain models.
 
 ## Installation
 
-Use Ruby 3.4 or later, Rails 8.1.3.1 or later in the 8.1 series, and PostgreSQL.
+Use Ruby 3.4 or later, Rails 8.1.4.1 or later in the 8.1 series, and PostgreSQL.
 The gem constrains JSON to versions below 3 because Rails 8.1's JSON decoder
 passes options in a form that JSON 3 no longer accepts.
 Configure GitHub Packages credentials as described in the [repository README](https://github.com/quartet-labo/annes_engine#installation).
