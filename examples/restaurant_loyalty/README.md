@@ -12,7 +12,7 @@
 
 ## Requirements
 
-- Ruby 3.4.9
+- Ruby 3.4.13
 - Rails 8.1.x
 - PostgreSQL 16以降
 - repository内の`annes_auth`、`annes_access`、`annes_admin`、`annes_loyalty`

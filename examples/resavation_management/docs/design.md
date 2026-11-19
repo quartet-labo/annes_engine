@@ -37,7 +37,7 @@ flowchart LR
 
 ## 2. 技術構成
 
-- Ruby 3.4.9
+- Ruby 3.4.13
 - Rails 8.1.x
 - PostgreSQL
 - Minitest
