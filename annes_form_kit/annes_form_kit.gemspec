@@ -20,5 +20,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activemodel", "~> 8.1.4", ">= 8.1.4.1"
   spec.add_dependency "actionview", "~> 8.1.4", ">= 8.1.4.1"
   spec.add_dependency "marcel", "~> 1.0"
-  spec.add_dependency "json", "< 3"
+  spec.add_dependency "json", "< 4"
 end
