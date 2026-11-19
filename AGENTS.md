@@ -34,7 +34,7 @@ shared foundation for Quartet Labo LLC. semi-custom web application projects.
 
 ## Validation
 
-Use Ruby 3.4.9, matching CI.
+Use Ruby 3.4.13, matching CI.
 
 - Engine tests:
   - `cd annes_auth && bundle exec rake test`

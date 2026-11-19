@@ -32,7 +32,7 @@ See [UPGRADING.md](UPGRADING.md) when replacing the former local Engine.
 
 ## Development
 
-Use Ruby 3.4.9, matching CI. From `annes_inquiry/`:
+Use Ruby 3.4.13, matching CI. From `annes_inquiry/`:
 
 ```sh
 bundle install
